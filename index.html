@@ -142,13 +142,14 @@ header.top .sub{font-size:12px;color:var(--tx2);font-weight:400;display:block}
 .body-map-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
 .body-map{width:100%;max-width:230px;height:auto}
 .body-map.lg{max-width:320px}
-.mgroup{fill:var(--s3);stroke:var(--line2);stroke-width:1.5;cursor:pointer;transition:fill .15s,stroke .15s}
-.mgroup:hover{fill:var(--line2)}
-.mgroup.sel{stroke:var(--tx);stroke-width:2.5}
-.mgroup.ok{fill:var(--blue)}
-.mgroup.warn{fill:var(--violet)}
-.mgroup.bad{fill:var(--lime)}
-.body-outline{fill:none;stroke:var(--line2);stroke-width:1.5}
+.mgroup{fill:url(#muscleGrad);stroke:var(--line2);stroke-width:1.25;cursor:pointer;transition:filter .15s,stroke .15s}
+.mgroup:hover{filter:brightness(1.22)}
+.mgroup.sel{stroke:var(--tx);stroke-width:2.25;filter:brightness(1.15)}
+.mgroup.ok{fill:var(--blue)!important}
+.mgroup.warn{fill:var(--violet)!important}
+.mgroup.bad{fill:var(--lime)!important}
+.body-outline{fill:url(#skinGrad);stroke:var(--line2);stroke-width:1.1}
+.fiber-line{stroke:var(--bg);stroke-width:.7;fill:none;opacity:.35;pointer-events:none}
 .body-toggle{display:flex;gap:6px}
 
 /* Client card */
@@ -709,6 +710,24 @@ const BODY_OUTLINE=[
  // right leg (mirror)
  'M164,212 L122,212 C124,228 128,245 126,262 C124,280 120,296 122,312 C124,326 130,336 132,350 C134,366 132,386 130,402 C129,416 128,426 127,432 C132,438 156,438 160,432 C161,426 162,416 163,402 C165,386 167,366 165,350 C163,336 157,326 155,312 C153,296 155,280 157,262 C159,245 162,228 164,212 Z'
 ];
+/* Decorative fiber/definition lines layered over muscles for anatomical texture (non-interactive) */
+const FIBER_LINES={
+ front:[
+  'M85,95 Q100,100 112,108','M82,110 Q96,116 108,122', // chest L
+  'M155,95 Q140,100 128,108','M158,110 Q144,116 132,122', // chest R
+  'M42,108 Q40,122 44,140', // bicep L
+  'M198,108 Q200,122 196,140', // bicep R
+  'M85,232 Q82,260 84,290','M96,232 Q94,260 96,290', // quad L
+  'M155,232 Q158,260 156,290','M144,232 Q146,260 144,290' // quad R
+ ],
+ back:[
+  'M100,70 Q110,80 120,86','M140,70 Q130,80 120,86', // traps
+  'M90,110 Q80,135 88,160','M94,120 Q86,142 92,165', // lat L
+  'M150,110 Q160,135 152,160','M146,120 Q154,142 148,165', // lat R
+  'M82,290 Q80,312 82,335','M90,290 Q88,312 90,335', // hamstring L
+  'M158,290 Q160,312 158,335','M150,290 Q152,312 150,335' // hamstring R
+ ]
+};
 const BODY_SHAPES={
  front:[
   {m:'shoulders',id:'f-delt-l',d:'M46,72 C38,76 32,86 32,98 C32,108 38,114 46,114 C54,114 60,106 60,94 C60,82 54,74 46,72 Z'},
@@ -745,6 +764,17 @@ const BODY_SHAPES={
  ]
 };
 const svgAttrs=a=>Object.entries(a).map(([k,v])=>`${k}="${v}"`).join(' ');
+const BODY_DEFS=`<defs>
+ <radialGradient id="skinGrad" cx="35%" cy="22%" r="85%">
+  <stop offset="0%" style="stop-color:var(--s2)"/>
+  <stop offset="100%" style="stop-color:var(--s3)"/>
+ </radialGradient>
+ <radialGradient id="muscleGrad" cx="32%" cy="26%" r="90%">
+  <stop offset="0%" style="stop-color:var(--tx3)"/>
+  <stop offset="55%" style="stop-color:var(--line2)"/>
+  <stop offset="100%" style="stop-color:var(--s3)"/>
+ </radialGradient>
+</defs>`;
 function bodyMapSvg(view,dataFn,selectedId,size){
  const shapes=BODY_SHAPES[view]||BODY_SHAPES.front;
  const body=BODY_OUTLINE.map(d=>`<path d="${d}" class="body-outline"/>`).join('');
@@ -754,7 +784,8 @@ function bodyMapSvg(view,dataFn,selectedId,size){
   const mus=muscleOf(s.m);
   return `<path d="${s.d}" class="${cls}" data-m="${s.m}" onclick="pickMuscle('${s.m}')"><title>${mus?mus.ar:s.m}</title></path>`;
  }).join('');
- return `<svg viewBox="0 0 240 480" class="body-map${size==='lg'?' lg':''}" xmlns="http://www.w3.org/2000/svg">${body}${groups}</svg>`;
+ const fibers=(FIBER_LINES[view]||[]).map(d=>`<path d="${d}" class="fiber-line"/>`).join('');
+ return `<svg viewBox="0 0 240 480" class="body-map${size==='lg'?' lg':''}" xmlns="http://www.w3.org/2000/svg">${BODY_DEFS}${body}${groups}${fibers}</svg>`;
 }
 
 /* ============ DASHBOARD ============ */
@@ -1467,6 +1498,14 @@ function muscleDetailCard(id){
  const m=muscleOf(id);if(!m)return'';
  const listEx=ids=>ids.map(exerciseOf).filter(Boolean).map(e=>`<div class="li"><div class="t">${esc(e.ar)}</div><div class="d">${esc(e.equip)} · ${esc(e.level)}</div></div>`).join('')||'<div class="tiny">لا يوجد</div>';
  const antAr=m.antagonist?esc((muscleOf(m.antagonist)||{}).ar||m.antagonist):'—';
+ const allEx=[...m.compound,...m.isolation].map(exerciseOf).filter(Boolean);
+ const byEquip={};
+ allEx.forEach(e=>{(byEquip[e.equip]=byEquip[e.equip]||[]).push(e)});
+ const equipHtml=Object.entries(byEquip).map(([eq,exs])=>`
+  <div class="li">
+   <div class="t" style="margin-bottom:7px">🛠️ ${esc(eq)}</div>
+   <div class="row" style="gap:6px;flex-wrap:wrap">${exs.map(e=>`<span class="tag ${e.type==='compound'?'vio':'info'}">${esc(e.ar)}</span>`).join('')}</div>
+  </div>`).join('')||'<div class="tiny">لا يوجد</div>';
  return `<div class="card">
   <h2 style="font-size:18px">${esc(m.ar)}</h2>
   <p class="muted" style="margin-top:6px">${esc(m.fn)}</p>
@@ -1474,6 +1513,8 @@ function muscleDetailCard(id){
    <div class="kpi"><div class="l">العضلة المضادة</div><div class="v" style="font-size:15px">${antAr}</div></div>
    <div class="kpi"><div class="l">وقت التعافي</div><div class="v" style="font-size:15px">${m.recovery} ساعة</div></div>
   </div>
+  <div class="sec-h"><h2>🛠️ التدريب حسب الجهاز</h2></div>
+  <div class="list">${equipHtml}</div>
   <div class="sec-h"><h2>🏋️ تمارين مركّبة</h2></div>
   <div class="list">${listEx(m.compound)}</div>
   <div class="sec-h"><h2>🎯 تمارين عزل</h2></div>
