@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0C0E0A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Coach OS — إدارة التدريب الشخصي</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0C0E0A; --s1:#13160F; --s2:#1B1F16; --s3:#232819;
+  --line:#2A2F22; --line2:#39402E;
+  --tx:#EDF0E4; --tx2:#A9B19B; --tx3:#6E7562;
+  --lime:#C8F04A; --lime-d:#9EC432; --lime-bg:rgba(200,240,74,.12);
+  --violet:#A08CFF; --violet-bg:rgba(160,140,255,.12);
+  --blue:#5EC8F2; --blue-bg:rgba(94,200,242,.12);
+  --orange:#FF8A4C; --orange-bg:rgba(255,138,76,.14);
+  --red:#FF5C5C; --red-bg:rgba(255,92,92,.14);
+  --r:14px; --r-sm:10px;
+  --shadow:0 8px 24px rgba(0,0,0,.45);
+  --font-d:'Alexandria',sans-serif; --font-b:'IBM Plex Sans Arabic',sans-serif;
+}
+[data-theme="light"]{
+  --bg:#F2F4EC; --s1:#FFFFFF; --s2:#F7F9F0; --s3:#EDF1E2;
+  --line:#DDE2CF; --line2:#C9D0B5;
+  --tx:#1C2015; --tx2:#5A6250; --tx3:#8B937D;
+  --lime:#7A9E1E; --lime-d:#5F7D14; --lime-bg:rgba(122,158,30,.13);
+  --shadow:0 8px 20px rgba(40,50,20,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:var(--font-b);font-size:15px;line-height:1.55;min-height:100dvh;overscroll-behavior-y:contain}
+h1,h2,h3,h4,.disp{font-family:var(--font-d)}
+.num{font-variant-numeric:tabular-nums;letter-spacing:.02em}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:15px;color:var(--tx);background:var(--s2);border:1px solid var(--line);border-radius:var(--r-sm);padding:11px 12px;width:100%;outline:none;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--lime)}
+input[type=date],input[type=time]{color-scheme:dark}
+[data-theme="light"] input[type=date],[data-theme="light"] input[type=time]{color-scheme:light}
+::placeholder{color:var(--tx3)}
+:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ===== Layout ===== */
+#app{display:flex;min-height:100dvh}
+#sidebar{display:none}
+main{flex:1;min-width:0;padding:0 16px calc(96px + env(safe-area-inset-bottom));max-width:1180px;margin:0 auto;width:100%}
+header.top{position:sticky;top:0;z-index:40;background:linear-gradient(var(--bg) 75%,transparent);padding:14px 0 10px;display:flex;align-items:center;gap:10px}
+header.top h1{font-size:20px;font-weight:700;flex:1}
+header.top .sub{font-size:12px;color:var(--tx2);font-weight:400;display:block}
+.icon-btn{width:40px;height:40px;border-radius:12px;background:var(--s2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.icon-btn:active{transform:scale(.94)}
+.badge-dot{position:relative}
+.badge-dot[data-n]:not([data-n="0"])::after{content:attr(data-n);position:absolute;top:-5px;left:-5px;background:var(--orange);color:#1a1005;font-size:10px;font-weight:700;min-width:17px;height:17px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+
+/* Bottom nav (mobile) */
+#bnav{position:fixed;bottom:0;right:0;left:0;z-index:50;background:color-mix(in srgb,var(--s1) 92%,transparent);backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+#bnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;color:var(--tx3);font-size:10.5px;font-weight:600;text-decoration:none;border-radius:10px}
+#bnav a .ic{font-size:20px;line-height:1}
+#bnav a.on{color:var(--lime)}
+#fab{position:fixed;bottom:calc(76px + env(safe-area-inset-bottom));left:18px;z-index:50;width:58px;height:58px;border-radius:19px;background:var(--lime);color:#141a05;font-size:27px;font-weight:700;box-shadow:0 8px 22px rgba(200,240,74,.35);display:flex;align-items:center;justify-content:center;transition:transform .15s}
+#fab:active{transform:scale(.92)}
+
+/* Desktop */
+@media(min-width:960px){
+  #bnav,#fab{display:none}
+  #sidebar{display:flex;flex-direction:column;width:232px;flex-shrink:0;background:var(--s1);border-left:1px solid var(--line);padding:22px 14px;position:sticky;top:0;height:100dvh;gap:4px}
+  #sidebar .logo{font-family:var(--font-d);font-weight:800;font-size:21px;padding:0 10px 18px;letter-spacing:.01em}
+  #sidebar .logo b{color:var(--lime)}
+  #sidebar a{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:11px;color:var(--tx2);text-decoration:none;font-weight:600;font-size:14.5px}
+  #sidebar a:hover{background:var(--s2);color:var(--tx)}
+  #sidebar a.on{background:var(--lime-bg);color:var(--lime)}
+  #sidebar .grow{flex:1}
+  #sidebar .side-quick{margin-top:8px;background:var(--lime);color:#141a05;border-radius:12px;padding:12px;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px}
+  main{padding:0 30px 50px}
+}
+
+/* ===== Components ===== */
+.card{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(2,1fr)}
+@media(min-width:720px){.g4{grid-template-columns:repeat(4,1fr)}}
+.row{display:flex;align-items:center;gap:10px}
+.row .grow{flex:1;min-width:0}
+.mt{margin-top:14px}.mt2{margin-top:22px}
+.sec-h{display:flex;align-items:baseline;gap:8px;margin:22px 0 10px}
+.sec-h h2{font-size:16.5px;font-weight:700}
+.sec-h .more{margin-inline-start:auto;font-size:12.5px;color:var(--lime);font-weight:600;text-decoration:none}
+.muted{color:var(--tx2);font-size:12.5px}
+.tiny{color:var(--tx3);font-size:11.5px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:12px;padding:12px 18px;font-weight:700;font-size:14.5px;transition:transform .12s,opacity .15s;min-height:46px}
+.btn:active{transform:scale(.97)}
+.btn-p{background:var(--lime);color:#141a05}
+.btn-s{background:var(--s2);border:1px solid var(--line2);color:var(--tx)}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid transparent}
+.btn-ghost{color:var(--tx2)}
+.btn-sm{padding:8px 13px;min-height:36px;font-size:13px;border-radius:10px}
+.btn-block{width:100%}
+.btn[disabled]{opacity:.45;pointer-events:none}
+
+.chip{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:999px;background:var(--s2);border:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--tx2);white-space:nowrap}
+.chip.on{background:var(--lime-bg);border-color:var(--lime-d);color:var(--lime)}
+.chips{display:flex;gap:7px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:7px;font-size:11px;font-weight:700}
+.tag.ok{background:var(--lime-bg);color:var(--lime)}
+.tag.warn{background:var(--orange-bg);color:var(--orange)}
+.tag.bad{background:var(--red-bg);color:var(--red)}
+.tag.info{background:var(--blue-bg);color:var(--blue)}
+.tag.vio{background:var(--violet-bg);color:var(--violet)}
+.tag.dim{background:var(--s2);color:var(--tx3)}
+
+/* KPI */
+.kpi{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:4px;position:relative;overflow:hidden}
+.kpi .v{font-family:var(--font-d);font-size:26px;font-weight:800;line-height:1.1}
+.kpi .l{font-size:12px;color:var(--tx2);font-weight:600}
+.kpi.hot{border-color:var(--lime-d);background:linear-gradient(160deg,var(--lime-bg),var(--s1) 55%)}
+.kpi .ic{position:absolute;left:10px;top:10px;font-size:17px;opacity:.7}
+
+/* Session ring */
+.ring{width:52px;height:52px;flex-shrink:0;position:relative}
+.ring svg{transform:rotate(-90deg)}
+.ring .rt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--font-d)}
+.ring .rt b{font-size:15px;line-height:1}
+.ring .rt span{font-size:7.5px;color:var(--tx3);font-weight:600}
+
+/* Client card */
+.ccard{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;transition:border-color .15s}
+.ccard:active{border-color:var(--lime-d)}
+.avatar{width:46px;height:46px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-weight:700;font-size:17px;color:var(--lime);flex-shrink:0;border:1px solid var(--line2);overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.ccard .nm{font-weight:700;font-size:15px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.ccard .meta{font-size:11.5px;color:var(--tx2);display:flex;gap:9px;flex-wrap:wrap;margin-top:3px}
+
+/* Lists */
+.list{display:flex;flex-direction:column;gap:9px}
+.li{background:var(--s1);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 14px}
+.li .t{font-weight:700;font-size:14px}
+.li .d{font-size:12px;color:var(--tx2);margin-top:2px}
+
+/* Search */
+.search{position:relative;margin:4px 0 12px}
+.search input{padding-inline-start:38px;background:var(--s1)}
+.search .ic{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--tx3);font-size:15px}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);margin:8px 0 16px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{padding:10px 14px;font-weight:700;font-size:13.5px;color:var(--tx3);border-bottom:2px solid transparent;white-space:nowrap}
+.tabs button.on{color:var(--lime);border-bottom-color:var(--lime)}
+
+/* Modal */
+#modal-bk{position:fixed;inset:0;background:rgba(5,7,3,.72);z-index:90;display:none;backdrop-filter:blur(3px)}
+#modal{position:fixed;z-index:95;inset-inline:0;bottom:0;max-height:92dvh;overflow-y:auto;background:var(--s1);border:1px solid var(--line2);border-bottom:none;border-radius:22px 22px 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom));display:none;animation:up .22s ease}
+#modal .handle{width:42px;height:4px;border-radius:4px;background:var(--line2);margin:4px auto 14px}
+#modal h3{font-size:17.5px;margin-bottom:14px}
+@keyframes up{from{transform:translateY(40px);opacity:.5}to{transform:none;opacity:1}}
+@media(min-width:960px){#modal{inset:0;margin:auto;max-width:560px;height:fit-content;max-height:86dvh;border-radius:18px;border-bottom:1px solid var(--line2)}}
+.f-row{margin-bottom:12px}
+.f-row label{display:block;font-size:12.5px;font-weight:700;color:var(--tx2);margin-bottom:6px}
+.f-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.f-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+/* Toast */
+#toast{position:fixed;bottom:calc(140px + env(safe-area-inset-bottom));inset-inline:0;display:flex;justify-content:center;z-index:120;pointer-events:none}
+#toast div{background:var(--s3);border:1px solid var(--line2);color:var(--tx);padding:11px 20px;border-radius:12px;font-weight:600;font-size:13.5px;box-shadow:var(--shadow);animation:up .2s ease}
+@media(min-width:960px){#toast{bottom:40px}}
+
+/* Timeline */
+.tl-item{display:flex;gap:12px;padding:11px 0;border-bottom:1px dashed var(--line)}
+.tl-item:last-child{border-bottom:none}
+.tl-time{font-family:var(--font-d);font-weight:700;font-size:13px;color:var(--violet);width:52px;flex-shrink:0;padding-top:2px}
+
+/* Calendar */
+.cal-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.cal-head h3{flex:1;text-align:center;font-size:15.5px}
+.cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal-day{background:var(--s1);border:1px solid var(--line);border-radius:10px;min-height:74px;padding:6px 5px;font-size:11px;cursor:pointer}
+.cal-day .dn{font-family:var(--font-d);font-weight:700;font-size:13px}
+.cal-day.today{border-color:var(--lime-d);background:var(--lime-bg)}
+.cal-day .pill{margin-top:3px;background:var(--violet-bg);color:var(--violet);border-radius:5px;padding:1px 4px;font-size:9.5px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.cal-day .cnt{margin-top:3px;color:var(--tx3);font-size:9.5px}
+
+/* Progress bar */
+.pbar{height:7px;border-radius:5px;background:var(--s3);overflow:hidden}
+.pbar i{display:block;height:100%;border-radius:5px;background:var(--lime)}
+
+/* Empty state */
+.empty{text-align:center;padding:44px 20px;color:var(--tx3)}
+.empty .big{font-size:38px;margin-bottom:10px}
+.empty p{font-size:13.5px;max-width:280px;margin:0 auto 16px}
+
+/* Skeleton */
+.skel{border-radius:var(--r);background:linear-gradient(90deg,var(--s1),var(--s2),var(--s1));background-size:200% 100%;animation:sk 1.1s infinite;height:70px;margin-bottom:10px}
+@keyframes sk{to{background-position:-200% 0}}
+
+table.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:right;color:var(--tx3);font-size:11.5px;padding:8px 6px;border-bottom:1px solid var(--line)}
+.tbl td{padding:9px 6px;border-bottom:1px solid var(--line)}
+.chart-box{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:14px;height:250px}
+.pin-note{background:var(--orange-bg);border:1px solid rgba(255,138,76,.3);border-radius:var(--r-sm);padding:11px 13px;font-size:13.5px;display:flex;gap:9px;align-items:flex-start}
+.ex-row{display:grid;grid-template-columns:1.6fr .6fr .6fr .7fr auto;gap:6px;margin-bottom:7px;align-items:center}
+.ex-row input{padding:9px 8px;font-size:13px}
+.del-x{color:var(--red);font-size:17px;padding:4px 6px}
+.login-wrap{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px}
+.login-card{width:100%;max-width:380px}
+.login-card .logo{font-family:var(--font-d);font-weight:800;font-size:34px;text-align:center;margin-bottom:6px}
+.login-card .logo b{color:var(--lime)}
+</style>
+</head>
+<body>
+<div id="app" style="display:none">
+  <nav id="sidebar">
+    <div class="logo">Coach<b>OS</b></div>
+    <a href="#/dash" data-nav="dash"><span>📊</span> الرئيسية</a>
+    <a href="#/clients" data-nav="clients"><span>🧑‍🤝‍🧑</span> المتدربين</a>
+    <a href="#/sessions" data-nav="sessions"><span>🏋️</span> الجلسات</a>
+    <a href="#/calendar" data-nav="calendar"><span>📅</span> التقويم</a>
+    <a href="#/money" data-nav="money"><span>💰</span> الفلوس والباقات</a>
+    <a href="#/reports" data-nav="reports"><span>📈</span> التقارير</a>
+    <a href="#/alerts" data-nav="alerts"><span>🔔</span> التنبيهات</a>
+    <div class="grow"></div>
+    <a href="#/settings" data-nav="settings"><span>⚙️</span> الإعدادات</a>
+    <button class="side-quick" onclick="quickSession()">⚡ تسجيل جلسة سريع</button>
+  </nav>
+  <main id="main"></main>
+</div>
+
+<nav id="bnav" style="display:none">
+  <a href="#/dash" data-nav="dash"><span class="ic">📊</span>الرئيسية</a>
+  <a href="#/clients" data-nav="clients"><span class="ic">🧑‍🤝‍🧑</span>المتدربين</a>
+  <a href="#/sessions" data-nav="sessions"><span class="ic">🏋️</span>الجلسات</a>
+  <a href="#/calendar" data-nav="calendar"><span class="ic">📅</span>التقويم</a>
+  <a href="#/more" data-nav="more"><span class="ic">☰</span>المزيد</a>
+</nav>
+<button id="fab" style="display:none" onclick="quickSession()" aria-label="تسجيل جلسة سريع">⚡</button>
+
+<div id="modal-bk" onclick="closeModal()"></div>
+<div id="modal" role="dialog" aria-modal="true"></div>
+<div id="toast"></div>
+<div id="login-screen"></div>
+<script>
+/* ============================================================
+   Coach OS — Personal Trainer Management PWA
+   Data layer: localStorage (offline-first). All comments in English.
+   ============================================================ */
+const DB_KEY='coachos_db_v1';
+/* ---------- Cloud sync config (Google Sheet via Apps Script) ---------- */
+const SHEET_API_URL='PASTE_YOUR_EXEC_URL_HERE'; // from Apps Script deployment, see DEPLOY.md
+const SYNC_ENABLED=SHEET_API_URL.indexOf('https://')===0;
+const PW_KEY='coachos_pw_v1', OUTBOX_KEY='coachos_outbox_v1', CURSOR_KEY='coachos_cursor_v1',
+      BACKFILL_KEY='coachos_backfilled_v1', LAST_SYNC_KEY='coachos_last_sync_v1';
+const ENTITIES=['clients','packages','subs','sessions','meas','payments','goals','notes','audit','settings'];
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const todayS=()=>new Date().toISOString().slice(0,10);
+const nowT=()=>new Date().toTimeString().slice(0,5);
+const D=s=>new Date(s+'T00:00:00');
+const dayDiff=(a,b)=>Math.round((D(b)-D(a))/864e5);
+const AR_D=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const AR_M=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+const fD=s=>{if(!s)return'—';const d=D(s);return d.getDate()+' '+AR_M[d.getMonth()]+(d.getFullYear()!==new Date().getFullYear()?' '+d.getFullYear():'')};
+const fDT=s=>s?AR_D[D(s).getDay()]+' '+fD(s):'—';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const cur=()=>db.settings.currency||'ج.م';
+const fM=n=>Number(n||0).toLocaleString('en')+' '+cur();
+
+const MUSCLES=['صدر','ظهر','كتف','ذراع','رجل','بطن','كارديو','Full Body'];
+const GOALS=['تخسيس','زيادة عضل','لياقة','تأهيل إصابة','قوة'];
+const LEVELS=['مبتدئ','متوسط','متقدم'];
+const PAY_METHODS=['كاش','InstaPay','Vodafone Cash','تحويل بنكي','أخرى'];
+const S_KIND={paid:'مدفوعة',free:'مجانية',comp:'تعويضية'};
+const S_STATUS={scheduled:'مجدولة',done:'تمّت',missed:'لم يحضر',cancelled:'ملغية'};
+
+let db=null, chartRefs=[];
+let appPassword=null, outbox=[], dbSnapshot=null, syncing=false;
+
+function blank(){return{settings:{coachName:'',currency:'ج.م',theme:'dark',setup:false},
+ clients:[],packages:[],subs:[],sessions:[],meas:[],payments:[],goals:[],notes:[],audit:[]}}
+function load(){try{const r=localStorage.getItem(DB_KEY);return r?JSON.parse(r):null}catch(e){return null}}
+function persist(){localStorage.setItem(DB_KEY,JSON.stringify(db))}
+function save(msg){persist();diffAndEnqueue();route();if(msg)toast(msg);flushQueue()}
+function log(action,details){db.audit.unshift({id:uid(),ts:new Date().toISOString(),action,details});if(db.audit.length>500)db.audit.length=500}
+function toast(m){const t=document.getElementById('toast');t.innerHTML=`<div>${m}</div>`;clearTimeout(t._x);t._x=setTimeout(()=>t.innerHTML='',2400)}
+
+/* ---------- Demo seed data ---------- */
+function seedDemo(){
+ const d=blank();d.settings={coachName:'كابتن أحمد',currency:'ج.م',theme:'dark',setup:true};
+ d.packages=[{id:'p8',name:'8 جلسات',sessions:8,price:1600,days:35,active:1},
+  {id:'p12',name:'12 جلسة',sessions:12,price:2200,days:45,active:1},
+  {id:'p16',name:'16 جلسة',sessions:16,price:2800,days:60,active:1},
+  {id:'pm',name:'شهري مفتوح',sessions:30,price:3500,days:30,active:1}];
+ const mk=(name,phone,age,goal,lvl,daysAgoJoin)=>({id:uid(),name,phone,age,gender:'ذكر',goal,level:lvl,health:'',
+  joinDate:new Date(Date.now()-daysAgoJoin*864e5).toISOString().slice(0,10),archived:0,pinned:''});
+ const c1=mk('محمود سامي','01011111111',27,'زيادة عضل','متوسط',120);
+ const c2=mk('سارة عادل','01022222222',31,'تخسيس','مبتدئ',60);c2.gender='أنثى';
+ const c3=mk('كريم حسن','01033333333',22,'قوة','متقدم',200);
+ const c4=mk('منى فؤاد','01044444444',38,'لياقة','مبتدئ',30);c4.gender='أنثى';
+ const c5=mk('عمر طارق','01055555555',24,'زيادة عضل','متوسط',90);
+ d.clients=[c1,c2,c3,c4,c5];
+ const ago=n=>new Date(Date.now()-n*864e5).toISOString().slice(0,10);
+ const fut=n=>new Date(Date.now()+n*864e5).toISOString().slice(0,10);
+ d.subs=[
+  {id:uid(),clientId:c1.id,pkg:'12 جلسة',total:12,used:9,price:2200,paid:2200,start:ago(30),end:fut(15),status:'active',createdAt:ago(30)},
+  {id:uid(),clientId:c2.id,pkg:'8 جلسات',total:8,used:7,price:1600,paid:1000,start:ago(25),end:fut(5),status:'active',createdAt:ago(25)},
+  {id:uid(),clientId:c3.id,pkg:'16 جلسة',total:16,used:4,price:2800,paid:2800,start:ago(10),end:fut(50),status:'active',createdAt:ago(10)},
+  {id:uid(),clientId:c4.id,pkg:'8 جلسات',total:8,used:2,price:1600,paid:1600,start:ago(12),end:fut(23),status:'frozen',createdAt:ago(12)},
+  {id:uid(),clientId:c5.id,pkg:'12 جلسة',total:12,used:12,price:2200,paid:2200,start:ago(55),end:ago(10),status:'expired',createdAt:ago(55)}];
+ const ex=(n,s,r,w)=>({name:n,sets:s,reps:r,weight:w,pr:0});
+ const mkS=(c,daysAgo,muscles,rpe,exs)=>({id:uid(),clientId:c.id,date:ago(daysAgo),time:'18:00',dur:60,muscles,rpe,
+  attended:1,deduct:1,kind:'paid',status:'done',notes:'',exercises:exs||[]});
+ d.sessions=[
+  mkS(c1,1,['صدر','ذراع'],8,[ex('Bench Press',4,10,60),ex('Incline DB Press',3,12,22),ex('Cable Fly',3,15,15)]),
+  mkS(c1,3,['ظهر'],7,[ex('Lat Pulldown',4,12,55),ex('Seated Row',3,12,50)]),
+  mkS(c1,6,['رجل'],9,[ex('Squat',4,8,80),ex('Leg Press',3,12,140)]),
+  mkS(c2,2,['كارديو','بطن'],6,[ex('Treadmill',1,25,0),ex('Plank',3,45,0)]),
+  mkS(c2,5,['Full Body'],7,[]),
+  mkS(c3,1,['كتف'],8,[ex('OHP',4,8,50),ex('Lateral Raise',4,15,10)]),
+  mkS(c3,4,['رجل'],9,[ex('Deadlift',3,5,140)]),
+  {id:uid(),clientId:c1.id,date:todayS(),time:'19:00',dur:60,muscles:['كتف'],rpe:null,attended:0,deduct:0,kind:'paid',status:'scheduled',notes:'',exercises:[]},
+  {id:uid(),clientId:c3.id,date:todayS(),time:'20:00',dur:60,muscles:['صدر'],rpe:null,attended:0,deduct:0,kind:'paid',status:'scheduled',notes:'',exercises:[]},
+  {id:uid(),clientId:c2.id,date:fut(1),time:'17:30',dur:60,muscles:['رجل'],rpe:null,attended:0,deduct:0,kind:'paid',status:'scheduled',notes:'',exercises:[]},
+  {id:uid(),clientId:c2.id,date:ago(8),time:'18:00',dur:0,muscles:[],rpe:null,attended:0,deduct:0,kind:'paid',status:'missed',notes:'اعتذرت قبلها بساعة',exercises:[]}];
+ const mkM=(c,daysAgo,w,extra)=>Object.assign({id:uid(),clientId:c.id,date:ago(daysAgo),weight:w,height:extra?.h||null,fat:null,muscle:null,waist:null,chest:null,arms:null,hips:null,thighs:null,notes:''},extra||{});
+ d.meas=[mkM(c1,90,72,{h:176}),mkM(c1,60,74),mkM(c1,30,75.5),mkM(c1,7,76.8,{arms:38,chest:104,waist:82}),
+  mkM(c2,55,88,{h:163}),mkM(c2,30,85.2),mkM(c2,14,83.4),mkM(c2,3,82.1,{waist:88}),
+  mkM(c3,60,81),mkM(c3,20,83),mkM(c4,12,70,{h:160})];
+ d.payments=[
+  {id:uid(),clientId:c1.id,amount:2200,date:ago(30),method:'كاش',notes:'باقة 12'},
+  {id:uid(),clientId:c2.id,amount:1000,date:ago(25),method:'InstaPay',notes:'دفعة أولى — باقي 600'},
+  {id:uid(),clientId:c3.id,amount:2800,date:ago(10),method:'كاش',notes:''},
+  {id:uid(),clientId:c4.id,amount:1600,date:ago(12),method:'Vodafone Cash',notes:''},
+  {id:uid(),clientId:c5.id,amount:2200,date:ago(55),method:'كاش',notes:''}];
+ d.goals=[
+  {id:uid(),clientId:c2.id,type:'وزن',target:'الوصول إلى 76 كجم',targetDate:fut(60),progress:50,status:'ماشي كويس',notes:''},
+  {id:uid(),clientId:c1.id,type:'قوة',target:'Bench Press 80kg × 8',targetDate:fut(45),progress:70,status:'ماشي كويس',notes:''},
+  {id:uid(),clientId:c5.id,type:'التزام',target:'3 جلسات أسبوعيًا',targetDate:fut(30),progress:20,status:'محتاج انتباه',notes:'انقطع بعد انتهاء الباقة'}];
+ d.notes=[
+  {id:uid(),clientId:c1.id,type:'تدريب',text:'يفضّل التمرين مساءً، تركيز على تقنية السكوات',pinned:0,date:ago(20)},
+  {id:uid(),clientId:c2.id,type:'طبية',text:'خشونة بسيطة في الركبة اليمنى — تجنّب القفزات',pinned:1,date:ago(24)},
+  {id:uid(),clientId:c4.id,type:'تغذية',text:'محتاجة خطة أكل — لا تلتزم بالبروتين',pinned:0,date:ago(5)}];
+ c2.pinned='خشونة ركبة يمنى — ممنوع Jumping';
+ d.audit=[{id:uid(),ts:new Date().toISOString(),action:'تحميل بيانات تجريبية',details:''}];
+ return d;
+}
+
+/* ---------- Derived / computed ---------- */
+const client=id=>db.clients.find(c=>c.id===id);
+const activeSub=cid=>db.subs.find(s=>s.clientId===cid&&s.status==='active');
+const anySub=cid=>db.subs.filter(s=>s.clientId===cid).sort((a,b)=>b.createdAt.localeCompare(a.createdAt))[0];
+const remaining=cid=>{const s=activeSub(cid);return s?Math.max(0,s.total-s.used):0};
+const lastDone=cid=>db.sessions.filter(s=>s.clientId===cid&&s.status==='done').sort((a,b)=>b.date.localeCompare(a.date))[0];
+const lastMeas=cid=>db.meas.filter(m=>m.clientId===cid).sort((a,b)=>b.date.localeCompare(a.date))[0];
+const balance=cid=>{const s=activeSub(cid);return s?Math.max(0,(s.price||0)-(s.paid||0)):0};
+
+function statusOf(c){
+ if(c.archived)return{k:'archived',t:'أرشيف',cls:'dim'};
+ const s=activeSub(c.id), frozen=db.subs.find(x=>x.clientId===c.id&&x.status==='frozen');
+ if(!s&&frozen)return{k:'frozen',t:'مجمّد',cls:'info'};
+ if(!s||dayDiff(todayS(),s.end)<0)return{k:'expired',t:'منتهي',cls:'bad'};
+ if(balance(c.id)>0)return{k:'pay',t:'متأخر دفع',cls:'warn'};
+ if(remaining(c.id)<=1)return{k:'low',t:'سيشنات قليلة',cls:'warn'};
+ const ld=lastDone(c.id);
+ if(ld&&dayDiff(ld.date,todayS())>10)return{k:'follow',t:'يحتاج متابعة',cls:'warn'};
+ return{k:'active',t:'نشط',cls:'ok'};
+}
+
+function computeAlerts(){
+ const A=[];const t=todayS();
+ db.clients.filter(c=>!c.archived).forEach(c=>{
+  const s=activeSub(c.id);
+  if(s){const left=dayDiff(t,s.end);
+   if(left>=0&&left<=7)A.push({icon:'⏳',cls:'warn',cid:c.id,t:`اشتراك ${c.name} ينتهي ${left===0?'النهاردة':'خلال '+left+' يوم'}`});
+   const rem=s.total-s.used;
+   if(rem===1)A.push({icon:'🎫',cls:'warn',cid:c.id,t:`${c.name} فاضل له جلسة واحدة بس`});
+   if(rem===0)A.push({icon:'🚫',cls:'bad',cid:c.id,t:`${c.name} خلّص جلساته — محتاج تجديد`});
+   if(balance(c.id)>0)A.push({icon:'💸',cls:'bad',cid:c.id,t:`${c.name} عليه ${fM(balance(c.id))} متأخرات`});
+  }
+  const ld=lastDone(c.id);
+  if(s&&ld&&dayDiff(ld.date,t)>10)A.push({icon:'👻',cls:'warn',cid:c.id,t:`${c.name} مش باين من ${dayDiff(ld.date,t)} يوم`});
+  const lm=lastMeas(c.id);
+  if(s&&(!lm||dayDiff(lm.date,t)>30))A.push({icon:'⚖️',cls:'info',cid:c.id,t:`وزن ${c.name} مش متسجّل من ${lm?dayDiff(lm.date,t)+' يوم':'البداية'}`});
+  // Positive progress: weight moving toward goal direction
+  const ms=db.meas.filter(m=>m.clientId===c.id&&m.weight).sort((a,b)=>a.date.localeCompare(b.date));
+  if(ms.length>=3){const diff=ms.at(-1).weight-ms[0].weight;
+   if(c.goal==='تخسيس'&&diff<=-2)A.push({icon:'🔥',cls:'ok',cid:c.id,t:`${c.name} نزل ${Math.abs(diff).toFixed(1)} كجم — Progress ممتاز!`});
+   if(c.goal==='زيادة عضل'&&diff>=2)A.push({icon:'💪',cls:'ok',cid:c.id,t:`${c.name} زاد ${diff.toFixed(1)} كجم — شغل عالي!`});}
+ });
+ return A;
+}
+
+/* ---------- Router & shell ---------- */
+const $=s=>document.querySelector(s);
+function setNav(k){document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('on',a.dataset.nav===k))}
+function route(){
+ chartRefs.forEach(c=>{try{c.destroy()}catch(e){}});chartRefs=[];
+ if(SYNC_ENABLED&&!appPassword){renderAuth();return}
+ if(!db.settings.setup){renderSetup();return}
+ $('#login-screen').innerHTML='';$('#app').style.display='flex';$('#bnav').style.display='flex';$('#fab').style.display='flex';
+ const h=location.hash||'#/dash';const p=h.slice(2).split('/');
+ const map={dash:vDash,clients:vClients,sessions:vSessions,calendar:vCalendar,money:vMoney,reports:vReports,alerts:vAlerts,settings:vSettings,more:vMore,audit:vAudit};
+ if(p[0]==='client'&&p[1]){setNav('clients');vClient(p[1],p[2]||'overview');return}
+ setNav(p[0]);(map[p[0]]||vDash)();
+ window.scrollTo(0,0);
+}
+window.addEventListener('hashchange',route);
+function header(t,sub,extra=''){
+ const n=computeAlerts().length;
+ return`<header class="top"><div class="grow"><h1>${t}${sub?`<span class="sub">${sub}</span>`:''}</h1></div>
+ ${extra}<button class="icon-btn badge-dot" data-n="${n}" onclick="location.hash='#/alerts'" aria-label="التنبيهات">🔔</button></header>`;
+}
+
+/* ---------- Auth (Google Sheet backend) ---------- */
+function renderAuth(){
+ $('#app').style.display='none';$('#bnav').style.display='none';$('#fab').style.display='none';
+ $('#login-screen').innerHTML=`<div class="login-wrap"><div class="login-card">
+  <div class="logo">Coach<b>OS</b></div>
+  <p class="muted" style="text-align:center;margin-bottom:26px">تسجيل الدخول</p>
+  <div class="card">
+   <div class="f-row"><label>كلمة المرور</label><input id="au-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+   <button class="btn btn-p btn-block" onclick="doLogin()">🔐 دخول</button>
+   <p id="au-err" class="tiny" style="color:var(--red);margin-top:8px"></p>
+  </div>
+  <p class="tiny mt2" style="text-align:center">أول تسجيل دخول محتاج نت — بعد كده هيشتغل Offline عادي</p>
+ </div></div>`;
+}
+async function doLogin(){
+ const pw=$('#au-pass').value;
+ if(!pw)return;
+ const btn=document.querySelector('#login-screen .btn-p');if(btn)btn.disabled=true;
+ try{
+  const r=await apiCall('auth',{},pw);
+  if(r&&r.ok){
+   appPassword=pw;localStorage.setItem(PW_KEY,pw);
+   $('#au-err').textContent='';
+   await afterFirstLogin();
+   route();
+  }else{
+   $('#au-err').textContent='⚠️ كلمة المرور غلط';
+  }
+ }catch(e){
+  $('#au-err').textContent='⚠️ تعذر الاتصال بالسيرفر — تأكد من النت وحاول تاني';
+ }
+ if(btn)btn.disabled=false;
+}
+function logout(){
+ if(!confirm('تسجيل الخروج من الجهاز ده؟ بياناتك هتفضل محفوظة محليًا وهتترفع تاني لما تسجّل دخول.'))return;
+ appPassword=null;localStorage.removeItem(PW_KEY);route();
+}
+
+/* ---------- Setup / first run ---------- */
+function renderSetup(){
+ $('#app').style.display='none';$('#bnav').style.display='none';$('#fab').style.display='none';
+ $('#login-screen').innerHTML=`<div class="login-wrap"><div class="login-card">
+  <div class="logo">Coach<b>OS</b></div>
+  <p class="muted" style="text-align:center;margin-bottom:26px">نظام إدارة التدريب الشخصي — متدربينك واشتراكاتك وجلساتك في مكان واحد</p>
+  <div class="card">
+   <div class="f-row"><label>اسمك (الكابتن)</label><input id="st-name" placeholder="مثال: كابتن أحمد"></div>
+   <div class="f-row"><label>العملة</label><select id="st-cur"><option>ج.م</option><option>ر.س</option><option>د.إ</option><option>€</option><option>$</option></select></div>
+   <button class="btn btn-p btn-block" onclick="doSetup(false)">🚀 ابدأ من الصفر</button>
+   <button class="btn btn-s btn-block mt" onclick="doSetup(true)">🎬 جرّب ببيانات تجريبية</button>
+  </div></div></div>`;
+}
+function doSetup(demo){
+ const name=$('#st-name').value.trim(), c=$('#st-cur').value;
+ if(demo){db=seedDemo();if(name)db.settings.coachName=name;db.settings.currency=c}
+ else{db=blank();db.settings={coachName:name||'الكابتن',currency:c,theme:'dark',setup:true};
+  db.packages=[{id:uid(),name:'8 جلسات',sessions:8,price:0,days:35,active:1},{id:uid(),name:'12 جلسة',sessions:12,price:0,days:45,active:1},{id:uid(),name:'16 جلسة',sessions:16,price:0,days:60,active:1}];
+  log('إنشاء الحساب','')}
+ persist();location.hash='#/dash';route();
+}
+
+/* ---------- Modal helpers ---------- */
+function openModal(html){$('#modal').innerHTML='<div class="handle"></div>'+html;$('#modal').style.display='block';$('#modal-bk').style.display='block';document.body.style.overflow='hidden'}
+function closeModal(){$('#modal').style.display='none';$('#modal-bk').style.display='none';document.body.style.overflow=''}
+const clientOptions=sel=>db.clients.filter(c=>!c.archived).sort((a,b)=>a.name.localeCompare(b.name,'ar')).map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${esc(c.name)} (${remaining(c.id)} متبقي)</option>`).join('');
+
+/* ---------- Session ring SVG ---------- */
+function ring(rem,total){
+ const pct=total?Math.min(1,rem/total):0;const r=22,c=2*Math.PI*r;
+ const col=rem===0?'var(--red)':rem<=2?'var(--orange)':'var(--lime)';
+ return`<div class="ring"><svg width="52" height="52" viewBox="0 0 52 52">
+  <circle cx="26" cy="26" r="${r}" fill="none" stroke="var(--s3)" stroke-width="4.5"/>
+  <circle cx="26" cy="26" r="${r}" fill="none" stroke="${col}" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-pct)}"/></svg>
+  <div class="rt"><b class="num" style="color:${col}">${rem}</b><span>متبقي</span></div></div>`;
+}
+
+/* ============ DASHBOARD ============ */
+function vDash(){
+ const t=todayS();
+ const act=db.clients.filter(c=>!c.archived&&activeSub(c.id)&&dayDiff(t,activeSub(c.id).end)>=0);
+ const exp=db.clients.filter(c=>!c.archived&&statusOf(c).k==='expired');
+ const todayAll=db.sessions.filter(s=>s.date===t);
+ const todaySch=todayAll.filter(s=>s.status==='scheduled');
+ const todayDone=todayAll.filter(s=>s.status==='done');
+ const totalRem=db.clients.filter(c=>!c.archived).reduce((a,c)=>a+remaining(c.id),0);
+ const mStart=t.slice(0,8)+'01';
+ const rev=db.payments.filter(p=>p.date>=mStart).reduce((a,p)=>a+Number(p.amount),0);
+ const alerts=computeAlerts();
+ // Commitment: sessions done in last 30 days per client
+ const cut=new Date(Date.now()-30*864e5).toISOString().slice(0,10);
+ const cnt={};db.sessions.filter(s=>s.status==='done'&&s.date>=cut).forEach(s=>cnt[s.clientId]=(cnt[s.clientId]||0)+1);
+ const ranked=Object.entries(cnt).map(([id,n])=>({c:client(id),n})).filter(x=>x.c&&!x.c.archived).sort((a,b)=>b.n-a.n);
+ const weekDone=db.sessions.filter(s=>s.status==='done'&&dayDiff(s.date,t)<=7).length;
+
+ $('#main').innerHTML=header(`أهلًا يا ${esc(db.settings.coachName)} 👊`,fDT(t))+`
+ <div class="grid g4">
+  <div class="kpi hot"><span class="ic">🧑‍🤝‍🧑</span><div class="v num">${act.length}</div><div class="l">متدرب نشط</div></div>
+  <div class="kpi"><span class="ic">📅</span><div class="v num">${todaySch.length}<span style="font-size:15px;color:var(--tx3)"> / ${todayDone.length}✓</span></div><div class="l">جلسات اليوم / تمّت</div></div>
+  <div class="kpi"><span class="ic">🎫</span><div class="v num">${totalRem}</div><div class="l">إجمالي السيشنات المتبقية</div></div>
+  <div class="kpi"><span class="ic">💰</span><div class="v num" style="font-size:21px">${fM(rev)}</div><div class="l">إيراد الشهر</div></div>
+ </div>
+
+ <div class="sec-h"><h2>⚡ إجراءات سريعة</h2></div>
+ <div class="chips" style="padding-bottom:2px">
+  <button class="chip on" onclick="quickSession()">⚡ جلسة سريعة</button>
+  <button class="chip" onclick="formClient()">➕ متدرب جديد</button>
+  <button class="chip" onclick="formMeas()">⚖️ تسجيل وزن</button>
+  <button class="chip" onclick="formSub()">🔄 تجديد اشتراك</button>
+  <button class="chip" onclick="formPayment()">💵 تسجيل دفعة</button>
+  <button class="chip" onclick="formNote()">📝 ملاحظة</button>
+ </div>
+
+ <div class="sec-h"><h2>📋 جلسات اليوم</h2><a class="more" href="#/sessions">الكل</a></div>
+ <div class="card" style="padding:6px 16px">
+  ${todayAll.length?todayAll.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).map(s=>{
+   const c=client(s.clientId);const st={scheduled:['vio','⏱ '+(s.time||'')],done:['ok','✓ تمّت'],missed:['bad','لم يحضر'],cancelled:['dim','ملغية']}[s.status];
+   return`<div class="tl-item"><div class="tl-time num">${s.time||'—'}</div><div class="grow">
+    <div style="font-weight:700;font-size:14px">${esc(c?.name||'?')}</div>
+    <div class="tiny">${s.muscles.join(' · ')||'—'} ${s.kind!=='paid'?'· '+S_KIND[s.kind]:''}</div></div>
+    <span class="tag ${st[0]}">${st[1]}</span>
+    ${s.status==='scheduled'?`<button class="btn btn-p btn-sm" onclick="markDone('${s.id}')">تمّت ✓</button>`:''}</div>`}).join('')
+  :`<div class="empty" style="padding:26px"><p>مفيش جلسات متسجلة النهاردة</p><button class="btn btn-s btn-sm" onclick="formSession()">📅 جدولة جلسة</button></div>`}
+ </div>
+
+ ${alerts.length?`<div class="sec-h"><h2>🔔 محتاج انتباهك</h2><a class="more" href="#/alerts">الكل (${alerts.length})</a></div>
+ <div class="list">${alerts.slice(0,4).map(a=>`<a class="li row" style="text-decoration:none;color:inherit" href="#/client/${a.cid}">
+  <span style="font-size:19px">${a.icon}</span><div class="grow t" style="font-size:13.5px;font-weight:600">${a.t}</div><span class="tag ${a.cls}">›</span></a>`).join('')}</div>`:''}
+
+ <div class="sec-h"><h2>📈 نظرة على الأداء</h2></div>
+ <div class="grid g2">
+  <div class="card"><div class="muted" style="margin-bottom:8px">🏆 الأكثر التزامًا (30 يوم)</div>
+   ${ranked.slice(0,3).map((x,i)=>`<div class="row" style="padding:5px 0"><span>${['🥇','🥈','🥉'][i]}</span><div class="grow" style="font-weight:600;font-size:13.5px">${esc(x.c.name)}</div><b class="num" style="color:var(--lime)">${x.n}</b></div>`).join('')||'<div class="tiny">لسه مفيش بيانات</div>'}</div>
+  <div class="card"><div class="muted" style="margin-bottom:8px">📉 محتاجين متابعة</div>
+   ${db.clients.filter(c=>!c.archived&&statusOf(c).k==='follow').slice(0,3).map(c=>`<a class="row" style="padding:5px 0;text-decoration:none;color:inherit" href="#/client/${c.id}"><span>👻</span><div class="grow" style="font-weight:600;font-size:13.5px">${esc(c.name)}</div><span class="tiny">آخر حضور ${fD(lastDone(c.id)?.date)}</span></a>`).join('')||'<div class="tiny">✓ الكل ملتزم</div>'}
+   <div class="tiny mt">متوسط الجلسات الأسبوعي: <b class="num" style="color:var(--violet)">${weekDone}</b> جلسة</div></div>
+ </div>
+ ${exp.length?`<div class="mt card row" style="border-color:rgba(255,92,92,.35)"><span style="font-size:19px">⛔</span><div class="grow" style="font-size:13.5px"><b>${exp.length}</b> متدرب اشتراكهم منتهي — فرصة تجديد</div><a class="btn btn-s btn-sm" href="#/clients" onclick="cFilter='expired'">عرض</a></div>`:''}`;
+}
+function markDone(id){
+ const s=db.sessions.find(x=>x.id===id);if(!s)return;
+ const sub=activeSub(s.clientId);
+ if(s.kind==='paid'&&sub){
+  if(sub.total-sub.used<=0&&!confirm('المتدرب مفيش عنده رصيد جلسات! تأكيد الخصم بالسالب؟'))return;
+  sub.used++;log('خصم جلسة',client(s.clientId)?.name+' — تحديد جلسة كمكتملة');
+ }
+ s.status='done';s.attended=1;s.deduct=s.kind==='paid'?1:0;
+ save('✓ اتسجلت الجلسة وخُصمت من الرصيد');
+}
+
+/* ============ CLIENTS LIST ============ */
+let cFilter='all',cQuery='';
+function vClients(){
+ const FL=[['all','الكل'],['active','نشط'],['expired','منتهي'],['frozen','مجمّد'],['follow','يحتاج متابعة'],['low','سيشنات قليلة'],['pay','متأخر دفع'],['archived','أرشيف']];
+ let list=db.clients.filter(c=>cFilter==='archived'?c.archived:!c.archived);
+ if(cFilter!=='all'&&cFilter!=='archived')list=list.filter(c=>statusOf(c).k===cFilter);
+ if(cQuery)list=list.filter(c=>c.name.includes(cQuery)||String(c.phone||'').includes(cQuery));
+ list.sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+ $('#main').innerHTML=header('المتدربين',`${db.clients.filter(c=>!c.archived).length} متدرب`,
+  `<button class="icon-btn" onclick="formClient()" aria-label="إضافة متدرب">➕</button>`)+`
+ <div class="search"><span class="ic">🔍</span><input id="c-q" placeholder="ابحث بالاسم أو الرقم..." value="${esc(cQuery)}" oninput="cQuery=this.value;vClients();document.getElementById('c-q').focus();document.getElementById('c-q').setSelectionRange(999,999)"></div>
+ <div class="chips">${FL.map(([k,t])=>`<button class="chip ${cFilter===k?'on':''}" onclick="cFilter='${k}';vClients()">${t}</button>`).join('')}</div>
+ <div class="list mt">
+ ${list.length?list.map(c=>{
+  const st=statusOf(c),s=activeSub(c.id),lm=lastMeas(c.id),ld=lastDone(c.id);
+  return`<a class="ccard" href="#/client/${c.id}">
+   <div class="avatar">${c.photo?`<img src="${c.photo}" alt="">`:esc(c.name[0]||'؟')}</div>
+   <div class="grow"><div class="nm">${esc(c.name)} <span class="tag ${st.cls}">${st.t}</span></div>
+    <div class="meta">
+     ${s?`<span>📅 حتى ${fD(s.end)}</span>`:''}
+     ${ld?`<span>🏋️ ${fD(ld.date)}</span>`:''}
+     ${lm?.weight?`<span>⚖️ ${lm.weight} كجم</span>`:''}
+    </div></div>
+   ${ring(remaining(c.id),s?.total||0)}</a>`}).join('')
+ :`<div class="empty"><div class="big">🧑‍🤝‍🧑</div><p>${cQuery||cFilter!=='all'?'مفيش نتائج بالفلتر ده':'ابدأ بإضافة أول متدرب عندك'}</p><button class="btn btn-p" onclick="formClient()">➕ إضافة متدرب</button></div>`}
+ </div>`;
+}
+
+/* ---------- Client form ---------- */
+function formClient(id){
+ const c=id?client(id):{};
+ openModal(`<h3>${id?'تعديل بيانات':'متدرب جديد'}</h3>
+  <div class="f-row"><label>الاسم *</label><input id="f-name" value="${esc(c.name||'')}"></div>
+  <div class="f-2"><div class="f-row"><label>الموبايل</label><input id="f-phone" inputmode="tel" value="${esc(c.phone||'')}"></div>
+  <div class="f-row"><label>السن</label><input id="f-age" type="number" inputmode="numeric" value="${c.age||''}"></div></div>
+  <div class="f-2"><div class="f-row"><label>النوع</label><select id="f-gender">${['ذكر','أنثى'].map(g=>`<option ${c.gender===g?'selected':''}>${g}</option>`).join('')}</select></div>
+  <div class="f-row"><label>المستوى</label><select id="f-level">${LEVELS.map(l=>`<option ${c.level===l?'selected':''}>${l}</option>`).join('')}</select></div></div>
+  <div class="f-row"><label>الهدف</label><select id="f-goal">${GOALS.map(g=>`<option ${c.goal===g?'selected':''}>${g}</option>`).join('')}</select></div>
+  <div class="f-row"><label>حالة صحية / إصابات</label><textarea id="f-health" rows="2">${esc(c.health||'')}</textarea></div>
+  <div class="f-row"><label>ملاحظة مثبّتة (تظهر أعلى البروفايل)</label><input id="f-pin" value="${esc(c.pinned||'')}"></div>
+  <div class="f-row"><label>تاريخ الانضمام</label><input id="f-join" type="date" value="${c.joinDate||todayS()}"></div>
+  <button class="btn btn-p btn-block" onclick="saveClient('${id||''}')">${id?'💾 حفظ التعديلات':'➕ إضافة المتدرب'}</button>`);
+}
+function saveClient(id){
+ const name=$('#f-name').value.trim();if(!name){toast('⚠️ الاسم مطلوب');return}
+ const data={name,phone:$('#f-phone').value.trim(),age:+$('#f-age').value||null,gender:$('#f-gender').value,
+  level:$('#f-level').value,goal:$('#f-goal').value,health:$('#f-health').value.trim(),pinned:$('#f-pin').value.trim(),joinDate:$('#f-join').value||todayS()};
+ if(id){Object.assign(client(id),data);log('تعديل متدرب',name)}
+ else{const c=Object.assign({id:uid(),archived:0},data);db.clients.push(c);log('إضافة متدرب',name);closeModal();location.hash='#/client/'+c.id;save('✓ اتضاف '+name);return}
+ closeModal();save('✓ اتحفظ');
+}
+function archiveClient(id){
+ const c=client(id);if(!confirm(`أرشفة ${c.name}؟ البيانات كلها هتفضل محفوظة ومش هتتحذف.`))return;
+ c.archived=1;log('أرشفة متدرب',c.name);location.hash='#/clients';save('✓ اتأرشف — تقدر ترجّعه من فلتر الأرشيف');
+}
+function unarchive(id){const c=client(id);c.archived=0;log('استرجاع من الأرشيف',c.name);save('✓ رجع تاني')}
+
+/* ============ CLIENT PROFILE ============ */
+function vClient(id,tab){
+ const c=client(id);if(!c){location.hash='#/clients';return}
+ const st=statusOf(c),s=activeSub(c.id)||db.subs.find(x=>x.clientId===id&&x.status==='frozen'),lm=lastMeas(id),ld=lastDone(id);
+ const TABS=[['overview','نظرة عامة'],['sub','الاشتراك'],['sessions','الجلسات'],['progress','التقدم'],['goals','الأهداف'],['notes','الملاحظات']];
+ $('#main').innerHTML=`<header class="top">
+  <button class="icon-btn" onclick="history.back()" aria-label="رجوع">→</button>
+  <div class="grow"><h1 style="font-size:18px">${esc(c.name)} <span class="tag ${st.cls}">${st.t}</span></h1></div>
+  ${c.phone?`<a class="icon-btn" href="https://wa.me/2${c.phone}" target="_blank" aria-label="واتساب">💬</a><a class="icon-btn" href="tel:${c.phone}" aria-label="اتصال">📞</a>`:''}
+  <button class="icon-btn" onclick="formClient('${id}')" aria-label="تعديل">✏️</button></header>
+ ${c.pinned?`<div class="pin-note">📌 <b>${esc(c.pinned)}</b></div>`:''}
+ <div class="tabs">${TABS.map(([k,t])=>`<button class="${tab===k?'on':''}" onclick="location.hash='#/client/${id}/${k}'">${t}</button>`).join('')}</div>
+ <div id="ctab"></div>`;
+ ({overview:tOverview,sub:tSub,sessions:tSessions,progress:tProgress,goals:tGoals,notes:tNotes}[tab]||tOverview)(c);
+}
+
+function tOverview(c){
+ const s=activeSub(c.id),lm=lastMeas(c.id),ld=lastDone(c.id),bal=balance(c.id);
+ $('#ctab').innerHTML=`
+ <div class="card row" style="gap:16px">
+  ${ring(remaining(c.id),s?.total||0)}
+  <div class="grow">
+   <div style="font-weight:700">${s?esc(s.pkg):'مفيش اشتراك نشط'}</div>
+   <div class="tiny">${s?`${s.used} مستخدم من ${s.total} · ينتهي ${fD(s.end)}`:'اعمل اشتراك جديد من تاب الاشتراك'}</div>
+   ${bal>0?`<span class="tag bad" style="margin-top:5px">💸 متبقي عليه ${fM(bal)}</span>`:''}
+  </div>
+  <button class="btn btn-p btn-sm" onclick="quickSession('${c.id}')">⚡ جلسة</button></div>
+ <div class="grid g2 mt">
+  <div class="kpi"><div class="v num" style="font-size:19px">${lm?.weight?lm.weight+' كجم':'—'}</div><div class="l">آخر وزن (${fD(lm?.date)})</div></div>
+  <div class="kpi"><div class="v num" style="font-size:19px">${ld?fD(ld.date):'—'}</div><div class="l">آخر حضور</div></div>
+ </div>
+ <div class="card mt">
+  <div class="row" style="flex-wrap:wrap;gap:7px">
+   <span class="tag vio">🎯 ${esc(c.goal||'—')}</span><span class="tag info">📶 ${esc(c.level||'—')}</span>
+   ${c.age?`<span class="tag dim">🎂 ${c.age} سنة</span>`:''}<span class="tag dim">📆 انضم ${fD(c.joinDate)}</span>
+  </div>
+  ${c.health?`<div class="mt" style="font-size:13.5px">🏥 <b>الحالة الصحية:</b> ${esc(c.health)}</div>`:''}
+  ${c.phone?`<div class="mt tiny">📱 <span class="num" dir="ltr">${esc(c.phone)}</span></div>`:''}
+ </div>
+ <div class="row mt" style="gap:8px;flex-wrap:wrap">
+  <button class="chip" onclick="formMeas('${c.id}')">⚖️ تسجيل قياس</button>
+  <button class="chip" onclick="formSession('${c.id}')">📅 جدولة جلسة</button>
+  <button class="chip" onclick="formNote('${c.id}')">📝 ملاحظة</button>
+  <button class="chip" onclick="formGoal('${c.id}')">🎯 هدف</button>
+ </div>
+ <div class="mt2">${c.archived?`<button class="btn btn-s btn-block" onclick="unarchive('${c.id}')">↩️ استرجاع من الأرشيف</button>`
+  :`<button class="btn btn-danger btn-block" onclick="archiveClient('${c.id}')">🗄️ أرشفة المتدرب (بدون حذف البيانات)</button>`}</div>`;
+}
+
+function tSub(c){
+ const subs=db.subs.filter(s=>s.clientId===c.id).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+ const act=subs.find(s=>s.status==='active'),frz=subs.find(s=>s.status==='frozen');
+ $('#ctab').innerHTML=`
+ ${act?`<div class="card">
+  <div class="row"><div class="grow"><b>${esc(act.pkg)}</b><div class="tiny">${fD(act.start)} → ${fD(act.end)} · ${Math.max(0,dayDiff(todayS(),act.end))} يوم متبقي</div></div>
+  <span class="tag ok">نشط</span></div>
+  <div class="mt"><div class="row" style="justify-content:space-between;font-size:12.5px;margin-bottom:5px"><span>الجلسات: <b class="num">${act.used}/${act.total}</b></span><span>المتبقي: <b class="num" style="color:var(--lime)">${act.total-act.used}</b></span></div>
+  <div class="pbar"><i style="width:${Math.min(100,act.used/act.total*100)}%"></i></div></div>
+  <div class="mt row" style="justify-content:space-between;font-size:13px"><span>السعر: <b class="num">${fM(act.price)}</b></span><span>المدفوع: <b class="num" style="color:${act.paid>=act.price?'var(--lime)':'var(--orange)'}">${fM(act.paid)}</b></span></div>
+  ${act.price-act.paid>0?`<div class="tag bad mt">متبقي ${fM(act.price-act.paid)}</div>`:''}
+  <div class="row mt" style="gap:8px">
+   <button class="btn btn-s btn-sm grow" onclick="formPayment('${c.id}')">💵 دفعة</button>
+   <button class="btn btn-s btn-sm grow" onclick="freezeSub('${act.id}')">❄️ تجميد</button>
+   <button class="btn btn-s btn-sm grow" onclick="adjustSessions('${act.id}')">✏️ تعديل الرصيد</button>
+  </div></div>`
+ :frz?`<div class="card row"><div class="grow"><b>${esc(frz.pkg)}</b> <span class="tag info">❄️ مجمّد</span><div class="tiny">متبقي ${frz.total-frz.used} جلسة</div></div>
+  <button class="btn btn-p btn-sm" onclick="unfreezeSub('${frz.id}')">▶️ إلغاء التجميد</button></div>`
+ :`<div class="empty" style="padding:24px"><p>مفيش اشتراك نشط دلوقتي</p></div>`}
+ <button class="btn ${act?'btn-s':'btn-p'} btn-block mt" onclick="formSub('${c.id}')">🔄 ${act?'تجديد (اشتراك جديد)':'اشتراك جديد'}</button>
+ <div class="sec-h"><h2>📜 سجل الاشتراكات</h2></div>
+ <div class="list">${subs.map(s=>`<div class="li row"><div class="grow"><div class="t">${esc(s.pkg)}</div>
+  <div class="d">${fD(s.start)} → ${fD(s.end)} · ${s.used}/${s.total} جلسة · ${fM(s.price)}</div></div>
+  <span class="tag ${{active:'ok',frozen:'info',expired:'dim'}[s.status]}">${{active:'نشط',frozen:'مجمّد',expired:'منتهي'}[s.status]}</span></div>`).join('')||'<div class="tiny">لا يوجد</div>'}</div>`;
+}
+function formSub(cid){
+ openModal(`<h3>اشتراك جديد / تجديد</h3>
+  <div class="f-row"><label>المتدرب</label><select id="s-c">${clientOptions(cid)}</select></div>
+  <div class="f-row"><label>الباقة</label><select id="s-p" onchange="fillPkg()">${db.packages.filter(p=>p.active).map(p=>`<option value="${p.id}">${esc(p.name)} — ${p.sessions} جلسة — ${fM(p.price)}</option>`).join('')}<option value="custom">✏️ باقة مخصصة</option></select></div>
+  <div class="f-3"><div class="f-row"><label>عدد الجلسات</label><input id="s-n" type="number" inputmode="numeric"></div>
+  <div class="f-row"><label>السعر</label><input id="s-price" type="number" inputmode="numeric"></div>
+  <div class="f-row"><label>الصلاحية (يوم)</label><input id="s-days" type="number" inputmode="numeric"></div></div>
+  <div class="f-2"><div class="f-row"><label>تاريخ البداية</label><input id="s-start" type="date" value="${todayS()}"></div>
+  <div class="f-row"><label>المدفوع الآن</label><input id="s-paid" type="number" inputmode="numeric" value="0"></div></div>
+  <div class="f-row"><label>طريقة الدفع</label><select id="s-method">${PAY_METHODS.map(m=>`<option>${m}</option>`).join('')}</select></div>
+  <button class="btn btn-p btn-block" onclick="saveSub()">✓ تفعيل الاشتراك</button>`);
+ fillPkg();
+}
+function fillPkg(){const p=db.packages.find(x=>x.id===$('#s-p').value);if(p){$('#s-n').value=p.sessions;$('#s-price').value=p.price;$('#s-days').value=p.days}}
+function saveSub(){
+ const cid=$('#s-c').value,n=+$('#s-n').value,price=+$('#s-price').value||0,days=+$('#s-days').value||30,start=$('#s-start').value,paid=+$('#s-paid').value||0;
+ if(!cid||!n){toast('⚠️ اختار المتدرب وعدد الجلسات');return}
+ const old=activeSub(cid);if(old){old.status='expired'}
+ const end=new Date(D(start).getTime()+days*864e5).toISOString().slice(0,10);
+ const pkgName=$('#s-p').value==='custom'?`باقة مخصصة (${n})`:db.packages.find(x=>x.id===$('#s-p').value).name;
+ db.subs.push({id:uid(),clientId:cid,pkg:pkgName,total:n,used:0,price,paid,start,end,status:'active',createdAt:todayS()});
+ if(paid>0)db.payments.push({id:uid(),clientId:cid,amount:paid,date:todayS(),method:$('#s-method').value,notes:'دفعة اشتراك — '+pkgName});
+ log('اشتراك جديد',client(cid).name+' — '+pkgName+(old?' (تجديد)':''));
+ closeModal();save('✓ الاشتراك اتفعّل');
+}
+function freezeSub(id){const s=db.subs.find(x=>x.id===id);if(!confirm('تجميد الاشتراك مؤقتًا؟'))return;s.status='frozen';log('تجميد اشتراك',client(s.clientId).name);save('❄️ اتجمّد')}
+function unfreezeSub(id){const s=db.subs.find(x=>x.id===id);const ext=prompt('كام يوم تضيف على تاريخ الانتهاء تعويضًا عن التجميد؟','7');s.status='active';if(ext&&+ext>0)s.end=new Date(D(s.end).getTime()+(+ext)*864e5).toISOString().slice(0,10);log('إلغاء تجميد',client(s.clientId).name+' +'+(ext||0)+' يوم');save('▶️ رجع نشط')}
+function adjustSessions(id){
+ const s=db.subs.find(x=>x.id===id);
+ const v=prompt(`الرصيد الحالي: ${s.total} إجمالي / ${s.used} مستخدم.\nاكتب الإجمالي الجديد:`,s.total);
+ if(v===null||!+v)return;
+ const reason=prompt('سبب التعديل (هيتسجل في الـ Audit Log):','');if(reason===null)return;
+ log('تعديل رصيد جلسات',`${client(s.clientId).name}: ${s.total} → ${+v}. السبب: ${reason||'غير مذكور'}`);
+ s.total=+v;save('✓ اتعدّل الرصيد واتسجّل في السجل');
+}
+
+/* ---------- Client tabs: sessions / progress / goals / notes ---------- */
+function sessionCard(s,showName){
+ const c=client(s.clientId);
+ const st={scheduled:['vio','مجدولة'],done:['ok','تمّت'],missed:['bad','لم يحضر'],cancelled:['dim','ملغية']}[s.status];
+ return`<div class="li">
+  <div class="row"><div class="grow"><div class="t">${showName?esc(c?.name||'?')+' · ':''}<span class="num">${fD(s.date)} ${s.time||''}</span></div>
+   <div class="d">${s.muscles.join(' · ')||'—'} ${s.dur?'· '+s.dur+' دقيقة':''} ${s.rpe?'· RPE '+s.rpe:''} ${s.kind!=='paid'?'· '+S_KIND[s.kind]:''}</div></div>
+   <span class="tag ${st[0]}">${st[1]}</span></div>
+  ${s.exercises?.length?`<div class="mt" style="font-size:12px;color:var(--tx2)">${s.exercises.map(e=>`${esc(e.name)} — ${e.sets}×${e.reps}${e.weight?' × '+e.weight+'kg':''}${+e.pr?' <span class="tag ok" style="font-size:9px">PR 🏆</span>':''}`).join('<br>')}</div>`:''}
+  ${s.notes?`<div class="tiny mt">📝 ${esc(s.notes)}</div>`:''}
+  ${s.status==='scheduled'?`<div class="row mt" style="gap:6px">
+   <button class="btn btn-p btn-sm" onclick="markDone('${s.id}')">تمّت ✓</button>
+   <button class="btn btn-s btn-sm" onclick="setSessionStatus('${s.id}','missed')">لم يحضر</button>
+   <button class="btn btn-ghost btn-sm" onclick="setSessionStatus('${s.id}','cancelled')">إلغاء</button></div>`
+  :s.status==='done'?`<div class="row mt"><button class="btn btn-s btn-sm" onclick="formSession(null,'${s.id}')">✏️ تفاصيل التمارين</button></div>`:''}
+ </div>`;
+}
+function setSessionStatus(id,st){
+ const s=db.sessions.find(x=>x.id===id);
+ if(st==='missed'&&s.kind==='paid'&&confirm('تخصم الجلسة من الرصيد رغم الغياب؟ (إلغاء = بدون خصم)')){
+  const sub=activeSub(s.clientId);if(sub){sub.used++;s.deduct=1;log('خصم جلسة غياب',client(s.clientId).name)}}
+ s.status=st;s.attended=0;
+ log(st==='cancelled'?'إلغاء جلسة':'جلسة غياب',client(s.clientId)?.name||'');
+ save(st==='cancelled'?'اتلغت — بدون خصم':'اتسجل الغياب');
+}
+function tSessions(c){
+ const ss=db.sessions.filter(s=>s.clientId===c.id).sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+ $('#ctab').innerHTML=`<div class="row" style="gap:8px;margin-bottom:12px">
+  <button class="btn btn-p grow" onclick="quickSession('${c.id}')">⚡ جلسة سريعة</button>
+  <button class="btn btn-s grow" onclick="formSession('${c.id}')">📅 جدولة / تفصيلية</button></div>
+ <div class="list">${ss.map(s=>sessionCard(s,false)).join('')||'<div class="empty"><div class="big">🏋️</div><p>لسه مفيش جلسات متسجلة</p></div>'}</div>`;
+}
+
+function tProgress(c){
+ const ms=db.meas.filter(m=>m.clientId===c.id).sort((a,b)=>a.date.localeCompare(b.date));
+ const first=ms[0],last=ms.at(-1);
+ const h=(ms.find(m=>m.height)||{}).height;
+ const bmi=h&&last?.weight?(last.weight/((h/100)**2)).toFixed(1):null;
+ let rate='';
+ if(ms.length>=2&&first.weight&&last.weight){const days=Math.max(1,dayDiff(first.date,last.date));rate=((last.weight-first.weight)/days*7).toFixed(2)}
+ $('#ctab').innerHTML=`
+ <button class="btn btn-p btn-block" onclick="formMeas('${c.id}')">⚖️ تسجيل قياس جديد</button>
+ ${ms.length?`<div class="grid g3 mt">
+  <div class="kpi"><div class="v num" style="font-size:18px">${last.weight??'—'}</div><div class="l">الوزن الحالي</div></div>
+  <div class="kpi"><div class="v num" style="font-size:18px;color:${(last.weight-first.weight)<0?'var(--lime)':'var(--violet)'}">${first.weight&&last.weight?(last.weight-first.weight>0?'+':'')+(last.weight-first.weight).toFixed(1):'—'}</div><div class="l">التغير الكلي</div></div>
+  <div class="kpi"><div class="v num" style="font-size:18px">${bmi??'—'}</div><div class="l">BMI</div></div></div>
+ ${rate?`<div class="tiny mt" style="text-align:center">معدل التغير: <b class="num">${rate>0?'+':''}${rate}</b> كجم/أسبوع</div>`:''}
+ <div class="chart-box mt"><canvas id="ch-w"></canvas></div>
+ ${ms.some(m=>m.waist||m.chest||m.arms)?`<div class="chart-box mt"><canvas id="ch-m"></canvas></div>`:''}
+ <div class="sec-h"><h2>📏 مقارنة أول وآخر قياس</h2></div>
+ <div class="card" style="padding:8px 14px"><table class="tbl"><tr><th>القياس</th><th>${fD(first.date)}</th><th>${fD(last.date)}</th><th>الفرق</th></tr>
+ ${[['weight','الوزن كجم'],['fat','دهون %'],['muscle','عضل كجم'],['waist','وسط'],['chest','صدر'],['arms','ذراع'],['hips','أرداف'],['thighs','فخذ']].map(([k,t])=>{
+  if(first[k]==null&&last[k]==null)return'';const d=(last[k]??0)-(first[k]??0);
+  return`<tr><td>${t}</td><td class="num">${first[k]??'—'}</td><td class="num">${last[k]??'—'}</td><td class="num" style="color:${d<0?'var(--lime)':d>0?'var(--violet)':'var(--tx3)'}">${first[k]!=null&&last[k]!=null?(d>0?'+':'')+d.toFixed(1):'—'}</td></tr>`}).join('')}
+ </table></div>
+ <div class="sec-h"><h2>سجل القياسات</h2></div>
+ <div class="list">${[...ms].reverse().map(m=>`<div class="li"><div class="t num">${fD(m.date)} — ${m.weight??'—'} كجم</div>
+  <div class="d">${['fat','waist','chest','arms','hips','thighs'].filter(k=>m[k]).map(k=>({fat:'دهون',waist:'وسط',chest:'صدر',arms:'ذراع',hips:'أرداف',thighs:'فخذ'}[k])+': '+m[k]).join(' · ')||''} ${m.notes?'· '+esc(m.notes):''}</div></div>`).join('')}</div>`
+ :`<div class="empty mt"><div class="big">📊</div><p>سجّل أول قياس وهتشوف منحنى التقدم هنا</p></div>`}`;
+ if(ms.length){
+  drawLine('ch-w','الوزن (كجم)',ms.map(m=>fD(m.date)),[{label:'الوزن',data:ms.map(m=>m.weight),color:'#C8F04A'}]);
+  if(ms.some(m=>m.waist||m.chest||m.arms))
+   drawLine('ch-m','القياسات (سم)',ms.map(m=>fD(m.date)),[
+    {label:'وسط',data:ms.map(m=>m.waist),color:'#FF8A4C'},
+    {label:'صدر',data:ms.map(m=>m.chest),color:'#A08CFF'},
+    {label:'ذراع',data:ms.map(m=>m.arms),color:'#5EC8F2'}]);
+ }
+}
+function formMeas(cid){
+ openModal(`<h3>⚖️ تسجيل قياس</h3>
+ <div class="f-row"><label>المتدرب</label><select id="m-c">${clientOptions(cid)}</select></div>
+ <div class="f-2"><div class="f-row"><label>التاريخ</label><input id="m-date" type="date" value="${todayS()}"></div>
+ <div class="f-row"><label>الوزن (كجم) *</label><input id="m-w" type="number" step="0.1" inputmode="decimal"></div></div>
+ <div class="f-3">
+  <div class="f-row"><label>الطول سم</label><input id="m-h" type="number" inputmode="numeric"></div>
+  <div class="f-row"><label>دهون %</label><input id="m-fat" type="number" step="0.1" inputmode="decimal"></div>
+  <div class="f-row"><label>عضل كجم</label><input id="m-mus" type="number" step="0.1" inputmode="decimal"></div></div>
+ <div class="f-3">
+  <div class="f-row"><label>وسط</label><input id="m-waist" type="number" step="0.5" inputmode="decimal"></div>
+  <div class="f-row"><label>صدر</label><input id="m-chest" type="number" step="0.5" inputmode="decimal"></div>
+  <div class="f-row"><label>ذراع</label><input id="m-arms" type="number" step="0.5" inputmode="decimal"></div></div>
+ <div class="f-2">
+  <div class="f-row"><label>أرداف</label><input id="m-hips" type="number" step="0.5" inputmode="decimal"></div>
+  <div class="f-row"><label>فخذ</label><input id="m-th" type="number" step="0.5" inputmode="decimal"></div></div>
+ <div class="f-row"><label>ملاحظات</label><input id="m-notes"></div>
+ <button class="btn btn-p btn-block" onclick="saveMeas()">✓ حفظ القياس</button>`);
+}
+function saveMeas(){
+ const w=+$('#m-w').value;if(!w){toast('⚠️ الوزن مطلوب');return}
+ const v=id=>+$(id).value||null;
+ db.meas.push({id:uid(),clientId:$('#m-c').value,date:$('#m-date').value,weight:w,height:v('#m-h'),fat:v('#m-fat'),muscle:v('#m-mus'),waist:v('#m-waist'),chest:v('#m-chest'),arms:v('#m-arms'),hips:v('#m-hips'),thighs:v('#m-th'),notes:$('#m-notes').value.trim()});
+ log('تسجيل قياس',client($('#m-c').value).name+' — '+w+' كجم');
+ closeModal();save('✓ اتسجل القياس');
+}
+
+function tGoals(c){
+ const gs=db.goals.filter(g=>g.clientId===c.id);
+ const GS={'ماشي كويس':'ok','محتاج انتباه':'warn','اتحقق':'vio','متأخر':'bad'};
+ $('#ctab').innerHTML=`<button class="btn btn-p btn-block" onclick="formGoal('${c.id}')">🎯 هدف جديد</button>
+ <div class="list mt">${gs.map(g=>`<div class="li">
+  <div class="row"><div class="grow"><div class="t">${esc(g.target)}</div>
+   <div class="d">${esc(g.type)} · مستهدف ${fD(g.targetDate)}</div></div><span class="tag ${GS[g.status]||'dim'}">${esc(g.status)}</span></div>
+  <div class="row mt" style="gap:10px"><div class="pbar grow"><i style="width:${g.progress||0}%"></i></div><b class="num tiny">${g.progress||0}%</b></div>
+  <div class="row mt" style="gap:6px"><button class="btn btn-s btn-sm" onclick="bumpGoal('${g.id}',10)">+10%</button>
+  <button class="btn btn-s btn-sm" onclick="goalStatus('${g.id}')">تغيير الحالة</button>
+  <button class="del-x" onclick="delGoal('${g.id}')">✕</button></div>
+  ${g.notes?`<div class="tiny mt">📝 ${esc(g.notes)}</div>`:''}</div>`).join('')||'<div class="empty"><div class="big">🎯</div><p>حدد هدف واضح للمتدرب وتابع نسبة الإنجاز</p></div>'}</div>`;
+}
+function formGoal(cid){
+ openModal(`<h3>🎯 هدف جديد</h3>
+ <div class="f-row"><label>المتدرب</label><select id="g-c">${clientOptions(cid)}</select></div>
+ <div class="f-row"><label>نوع الهدف</label><select id="g-type">${['وزن','قوة','التزام','قياسات','لياقة'].map(t=>`<option>${t}</option>`).join('')}</select></div>
+ <div class="f-row"><label>الهدف (وصف واضح) *</label><input id="g-t" placeholder="مثال: النزول إلى 80 كجم"></div>
+ <div class="f-row"><label>التاريخ المستهدف</label><input id="g-d" type="date"></div>
+ <div class="f-row"><label>ملاحظات</label><input id="g-n"></div>
+ <button class="btn btn-p btn-block" onclick="saveGoal()">✓ حفظ</button>`);
+}
+function saveGoal(){
+ const t=$('#g-t').value.trim();if(!t){toast('⚠️ اكتب الهدف');return}
+ db.goals.push({id:uid(),clientId:$('#g-c').value,type:$('#g-type').value,target:t,targetDate:$('#g-d').value,progress:0,status:'ماشي كويس',notes:$('#g-n').value.trim()});
+ closeModal();save('✓ اتضاف الهدف');
+}
+function bumpGoal(id,n){const g=db.goals.find(x=>x.id===id);g.progress=Math.min(100,(g.progress||0)+n);if(g.progress===100)g.status='اتحقق';save('✓')}
+function goalStatus(id){const g=db.goals.find(x=>x.id===id);const ops=['ماشي كويس','محتاج انتباه','اتحقق','متأخر'];g.status=ops[(ops.indexOf(g.status)+1)%4];save('الحالة: '+g.status)}
+function delGoal(id){if(confirm('حذف الهدف؟')){db.goals=db.goals.filter(g=>g.id!==id);save('اتحذف')}}
+
+function tNotes(c){
+ const ns=db.notes.filter(n=>n.clientId===c.id).sort((a,b)=>(b.pinned-a.pinned)||b.date.localeCompare(a.date));
+ const NT={'عامة':'dim','طبية':'bad','تغذية':'ok','سلوكية':'info','التزام':'warn','تدريب':'vio'};
+ $('#ctab').innerHTML=`<button class="btn btn-p btn-block" onclick="formNote('${c.id}')">📝 ملاحظة جديدة</button>
+ <div class="list mt">${ns.map(n=>`<div class="li">
+  <div class="row"><span class="tag ${NT[n.type]||'dim'}">${esc(n.type)}</span><span class="tiny grow">${fD(n.date)}</span>
+  <button class="btn-ghost" style="font-size:15px" title="تثبيت" onclick="togglePin('${n.id}')">${n.pinned?'📌':'📍'}</button>
+  <button class="del-x" onclick="delNote('${n.id}')">✕</button></div>
+  <div class="mt" style="font-size:14px">${esc(n.text)}</div></div>`).join('')||'<div class="empty"><div class="big">📝</div><p>سجّل ملاحظاتك الطبية والتدريبية هنا</p></div>'}</div>`;
+}
+function formNote(cid){
+ openModal(`<h3>📝 ملاحظة</h3>
+ <div class="f-row"><label>المتدرب</label><select id="n-c">${clientOptions(cid)}</select></div>
+ <div class="f-row"><label>النوع</label><select id="n-type">${['عامة','طبية','تغذية','سلوكية','التزام','تدريب'].map(t=>`<option>${t}</option>`).join('')}</select></div>
+ <div class="f-row"><label>الملاحظة *</label><textarea id="n-t" rows="3"></textarea></div>
+ <button class="btn btn-p btn-block" onclick="saveNote()">✓ حفظ</button>`);
+}
+function saveNote(){
+ const t=$('#n-t').value.trim();if(!t){toast('⚠️ اكتب الملاحظة');return}
+ db.notes.push({id:uid(),clientId:$('#n-c').value,type:$('#n-type').value,text:t,pinned:0,date:todayS()});
+ closeModal();save('✓ اتسجلت');
+}
+function togglePin(id){const n=db.notes.find(x=>x.id===id);n.pinned=n.pinned?0:1;save(n.pinned?'📌 اتثبتت':'اتفكّت')}
+function delNote(id){if(confirm('حذف الملاحظة؟')){db.notes=db.notes.filter(n=>n.id!==id);save('اتحذفت')}}
+
+/* ============ SESSIONS PAGE ============ */
+let sFilter='today';
+function vSessions(){
+ const t=todayS();
+ const F=[['today','اليوم'],['upcoming','القادمة'],['done','المكتملة'],['missed','الغياب'],['cancelled','الملغية'],['all','الكل']];
+ let ss=[...db.sessions];
+ if(sFilter==='today')ss=ss.filter(s=>s.date===t);
+ else if(sFilter==='upcoming')ss=ss.filter(s=>s.status==='scheduled'&&s.date>=t);
+ else if(sFilter!=='all')ss=ss.filter(s=>s.status===sFilter);
+ ss.sort((a,b)=>(b.date+(b.time||'')).localeCompare(a.date+(a.time||'')));
+ if(sFilter==='upcoming')ss.reverse();
+ $('#main').innerHTML=header('الجلسات',null,`<button class="icon-btn" onclick="formSession()" aria-label="جلسة جديدة">➕</button>`)+`
+ <div class="chips">${F.map(([k,v])=>`<button class="chip ${sFilter===k?'on':''}" onclick="sFilter='${k}';vSessions()">${v}</button>`).join('')}</div>
+ <div class="row mt" style="gap:8px">
+  <button class="btn btn-p grow" onclick="quickSession()">⚡ جلسة سريعة (٢٠ ثانية)</button>
+  <button class="btn btn-s grow" onclick="formSession()">📅 جدولة</button></div>
+ <div class="list mt">${ss.map(s=>sessionCard(s,true)).join('')||`<div class="empty"><div class="big">🏋️</div><p>مفيش جلسات هنا</p></div>`}</div>`;
+}
+
+/* ---------- Quick session (<20s flow) ---------- */
+let qMuscles=[];
+function quickSession(cid){
+ qMuscles=[];
+ if(!db.clients.filter(c=>!c.archived).length){toast('⚠️ ضيف متدرب الأول');formClient();return}
+ openModal(`<h3>⚡ جلسة سريعة</h3>
+ <div class="f-row"><label>المتدرب</label><select id="q-c" onchange="qHint()">${clientOptions(cid)}</select></div>
+ <div id="q-hint"></div>
+ <div class="f-row"><label>العضلات (اختار بلمسة)</label>
+  <div class="chips" id="q-m" style="flex-wrap:wrap">${MUSCLES.map(m=>`<button class="chip" onclick="qTog(this,'${m}')">${m}</button>`).join('')}</div></div>
+ <div class="f-3">
+  <div class="f-row"><label>المدة (د)</label><input id="q-dur" type="number" inputmode="numeric" value="60"></div>
+  <div class="f-row"><label>RPE ١-١٠</label><input id="q-rpe" type="number" inputmode="numeric" min="1" max="10"></div>
+  <div class="f-row"><label>النوع</label><select id="q-kind">${Object.entries(S_KIND).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div></div>
+ <div class="f-row"><label>ملاحظة سريعة</label><input id="q-notes" placeholder="اختياري"></div>
+ <button class="btn btn-p btn-block" onclick="saveQuick()">✓ تسجيل وخصم جلسة</button>
+ <button class="btn btn-ghost btn-block" onclick="closeModal();formSession(document.getElementById('q-c').value)" style="margin-top:6px">➕ محتاج أسجل التمارين بالتفصيل؟</button>`);
+ qHint();
+}
+function qTog(el,m){el.classList.toggle('on');qMuscles.includes(m)?qMuscles=qMuscles.filter(x=>x!==m):qMuscles.push(m)}
+function qHint(){
+ const cid=$('#q-c')?.value;if(!cid)return;
+ const rem=remaining(cid),c=client(cid);
+ $('#q-hint').innerHTML=rem===0?`<div class="pin-note" style="margin-bottom:12px">🚫 <b>${esc(c.name)} مفيش عنده رصيد!</b> التسجيل هيحتاج تأكيد خاص.</div>`
+  :rem<=2?`<div class="pin-note" style="margin-bottom:12px">⚠️ فاضل <b>${rem}</b> جلسة بس — ذكّره بالتجديد.</div>`:'';
+ if(c?.pinned)$('#q-hint').innerHTML+=`<div class="pin-note" style="margin-bottom:12px">📌 ${esc(c.pinned)}</div>`;
+}
+function saveQuick(){
+ const cid=$('#q-c').value,kind=$('#q-kind').value,sub=activeSub(cid);
+ if(kind==='paid'){
+  if(!sub){if(!confirm('المتدرب مفيش عنده اشتراك نشط. تسجّل الجلسة بدون خصم؟'))return}
+  else if(sub.total-sub.used<=0){if(!confirm('⚠️ الرصيد صفر! تأكيد التسجيل والخصم بالسالب؟'))return;sub.used++;log('خصم بدون رصيد (تأكيد خاص)',client(cid).name)}
+  else{sub.used++;log('خصم جلسة',client(cid).name)}
+ }
+ db.sessions.push({id:uid(),clientId:cid,date:todayS(),time:nowT(),dur:+$('#q-dur').value||60,muscles:[...qMuscles],
+  rpe:+$('#q-rpe').value||null,attended:1,deduct:kind==='paid'&&sub?1:0,kind,status:'done',notes:$('#q-notes').value.trim(),exercises:[]});
+ closeModal();save('⚡ اتسجلت! المتبقي: '+remaining(cid));
+}
+
+/* ---------- Full session form (schedule / edit exercises) ---------- */
+let exRows=[];
+function formSession(cid,editId){
+ const s=editId?db.sessions.find(x=>x.id===editId):null;
+ exRows=s?JSON.parse(JSON.stringify(s.exercises||[])):[];
+ openModal(`<h3>${s?'✏️ تفاصيل الجلسة':'📅 جدولة جلسة'}</h3>
+ <div class="f-row"><label>المتدرب</label><select id="fs-c" ${s?'disabled':''}>${clientOptions(s?s.clientId:cid)}</select></div>
+ <div class="f-3">
+  <div class="f-row"><label>التاريخ</label><input id="fs-date" type="date" value="${s?s.date:todayS()}"></div>
+  <div class="f-row"><label>الوقت</label><input id="fs-time" type="time" value="${s?s.time:'18:00'}"></div>
+  <div class="f-row"><label>المدة (د)</label><input id="fs-dur" type="number" inputmode="numeric" value="${s?s.dur:60}"></div></div>
+ <div class="f-row"><label>العضلات</label><div class="chips" style="flex-wrap:wrap">${MUSCLES.map(m=>`<button class="chip ${s?.muscles?.includes(m)?'on':''}" data-m="${m}" onclick="this.classList.toggle('on')">${m}</button>`).join('')}</div></div>
+ <div class="f-2"><div class="f-row"><label>RPE / الشدة</label><input id="fs-rpe" type="number" min="1" max="10" inputmode="numeric" value="${s?.rpe||''}"></div>
+ <div class="f-row"><label>النوع</label><select id="fs-kind">${Object.entries(S_KIND).map(([k,v])=>`<option value="${k}" ${s?.kind===k?'selected':''}>${v}</option>`).join('')}</select></div></div>
+ <div class="f-row"><label>💪 التمارين (Workout Log)</label><div id="ex-list"></div>
+ <button class="btn btn-s btn-sm" onclick="exRows.push({name:'',sets:'',reps:'',weight:'',pr:0});drawEx()">➕ تمرين</button></div>
+ <div class="f-row"><label>ملاحظات المدرب / تحذير ألم أو إصابة</label><textarea id="fs-notes" rows="2">${esc(s?.notes||'')}</textarea></div>
+ <button class="btn btn-p btn-block" onclick="saveFull('${editId||''}')">✓ حفظ</button>`);
+ drawEx();
+}
+function drawEx(){
+ $('#ex-list').innerHTML=exRows.map((e,i)=>`<div class="ex-row">
+  <input placeholder="Bench Press" value="${esc(e.name)}" oninput="exRows[${i}].name=this.value">
+  <input placeholder="Sets" inputmode="numeric" value="${esc(e.sets)}" oninput="exRows[${i}].sets=this.value">
+  <input placeholder="Reps" inputmode="numeric" value="${esc(e.reps)}" oninput="exRows[${i}].reps=this.value">
+  <input placeholder="kg" inputmode="decimal" value="${esc(e.weight)}" oninput="exRows[${i}].weight=this.value">
+  <div class="row" style="gap:2px"><button title="PR" class="btn-ghost" style="font-size:15px" onclick="exRows[${i}].pr=exRows[${i}].pr?0:1;drawEx()">${+e.pr?'🏆':'▫️'}</button>
+  <button class="del-x" onclick="exRows.splice(${i},1);drawEx()">✕</button></div></div>`).join('')||'<div class="tiny" style="padding:4px 0">مفيش تمارين متسجلة</div>';
+}
+function saveFull(editId){
+ const muscles=[...document.querySelectorAll('#modal [data-m].on')].map(b=>b.dataset.m);
+ const exercises=exRows.filter(e=>e.name.trim());
+ if(editId){
+  const s=db.sessions.find(x=>x.id===editId);
+  Object.assign(s,{date:$('#fs-date').value,time:$('#fs-time').value,dur:+$('#fs-dur').value||60,muscles,rpe:+$('#fs-rpe').value||null,kind:$('#fs-kind').value,notes:$('#fs-notes').value.trim(),exercises});
+  if(exercises.some(e=>+e.pr))log('PR جديد 🏆',client(s.clientId).name);
+  closeModal();save('✓ اتحدثت');return;
+ }
+ const cid=$('#fs-c').value,date=$('#fs-date').value,time=$('#fs-time').value;
+ // Conflict check: same date+time already scheduled
+ if(db.sessions.some(x=>x.date===date&&x.time===time&&x.status==='scheduled')&&!confirm('⚠️ في جلسة تانية متجدولة في نفس الميعاد! متأكد؟'))return;
+ db.sessions.push({id:uid(),clientId:cid,date,time,dur:+$('#fs-dur').value||60,muscles,rpe:+$('#fs-rpe').value||null,
+  attended:0,deduct:0,kind:$('#fs-kind').value,status:date<=todayS()&&confirm('الجلسة تمّت بالفعل؟ (إلغاء = مجدولة)')?'done':'scheduled',notes:$('#fs-notes').value.trim(),exercises});
+ const ns=db.sessions.at(-1);
+ if(ns.status==='done'&&ns.kind==='paid'){const sub=activeSub(cid);if(sub){sub.used++;ns.deduct=1;log('خصم جلسة',client(cid).name)}}
+ log('جدولة جلسة',client(cid).name+' — '+date+' '+time);
+ closeModal();save('✓ اتسجلت');
+}
+
+/* ============ CALENDAR ============ */
+let calBase=todayS();
+function vCalendar(){
+ const base=D(calBase);const start=new Date(base);start.setDate(base.getDate()-base.getDay());// week starts Sunday
+ const days=[...Array(7)].map((_,i)=>{const d=new Date(start);d.setDate(start.getDate()+i);return d.toISOString().slice(0,10)});
+ const t=todayS();
+ $('#main').innerHTML=header('التقويم',null,`<button class="icon-btn" onclick="formSession()" aria-label="جدولة">➕</button>`)+`
+ <div class="cal-head">
+  <button class="icon-btn" onclick="calShift(7)">‹</button>
+  <h3>${fD(days[0])} — ${fD(days[6])}</h3>
+  <button class="icon-btn" onclick="calShift(-7)">›</button>
+  <button class="btn btn-s btn-sm" onclick="calBase=todayS();vCalendar()">اليوم</button></div>
+ <div class="cal-week">
+ ${days.map(d=>{
+  const ss=db.sessions.filter(s=>s.date===d&&s.status!=='cancelled').sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  return`<div class="cal-day ${d===t?'today':''}" onclick="calDay('${d}')">
+   <div class="dn">${AR_D[D(d).getDay()].slice(0,5)}<br><span class="num" style="font-size:11px;color:var(--tx2)">${D(d).getDate()}</span></div>
+   ${ss.slice(0,2).map(s=>`<div class="pill num">${s.time||''} ${esc((client(s.clientId)?.name||'').split(' ')[0])}</div>`).join('')}
+   ${ss.length>2?`<div class="cnt">+${ss.length-2} كمان</div>`:''}</div>`}).join('')}
+ </div>
+ <div id="cal-detail" class="mt"></div>`;
+ calDay(days.includes(t)?t:days[0]);
+}
+function calShift(n){calBase=new Date(D(calBase).getTime()-n*864e5).toISOString().slice(0,10);vCalendar()}
+function calDay(d){
+ const ss=db.sessions.filter(s=>s.date===d).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+ $('#cal-detail').innerHTML=`<div class="sec-h"><h2>${fDT(d)}</h2>
+  <button class="more" style="background:none" onclick="formSessionAt('${d}')">➕ جدولة هنا</button></div>
+ <div class="list">${ss.map(s=>sessionCard(s,true)).join('')||'<div class="empty" style="padding:22px"><p>مفيش جلسات في اليوم ده</p></div>'}</div>`;
+}
+function formSessionAt(d){formSession();setTimeout(()=>{$('#fs-date').value=d},50)}
+
+/* ============ MONEY: packages + payments ============ */
+function vMoney(){
+ const t=todayS(),mStart=t.slice(0,8)+'01';
+ const rev=db.payments.filter(p=>p.date>=mStart).reduce((a,p)=>a+ +p.amount,0);
+ const out=db.clients.filter(c=>!c.archived).map(c=>({c,b:balance(c.id)})).filter(x=>x.b>0);
+ const pays=[...db.payments].sort((a,b)=>b.date.localeCompare(a.date));
+ // Monthly revenue for last 6 months
+ const months=[...Array(6)].map((_,i)=>{const d=new Date();d.setMonth(d.getMonth()-5+i);return d.toISOString().slice(0,7)});
+ const mrev=months.map(m=>db.payments.filter(p=>p.date.startsWith(m)).reduce((a,p)=>a+ +p.amount,0));
+ $('#main').innerHTML=header('الفلوس والباقات')+`
+ <div class="grid g2">
+  <div class="kpi hot"><div class="v num" style="font-size:20px">${fM(rev)}</div><div class="l">إيراد ${AR_M[new Date().getMonth()]}</div></div>
+  <div class="kpi"><div class="v num" style="font-size:20px;color:${out.length?'var(--orange)':'var(--tx)'}">${fM(out.reduce((a,x)=>a+x.b,0))}</div><div class="l">متأخرات (${out.length} متدرب)</div></div>
+ </div>
+ <div class="row mt" style="gap:8px">
+  <button class="btn btn-p grow" onclick="formPayment()">💵 تسجيل دفعة</button>
+  <button class="btn btn-s grow" onclick="formPackage()">📦 باقة جديدة</button></div>
+ <div class="chart-box mt"><canvas id="ch-rev"></canvas></div>
+ ${out.length?`<div class="sec-h"><h2>💸 متأخرات الدفع</h2></div>
+ <div class="list">${out.map(x=>`<a class="li row" style="text-decoration:none;color:inherit" href="#/client/${x.c.id}/sub">
+  <div class="grow t">${esc(x.c.name)}</div><b class="num" style="color:var(--orange)">${fM(x.b)}</b></a>`).join('')}</div>`:''}
+ <div class="sec-h"><h2>📦 الباقات</h2></div>
+ <div class="list">${db.packages.map(p=>`<div class="li row"><div class="grow"><div class="t">${esc(p.name)} ${p.active?'':'<span class="tag dim">موقوفة</span>'}</div>
+  <div class="d num">${p.sessions} جلسة · ${fM(p.price)} · صلاحية ${p.days} يوم</div></div>
+  <button class="btn btn-s btn-sm" onclick="formPackage('${p.id}')">✏️</button>
+  <button class="btn btn-ghost btn-sm" onclick="togglePkg('${p.id}')">${p.active?'إيقاف':'تفعيل'}</button></div>`).join('')}</div>
+ <div class="sec-h"><h2>🧾 سجل المدفوعات</h2></div>
+ <div class="list">${pays.slice(0,30).map(p=>`<div class="li row"><div class="grow"><div class="t">${esc(client(p.clientId)?.name||'?')}</div>
+  <div class="d">${fD(p.date)} · ${esc(p.method)} ${p.notes?'· '+esc(p.notes):''}</div></div>
+  <b class="num" style="color:var(--lime)">${fM(p.amount)}</b></div>`).join('')||'<div class="tiny">لا يوجد</div>'}</div>`;
+ drawBar('ch-rev','الإيراد الشهري',months.map(m=>AR_M[+m.slice(5)-1]),mrev,'#C8F04A');
+}
+function formPackage(id){
+ const p=id?db.packages.find(x=>x.id===id):{};
+ openModal(`<h3>📦 ${id?'تعديل باقة':'باقة جديدة'}</h3>
+ <div class="f-row"><label>اسم الباقة *</label><input id="p-name" value="${esc(p.name||'')}" placeholder="مثال: 12 جلسة"></div>
+ <div class="f-3"><div class="f-row"><label>عدد الجلسات</label><input id="p-n" type="number" inputmode="numeric" value="${p.sessions||''}"></div>
+ <div class="f-row"><label>السعر</label><input id="p-price" type="number" inputmode="numeric" value="${p.price||''}"></div>
+ <div class="f-row"><label>الصلاحية (يوم)</label><input id="p-days" type="number" inputmode="numeric" value="${p.days||30}"></div></div>
+ <button class="btn btn-p btn-block" onclick="savePkg('${id||''}')">✓ حفظ</button>`);
+}
+function savePkg(id){
+ const name=$('#p-name').value.trim(),n=+$('#p-n').value,price=+$('#p-price').value||0,days=+$('#p-days').value||30;
+ if(!name||!n){toast('⚠️ الاسم وعدد الجلسات مطلوبين');return}
+ if(id)Object.assign(db.packages.find(x=>x.id===id),{name,sessions:n,price,days});
+ else db.packages.push({id:uid(),name,sessions:n,price,days,active:1});
+ log('باقة',name);closeModal();save('✓ اتحفظت');
+}
+function togglePkg(id){const p=db.packages.find(x=>x.id===id);p.active=p.active?0:1;save(p.active?'اتفعّلت':'اتوقفت')}
+function formPayment(cid){
+ openModal(`<h3>💵 تسجيل دفعة</h3>
+ <div class="f-row"><label>المتدرب</label><select id="pay-c" onchange="payHint()">${clientOptions(cid)}</select></div>
+ <div id="pay-hint"></div>
+ <div class="f-2"><div class="f-row"><label>المبلغ *</label><input id="pay-a" type="number" inputmode="numeric"></div>
+ <div class="f-row"><label>التاريخ</label><input id="pay-d" type="date" value="${todayS()}"></div></div>
+ <div class="f-row"><label>طريقة الدفع</label><select id="pay-m">${PAY_METHODS.map(m=>`<option>${m}</option>`).join('')}</select></div>
+ <div class="f-row"><label>ملاحظات</label><input id="pay-n"></div>
+ <button class="btn btn-p btn-block" onclick="savePayment()">✓ تسجيل</button>`);
+ payHint();
+}
+function payHint(){const b=balance($('#pay-c').value);$('#pay-hint').innerHTML=b>0?`<div class="pin-note" style="margin-bottom:12px">💸 متبقي عليه <b>${fM(b)}</b></div>`:''}
+function savePayment(){
+ const a=+$('#pay-a').value;if(!a){toast('⚠️ المبلغ مطلوب');return}
+ const cid=$('#pay-c').value;
+ db.payments.push({id:uid(),clientId:cid,amount:a,date:$('#pay-d').value,method:$('#pay-m').value,notes:$('#pay-n').value.trim()});
+ const s=activeSub(cid);if(s)s.paid=(s.paid||0)+a;
+ log('دفعة',client(cid).name+' — '+fM(a));
+ closeModal();save('✓ اتسجلت الدفعة');
+}
+
+/* ============ REPORTS ============ */
+function vReports(){
+ const t=todayS();
+ const act=db.clients.filter(c=>!c.archived&&statusOf(c).k!=='expired'&&!['archived'].includes(statusOf(c).k));
+ const exp=db.clients.filter(c=>!c.archived&&statusOf(c).k==='expired');
+ // Attendance by week (last 8 weeks)
+ const wk=[...Array(8)].map((_,i)=>{const end=new Date(Date.now()-(7-i)*7*864e5);return end});
+ const wkLabels=wk.map(d=>fD(d.toISOString().slice(0,10)));
+ const wkData=wk.map(d=>{const s=new Date(d.getTime()-7*864e5).toISOString().slice(0,10),e=d.toISOString().slice(0,10);
+  return db.sessions.filter(x=>x.status==='done'&&x.date>s&&x.date<=e).length});
+ const cut30=new Date(Date.now()-30*864e5).toISOString().slice(0,10);
+ const cnt={};db.sessions.filter(s=>s.status==='done'&&s.date>=cut30).forEach(s=>cnt[s.clientId]=(cnt[s.clientId]||0)+1);
+ const ranked=Object.entries(cnt).map(([id,n])=>({c:client(id),n})).filter(x=>x.c).sort((a,b)=>b.n-a.n);
+ const missed30=db.sessions.filter(s=>s.status==='missed'&&s.date>=cut30).length;
+ const done30=db.sessions.filter(s=>s.status==='done'&&s.date>=cut30).length;
+ $('#main').innerHTML=header('التقارير والتحليلات')+`
+ <div class="grid g4">
+  <div class="kpi"><div class="v num">${act.length}</div><div class="l">نشط</div></div>
+  <div class="kpi"><div class="v num" style="color:var(--red)">${exp.length}</div><div class="l">منتهي</div></div>
+  <div class="kpi"><div class="v num">${done30}</div><div class="l">جلسات آخر ٣٠ يوم</div></div>
+  <div class="kpi"><div class="v num" style="color:var(--orange)">${missed30}</div><div class="l">غياب آخر ٣٠ يوم</div></div>
+ </div>
+ <div class="chart-box mt"><canvas id="ch-att"></canvas></div>
+ <div class="sec-h"><h2>🏆 الالتزام (آخر ٣٠ يوم)</h2></div>
+ <div class="card" style="padding:8px 14px"><table class="tbl"><tr><th>المتدرب</th><th>جلسات</th><th>معدل أسبوعي</th></tr>
+  ${ranked.map(x=>`<tr><td>${esc(x.c.name)}</td><td class="num">${x.n}</td><td class="num">${(x.n/4.3).toFixed(1)}</td></tr>`).join('')||'<tr><td colspan="3" class="tiny">لا يوجد</td></tr>'}</table></div>
+ <div class="sec-h"><h2>📤 تصدير CSV</h2></div>
+ <div class="row" style="gap:8px;flex-wrap:wrap">
+  <button class="chip" onclick="csv('clients')">🧑‍🤝‍🧑 المتدربين</button>
+  <button class="chip" onclick="csv('sessions')">🏋️ الجلسات</button>
+  <button class="chip" onclick="csv('payments')">💵 المدفوعات</button>
+  <button class="chip" onclick="csv('meas')">⚖️ القياسات</button>
+ </div>`;
+ drawBar('ch-att','الجلسات المكتملة أسبوعيًا',wkLabels,wkData,'#A08CFF');
+}
+function csv(kind){
+ let rows,head,name=kind;
+ if(kind==='clients'){head=['Name','Phone','Age','Goal','Level','Status','Remaining','SubEnd','LastWeight'];
+  rows=db.clients.filter(c=>!c.archived).map(c=>[c.name,c.phone,c.age,c.goal,c.level,statusOf(c).t,remaining(c.id),activeSub(c.id)?.end||'',lastMeas(c.id)?.weight||''])}
+ else if(kind==='sessions'){head=['Client','Date','Time','Status','Kind','Muscles','RPE','Duration','Notes'];
+  rows=db.sessions.map(s=>[client(s.clientId)?.name,s.date,s.time,s.status,s.kind,s.muscles.join('|'),s.rpe,s.dur,s.notes])}
+ else if(kind==='payments'){head=['Client','Amount','Date','Method','Notes'];
+  rows=db.payments.map(p=>[client(p.clientId)?.name,p.amount,p.date,p.method,p.notes])}
+ else{head=['Client','Date','Weight','Fat','Waist','Chest','Arms','Hips','Thighs'];
+  rows=db.meas.map(m=>[client(m.clientId)?.name,m.date,m.weight,m.fat,m.waist,m.chest,m.arms,m.hips,m.thighs])}
+ const c='\ufeff'+[head,...rows].map(r=>r.map(x=>`"${String(x??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+ dl(new Blob([c],{type:'text/csv'}),`coachos-${name}-${todayS()}.csv`);toast('✓ اتصدّر');
+}
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3e3)}
+
+/* ============ ALERTS ============ */
+function vAlerts(){
+ const A=computeAlerts();
+ $('#main').innerHTML=header('التنبيهات',`${A.length} تنبيه`)+`
+ <div class="list mt">${A.map(a=>`<a class="li row" style="text-decoration:none;color:inherit" href="#/client/${a.cid}">
+  <span style="font-size:21px">${a.icon}</span><div class="grow" style="font-weight:600;font-size:13.5px">${a.t}</div><span class="tag ${a.cls}">›</span></a>`).join('')
+ ||'<div class="empty"><div class="big">✅</div><p>كله تمام! مفيش حاجة محتاجة انتباهك دلوقتي</p></div>'}</div>`;
+}
+
+/* ============ MORE / SETTINGS / AUDIT ============ */
+function vMore(){
+ $('#main').innerHTML=header('المزيد')+`
+ <div class="list mt">
+  <a class="li row" href="#/money" style="text-decoration:none;color:inherit"><span style="font-size:20px">💰</span><div class="grow t">الفلوس والباقات</div>›</a>
+  <a class="li row" href="#/reports" style="text-decoration:none;color:inherit"><span style="font-size:20px">📈</span><div class="grow t">التقارير والتحليلات</div>›</a>
+  <a class="li row" href="#/alerts" style="text-decoration:none;color:inherit"><span style="font-size:20px">🔔</span><div class="grow t">التنبيهات</div>›</a>
+  <a class="li row" href="#/audit" style="text-decoration:none;color:inherit"><span style="font-size:20px">🧾</span><div class="grow t">سجل العمليات (Audit)</div>›</a>
+  <a class="li row" href="#/settings" style="text-decoration:none;color:inherit"><span style="font-size:20px">⚙️</span><div class="grow t">الإعدادات والنسخ الاحتياطي</div>›</a>
+ </div>`;
+}
+function vAudit(){
+ $('#main').innerHTML=header('سجل العمليات','آخر 500 عملية')+`
+ <div class="list mt">${db.audit.map(a=>`<div class="li"><div class="t" style="font-size:13px">${esc(a.action)}</div>
+  <div class="d">${esc(a.details)} · <span class="num">${a.ts.slice(0,16).replace('T',' ')}</span></div></div>`).join('')||'<div class="tiny">فارغ</div>'}</div>`;
+}
+function vSettings(){
+ const lastSync=localStorage.getItem(LAST_SYNC_KEY);
+ $('#main').innerHTML=header('الإعدادات')+`
+ <div class="card mt">
+  <div class="f-row"><label>اسم الكابتن</label><input id="set-name" value="${esc(db.settings.coachName)}"></div>
+  <div class="f-row"><label>العملة</label><select id="set-cur">${['ج.م','ر.س','د.إ','€','$'].map(c=>`<option ${db.settings.currency===c?'selected':''}>${c}</option>`).join('')}</select></div>
+  <div class="f-row"><label>المظهر</label><select id="set-theme"><option value="dark" ${db.settings.theme!=='light'?'selected':''}>داكن (Dark)</option><option value="light" ${db.settings.theme==='light'?'selected':''}>فاتح (Light)</option></select></div>
+  <button class="btn btn-p btn-block" onclick="saveSettings()">💾 حفظ</button></div>
+ <div class="sec-h"><h2>☁️ المزامنة السحابية</h2></div>
+ <div class="card">
+  ${SYNC_ENABLED?`
+  <div class="row"><div class="grow">
+   <div class="t" style="font-weight:700">${appPassword?'متصل ✅':'مش مسجّل دخول'}</div>
+   <div class="tiny">${outbox.length?`⏳ ${outbox.length} تحديث لسه مبعتش`:'✅ كل حاجة متزامنة'}${lastSync?' · آخر مزامنة '+fDT(lastSync.slice(0,10)):''}</div>
+  </div></div>
+  <div class="row mt" style="gap:8px">
+   <button class="btn btn-s grow" onclick="flushQueue();pullChanges();toast('🔄 جاري التزامن')">🔄 مزامنة دلوقتي</button>
+   ${appPassword?`<button class="btn btn-danger grow" onclick="logout()">🚪 خروج</button>`:''}
+  </div>`:`<p class="muted">مفيش ربط بالشيت لسه — محتاج تحط رابط الـ Apps Script جوه الكود (SHEET_API_URL).</p>`}
+ </div>
+ <div class="sec-h"><h2>🗄️ النسخ الاحتياطي</h2></div>
+ <div class="card">
+  <p class="muted" style="margin-bottom:12px">${SYNC_ENABLED?'بياناتك بتتزامن مع الشيت السحابي تلقائيًا، لكن برضه اعمل نسخة احتياطية بانتظام.':'بياناتك متخزنة على الجهاز ده بس. اعمل نسخة احتياطية بانتظام — خصوصًا قبل مسح بيانات المتصفح.'}</p>
+  <div class="row" style="gap:8px">
+   <button class="btn btn-s grow" onclick="backup()">⬇️ تصدير نسخة</button>
+   <button class="btn btn-s grow" onclick="document.getElementById('imp').click()">⬆️ استيراد نسخة</button>
+   <input type="file" id="imp" accept=".json" style="display:none" onchange="restore(this)">
+  </div></div>
+ <div class="sec-h"><h2>⚠️ منطقة الخطر</h2></div>
+ <div class="card">
+  <button class="btn btn-s btn-block" onclick="if(confirm('تحميل البيانات التجريبية هيمسح بياناتك الحالية! متأكد؟')){db=seedDemo();persist();route();toast('✓ اتحملت')}">🎬 تحميل بيانات تجريبية</button>
+  <button class="btn btn-danger btn-block mt" onclick="wipe()">🗑️ مسح كل البيانات</button></div>
+ <p class="tiny mt2" style="text-align:center">Coach OS v1.0 · يعمل Offline · PWA</p>`;
+}
+function saveSettings(){
+ db.settings.coachName=$('#set-name').value.trim()||'الكابتن';
+ db.settings.currency=$('#set-cur').value;
+ db.settings.theme=$('#set-theme').value;
+ applyTheme();save('✓ اتحفظت');
+}
+function applyTheme(){document.documentElement.setAttribute('data-theme',db.settings.theme==='light'?'light':'dark')}
+function backup(){dl(new Blob([JSON.stringify(db,null,1)],{type:'application/json'}),`coachos-backup-${todayS()}.json`);log('نسخة احتياطية','');persist();toast('✓ اتصدّرت النسخة')}
+function restore(inp){
+ const f=inp.files[0];if(!f)return;
+ const r=new FileReader();
+ r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.settings||!Array.isArray(d.clients))throw 0;
+  db=d;log('استيراد نسخة احتياطية','');persist();diffAndEnqueue();flushQueue();route();toast('✓ اتسترجعت البيانات')}
+  catch(e){toast('⚠️ الملف مش نسخة صحيحة')}};
+ r.readAsText(f);
+}
+function wipe(){
+ if(prompt('اكتب "مسح" للتأكيد النهائي:')!=='مسح'){toast('اتلغى');return}
+ localStorage.removeItem(DB_KEY);db=blank();diffAndEnqueue();flushQueue();route();
+}
+
+/* ---------- Charts ---------- */
+function chartOpts(){
+ const light=db.settings.theme==='light';
+ return{grid:light?'#DDE2CF':'#242a1c',tick:light?'#5A6250':'#8b937d'};
+}
+function drawLine(id,title,labels,series){
+ const el=document.getElementById(id);if(!el||!window.Chart)return;
+ const o=chartOpts();
+ chartRefs.push(new Chart(el,{type:'line',data:{labels,datasets:series.map(s=>({label:s.label,data:s.data,borderColor:s.color,backgroundColor:s.color+'22',tension:.35,spanGaps:true,pointRadius:3,fill:series.length===1}))},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{title:{display:true,text:title,color:o.tick,font:{family:'IBM Plex Sans Arabic'}},legend:{display:series.length>1,labels:{color:o.tick,font:{family:'IBM Plex Sans Arabic'}}}},
+  scales:{x:{ticks:{color:o.tick,maxTicksLimit:6},grid:{color:o.grid}},y:{ticks:{color:o.tick},grid:{color:o.grid}}}}}));
+}
+function drawBar(id,title,labels,data,color){
+ const el=document.getElementById(id);if(!el||!window.Chart)return;
+ const o=chartOpts();
+ chartRefs.push(new Chart(el,{type:'bar',data:{labels,datasets:[{data,backgroundColor:color+'CC',borderRadius:6}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{title:{display:true,text:title,color:o.tick,font:{family:'IBM Plex Sans Arabic'}},legend:{display:false}},
+  scales:{x:{ticks:{color:o.tick,maxTicksLimit:8},grid:{display:false}},y:{ticks:{color:o.tick},grid:{color:o.grid}}}}}));
+}
+
+/* ---------- Cloud sync engine (side-car on save()/boot; view/CRUD code untouched) ---------- */
+async function apiCall(action,extra,pwOverride){
+ const payload=Object.assign({action,password:pwOverride||appPassword},extra||{});
+ const res=await fetch(SHEET_API_URL,{method:'POST',body:JSON.stringify(payload)});
+ return res.json();
+}
+function snapshotDb(){
+ const s={};
+ ENTITIES.forEach(e=>{
+  if(e==='settings'){s.settings=new Map([['settings',JSON.stringify(db.settings)]]);return}
+  s[e]=new Map((db[e]||[]).map(r=>[r.id,JSON.stringify(r)]));
+ });
+ return s;
+}
+function enqueue(entity,id,op,payload){
+ outbox=outbox.filter(o=>!(o.entity===entity&&o.id===id));
+ outbox.push({entity,id,op,payload,ts:new Date().toISOString()});
+ localStorage.setItem(OUTBOX_KEY,JSON.stringify(outbox));
+}
+function diffAndEnqueue(){
+ if(!SYNC_ENABLED)return;
+ const next=snapshotDb();
+ if(!dbSnapshot){dbSnapshot=next;return}
+ ENTITIES.forEach(e=>{
+  const before=dbSnapshot[e]||new Map(), after=next[e]||new Map();
+  after.forEach((json,id)=>{if(before.get(id)!==json)enqueue(e,id,'upsert',e==='settings'?db.settings:JSON.parse(json))});
+  before.forEach((json,id)=>{if(!after.has(id))enqueue(e,id,'delete',null)});
+ });
+ dbSnapshot=next;
+}
+async function flushQueue(){
+ if(!SYNC_ENABLED||syncing||!navigator.onLine||!appPassword||outbox.length===0)return;
+ syncing=true;
+ const batch=outbox.slice(0,200);
+ try{
+  const r=await apiCall('push',{ops:batch.map(o=>({entity:o.entity,id:o.id,op:o.op,payload:o.payload}))});
+  if(r&&r.ok){
+   outbox=outbox.filter(o=>batch.indexOf(o)===-1);
+   localStorage.setItem(OUTBOX_KEY,JSON.stringify(outbox));
+  }
+ }catch(e){/* stays queued, retried later */}
+ syncing=false;
+ if(outbox.length>0)setTimeout(flushQueue,3000);
+}
+async function pullChanges(){
+ if(!SYNC_ENABLED||!navigator.onLine||!appPassword)return;
+ const cursors=JSON.parse(localStorage.getItem(CURSOR_KEY)||'{}');
+ let mutated=false,r;
+ try{r=await apiCall('pull',{cursors})}catch(e){return}
+ if(!r||!r.ok)return;
+ ENTITIES.forEach(e=>{
+  const rows=(r.entities&&r.entities[e])||[];
+  if(!rows.length)return;
+  if(e==='settings'){
+   const row=rows[rows.length-1];
+   if(!row.deleted_at){db.settings=Object.assign({},db.settings,row.data,{_updatedAt:row.updated_at});mutated=true}
+   cursors[e]=row.updated_at;return;
+  }
+  const arr=db[e]=db[e]||[];
+  rows.forEach(row=>{
+   const i=arr.findIndex(x=>x.id===row.id);
+   if(row.deleted_at){if(i>-1){arr.splice(i,1);mutated=true}return}
+   const local=i>-1?arr[i]:null;
+   if(!local||!local._updatedAt||row.updated_at>local._updatedAt){
+    const merged=Object.assign({},row.data,{id:row.id,_updatedAt:row.updated_at});
+    if(i>-1)arr[i]=merged;else arr.push(merged);
+    mutated=true;
+   }
+  });
+  cursors[e]=rows[rows.length-1].updated_at;
+ });
+ localStorage.setItem(CURSOR_KEY,JSON.stringify(cursors));
+ localStorage.setItem(LAST_SYNC_KEY,new Date().toISOString());
+ if(mutated){persist();dbSnapshot=snapshotDb();route()}
+}
+async function afterFirstLogin(){
+ if(!SYNC_ENABLED||localStorage.getItem(BACKFILL_KEY)||!navigator.onLine)return;
+ if(db.settings.setup){
+  ENTITIES.forEach(e=>{
+   if(e==='settings'){enqueue('settings','settings','upsert',db.settings);return}
+   (db[e]||[]).forEach(row=>enqueue(e,row.id,'upsert',row));
+  });
+  let tries=0;
+  while(outbox.length>0&&tries<20){await flushQueue();tries++}
+ }
+ await pullChanges();
+ if(outbox.length===0)localStorage.setItem(BACKFILL_KEY,'1');
+ dbSnapshot=snapshotDb();
+}
+function initAuth(){
+ if(!SYNC_ENABLED){route();return}
+ appPassword=localStorage.getItem(PW_KEY);
+ route();
+ if(appPassword){afterFirstLogin().catch(()=>{});pullChanges().catch(()=>{});flushQueue().catch(()=>{})}
+}
+
+/* ---------- Auto-expire pass + boot ---------- */
+function housekeeping(){
+ const t=todayS();
+ db.subs.forEach(s=>{if(s.status==='active'&&dayDiff(t,s.end)<0){s.status='expired'}});
+}
+outbox=JSON.parse(localStorage.getItem(OUTBOX_KEY)||'[]');
+db=load()||blank();
+housekeeping();applyTheme();
+dbSnapshot=snapshotDb();
+persist();
+initAuth();
+if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+window.addEventListener('online',()=>{flushQueue();pullChanges()});
+setInterval(flushQueue,60000);
+setInterval(pullChanges,120000);
+</script>
+</body>
+</html>
