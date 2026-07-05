@@ -152,6 +152,29 @@ header.top .sub{font-size:12px;color:var(--tx2);font-weight:400;display:block}
 .fiber-line{stroke:var(--bg);stroke-width:.7;fill:none;opacity:.35;pointer-events:none}
 .body-toggle{display:flex;gap:6px}
 
+/* Exercise cards (muscle atlas) */
+.ex-card{display:flex;gap:12px;align-items:center;background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:10px;margin-bottom:8px}
+.ex-thumb{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;border:1px solid var(--line2)}
+.ex-card .t{font-weight:700;font-size:13.5px}
+.ex-card .d{font-size:11.5px;color:var(--tx2);margin-top:2px}
+
+/* Atlas split layout (desktop side panel / mobile bottom sheet) */
+.atlas-wrap{position:relative}
+.atlas-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:59;opacity:0;pointer-events:none;transition:opacity .25s}
+.atlas-backdrop.open{opacity:1;pointer-events:auto}
+.atlas-detail{position:fixed;left:0;right:0;bottom:0;background:var(--s1);border-radius:20px 20px 0 0;box-shadow:0 -8px 28px rgba(0,0,0,.45);max-height:82vh;overflow-y:auto;transform:translateY(105%);transition:transform .28s cubic-bezier(.32,.72,0,1);z-index:60;padding:10px 16px calc(16px + env(safe-area-inset-bottom))}
+.atlas-detail.open{transform:translateY(0)}
+.atlas-sheet-handle{width:38px;height:4px;background:var(--line2);border-radius:3px;margin:2px auto 12px}
+.atlas-tabbar{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:10px 0 14px;overflow-x:auto}
+.atlas-tab{padding:9px 4px;font-size:12.5px;font-weight:700;color:var(--tx3);border-bottom:2px solid transparent;white-space:nowrap;flex:1}
+.atlas-tab.on{color:var(--lime);border-color:var(--lime)}
+@media(min-width:900px){
+ .atlas-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+ .atlas-detail{position:sticky;top:76px;transform:none!important;max-height:calc(100dvh - 96px);border-radius:var(--r);box-shadow:none;z-index:1;padding:18px;border:1px solid var(--line)}
+ .atlas-backdrop{display:none}
+ .atlas-sheet-handle{display:none}
+}
+
 /* Client card */
 .ccard{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;transition:border-color .15s}
 .ccard:active{border-color:var(--lime-d)}
@@ -307,90 +330,104 @@ const PAY_METHODS=['كاش','InstaPay','Vodafone Cash','تحويل بنكي','أ
 
 /* ---------- Muscle atlas (built-in reference data, not synced) ---------- */
 const MUSCLE_ATLAS=[
- {id:'chest',ar:'الصدر',svgIds:['f-chest-l','f-chest-r'],
+ {id:'chest',ar:'الصدر',nameEn:'Pectoralis Major',svgIds:['f-chest-l','f-chest-r'],
   fn:'دفع أفقي وعلوي للذراع، وتقريب الذراع للجسم من الأمام',
   antagonist:'lats',joints:['shoulder'],
   compound:['bench-press','incline-db-press','dips','pushup'],isolation:['cable-fly','cable-crossover'],
   stretch:'تمديد الصدر على الحائط (Doorway stretch)، تمرين الكوبرا',
-  injuries:['شد في وتر الصدر (pec strain)','التهاب المفصل القصّي الترقوي'],recovery:48},
- {id:'shoulders',ar:'الكتف',svgIds:['f-delt-l','f-delt-r','b-delt-l','b-delt-r'],
+  injuries:['شد في وتر الصدر (pec strain)','التهاب المفصل القصّي الترقوي'],
+  tips:['ثبّت لوح الكتف للخلف قبل الدفع عشان الصدر ياخد الحمل مش الكتف','انزل بالبار لمس خفيف للصدر من غير ما ترتد','نوّع بين زوايا البنش (مستوي/عالي) عشان تغطي كل الصدر'],recovery:48},
+ {id:'shoulders',ar:'الكتف',nameEn:'Deltoids',svgIds:['f-delt-l','f-delt-r','b-delt-l','b-delt-r'],
   fn:'رفع ودوران الذراع في كل الاتجاهات — أمامي وجانبي وخلفي',
   antagonist:'lats',joints:['shoulder'],
   compound:['ohp','arnold-press'],isolation:['lateral-raise','rear-delt-fly','front-raise'],
   stretch:'تمديد الكتف عبر الجسم (cross-body stretch)',
-  injuries:['التهاب الكتف (shoulder impingement)','إصابة الكفة المدورة (rotator cuff)'],recovery:48},
- {id:'biceps',ar:'الذراع الأمامي (باي)',svgIds:['f-bicep-l','f-bicep-r'],
+  injuries:['التهاب الكتف (shoulder impingement)','إصابة الكفة المدورة (rotator cuff)'],
+  tips:['ابدأ بوزن خفيف في الرفرفة الجانبية — الكتف بيتأذى بسرعة من الغش بالوزن الزيادة','متنساش تدرّب الرأس الخلفي (Rear Delt) عشان توازن الكتف','سخّن الكفة المدورة قبل أي تمرين ضغط فوق الرأس'],recovery:48},
+ {id:'biceps',ar:'الذراع الأمامي (باي)',nameEn:'Biceps Brachii',svgIds:['f-bicep-l','f-bicep-r'],
   fn:'ثني الكوع وتدوير الساعد للخارج',
   antagonist:'triceps',joints:['elbow'],
   compound:[],isolation:['barbell-curl','db-curl','hammer-curl','preacher-curl','concentration-curl'],
   stretch:'تمديد الباي بالذراع ممدودة على حائط',
-  injuries:['شد العضلة ذات الرأسين','التهاب وتر الباي'],recovery:36},
- {id:'triceps',ar:'الذراع الخلفي (تراي)',svgIds:['b-tricep-l','b-tricep-r'],
+  injuries:['شد العضلة ذات الرأسين','التهاب وتر الباي'],
+  tips:['اقفل المرفق جنب الجسم — أي تأرجح بيقلل الحمل عن الباي','انزل ببطء (3-4 ثواني) عشان تستفيد من الـ Negative','هامر كيرل بيشتغل على الساعد كمان مش بس الباي'],recovery:36},
+ {id:'triceps',ar:'الذراع الخلفي (تراي)',nameEn:'Triceps Brachii',svgIds:['b-tricep-l','b-tricep-r'],
   fn:'فرد الكوع — العضلة المسؤولة عن كل حركات الدفع',
   antagonist:'biceps',joints:['elbow'],
   compound:['close-grip-bench','diamond-pushup'],isolation:['triceps-pushdown','skull-crusher','overhead-extension'],
   stretch:'تمديد الترايسبس خلف الرأس',
-  injuries:['التهاب وتر الترايسبس (tricep tendinitis)'],recovery:36},
- {id:'forearms',ar:'الساعد',svgIds:['f-forearm-l','f-forearm-r'],
+  injuries:['التهاب وتر الترايسبس (tricep tendinitis)'],
+  tips:['التراي 3 رؤوس — لازم تمرين بيد فوق الراس عشان تضرب الرأس الطويل بالكامل','خلي المرفق ثابت في البوش داون، الحركة من الساعد بس','متزودش وزن السكال كراشر بسرعة — مفصل المرفق حساس'],recovery:36},
+ {id:'forearms',ar:'الساعد',nameEn:'Forearm Flexors/Extensors',svgIds:['f-forearm-l','f-forearm-r'],
   fn:'قبضة اليد وثني/فرد الرسغ',
   antagonist:null,joints:['wrist'],
   compound:['farmers-carry'],isolation:['wrist-curl','reverse-curl'],
   stretch:'تمديد الرسغ للأمام وللخلف',
-  injuries:['التهاب لقيمة العضد (تنس إلبو)','متلازمة النفق الرسغي'],recovery:24},
- {id:'abs',ar:'البطن',svgIds:['f-abs'],
+  injuries:['التهاب لقيمة العضد (تنس إلبو)','متلازمة النفق الرسغي'],
+  tips:['قبضة قوية = تقدّم أسرع في كل تمارين السحب','دي أصغر عضلة بس بتتعافى بسرعة، ينفع تتمرن أكتر من مرة أسبوعيًا','لو حاسس بألم في المرفق وقف فورًا — من أشيع إصابات الإفراط'],recovery:24},
+ {id:'abs',ar:'البطن',nameEn:'Rectus Abdominis',svgIds:['f-abs'],
   fn:'ثني الجذع وتثبيت العمود الفقري',
   antagonist:'lowerback',joints:[],
   compound:[],isolation:['crunch','leg-raise','plank','cable-crunch','ab-wheel'],
   stretch:'تمديد الكوبرا وتمديد الجذع للخلف',
-  injuries:['شد عضلي في البطن'],recovery:24},
- {id:'obliques',ar:'البطن الجانبي',svgIds:['f-oblique-l','f-oblique-r'],
+  injuries:['شد عضلي في البطن'],
+  tips:['وضوح الـ"سيكس باك" شرطه دهون قليلة مش بس تمرين — التغذية هي الأهم','ركّز على تثبيت أسفل الظهر ملزوق بالأرض في أي تمرين بطن','أضف أوزان تدريجيًا في الكرنش عشان تكبر العضلة مش بس تنشّفها'],recovery:24},
+ {id:'obliques',ar:'البطن الجانبي',nameEn:'Obliques',svgIds:['f-oblique-l','f-oblique-r'],
   fn:'لف وثني الجذع جانبيًا',
   antagonist:null,joints:[],
   compound:[],isolation:['russian-twist','side-plank','woodchop'],
   stretch:'تمديد جانبي واقف (side bend stretch)',
-  injuries:['شد في العضلة الجانبية'],recovery:24},
- {id:'lats',ar:'الظهر العريض',svgIds:['b-lat-l','b-lat-r'],
+  injuries:['شد في العضلة الجانبية'],
+  tips:['وزن زيادة في تمارين اللف الجانبي بيوسّع الخصر — خفيف وتكرار عالي أفضل','الوود تشوب بيقلّد حركات رياضية حقيقية (دوران الجذع)','الأوبليكس مهمة لثبات الجذع في الرفعات التقيلة زي السكوات'],recovery:24},
+ {id:'lats',ar:'الظهر العريض',nameEn:'Latissimus Dorsi',svgIds:['b-lat-l','b-lat-r'],
   fn:'سحب الذراع للأسفل وللخلف — يبني اتساع الظهر',
   antagonist:'chest',joints:['shoulder'],
   compound:['lat-pulldown','pullup','seated-row','barbell-row','t-bar-row'],isolation:['straight-arm-pulldown'],
   stretch:'تمديد الظهر المعلّق (dead hang)',
-  injuries:['شد عضلي في الظهر العريض'],recovery:48},
- {id:'traps',ar:'الترابيس',svgIds:['b-traps'],
+  injuries:['شد عضلي في الظهر العريض'],
+  tips:['فكّر إن مرفقك بيدفع للخلف مش إن إيدك بتسحب — بيفعّل اللاتس أكتر','عقلة بقبضة واسعة بتضرب الاتساع، والقبضة الضيقة بتضرب السمك','ابدأ الحركة من لوح الكتف قبل ما تلف الدراع'],recovery:48},
+ {id:'traps',ar:'الترابيس',nameEn:'Trapezius',svgIds:['b-traps'],
   fn:'رفع الكتف وتثبيت لوح الكتف',
   antagonist:null,joints:['shoulder'],
   compound:['upright-row'],isolation:['shrug','face-pull'],
   stretch:'إمالة الرقبة جانبًا مع سحب خفيف',
-  injuries:['شد في الترابيس العلوي'],recovery:24},
- {id:'lowerback',ar:'أسفل الظهر',svgIds:['b-lowerback'],
+  injuries:['شد في الترابيس العلوي'],
+  tips:['في الشراج ارفع الكتف لفوق بس، من غير ما تلف الكتف للأمام أو للخلف','الترابيس بتتحمّل حجم تدريبي عالي — تقدر تدربها كل يوم تقريبًا','لو حاسس بشد في الرقبة أثناء الشراج، الوزن زيادة عن اللزوم'],recovery:24},
+ {id:'lowerback',ar:'أسفل الظهر',nameEn:'Erector Spinae',svgIds:['b-lowerback'],
   fn:'فرد الجذع وتثبيت العمود الفقري أثناء الرفع',
   antagonist:'abs',joints:['lower-back'],
   compound:['deadlift','good-morning'],isolation:['back-extension'],
   stretch:"تمديد الطفل (child's pose)، تمديد الركبة للصدر",
-  injuries:['شد أسفل الظهر','انزلاق غضروفي (يحتاج تقييم طبي)'],recovery:72},
- {id:'glutes',ar:'الأرداف',svgIds:['b-glute-l','b-glute-r'],
+  injuries:['شد أسفل الظهر','انزلاق غضروفي (يحتاج تقييم طبي)'],
+  tips:['حافظ على استقامة الظهر في كل رفعة — الانحناء هو أكبر سبب إصابات الديدليفت','قوة أسفل الظهر بتحمي من إصابات باقي التمارين المركّبة','لو فيه تاريخ إصابة، ابدأ بحركات خفيفة زي البلانك قبل الرفعات التقيلة'],recovery:72},
+ {id:'glutes',ar:'الأرداف',nameEn:'Gluteus Maximus',svgIds:['b-glute-l','b-glute-r'],
   fn:'فرد الفخذ من الورك — أساسي في كل حركات الدفع بالرجل',
   antagonist:null,joints:['hip'],
   compound:['hip-thrust','bulgarian-split-squat'],isolation:['glute-bridge','cable-kickback'],
   stretch:'تمديد الحمامة (pigeon pose)',
-  injuries:['شد في الأرداف'],recovery:48},
- {id:'quads',ar:'الفخذ الأمامي',svgIds:['f-quad-l','f-quad-r'],
+  injuries:['شد في الأرداف'],
+  tips:['اعصر الأرداف بقوة في قمة الهيب ثرست وثبّت ثانية واحدة','الأرداف أقوى عضلة في الجسم — تتحمّل أوزان تقيلة جدًا بأمان','لو حاسس الفخذ شغال أكتر من الأرداف، قلل المدى أو غيّر زاوية القدم'],recovery:48},
+ {id:'quads',ar:'الفخذ الأمامي',nameEn:'Quadriceps',svgIds:['f-quad-l','f-quad-r'],
   fn:'فرد الركبة — أساسي في القرفصاء والدفع بالرجل',
   antagonist:'hamstrings',joints:['knee'],
   compound:['squat','leg-press','lunge','step-up'],isolation:['leg-extension'],
   stretch:'تمديد الفخذ الأمامي واقف (quad stretch)',
-  injuries:["التهاب وتر الرضفة (jumper's knee)",'إجهاد الفخذ الأمامي'],recovery:72},
- {id:'hamstrings',ar:'الفخذ الخلفي',svgIds:['b-ham-l','b-ham-r'],
+  injuries:["التهاب وتر الرضفة (jumper's knee)",'إجهاد الفخذ الأمامي'],
+  tips:['نزول السكوات لازم يكون تحت التوازي عشان تشغّل الفخذ بالكامل','الركبة تتبع اتجاه أصابع القدم — متخليهاش تميل للداخل','ليج إكستنشن كويس للعزل بس مش بديل عن السكوات كتمرين أساسي'],recovery:72},
+ {id:'hamstrings',ar:'الفخذ الخلفي',nameEn:'Hamstrings',svgIds:['b-ham-l','b-ham-r'],
   fn:'ثني الركبة وفرد الورك — عضلة العدّاء',
   antagonist:'quads',joints:['knee','hip'],
   compound:['rdl'],isolation:['leg-curl','nordic-curl','glute-ham-raise'],
   stretch:'تمديد الفخذ الخلفي جالسًا (seated hamstring stretch)',
-  injuries:['شد العضلة الخلفية — من أشيع إصابات الرياضيين'],recovery:72},
- {id:'calves',ar:'السمانة',svgIds:['f-calf-l','f-calf-r','b-calf-l','b-calf-r'],
+  injuries:['شد العضلة الخلفية — من أشيع إصابات الرياضيين'],
+  tips:['أغلب المتدربين بيهملوا الفخذ الخلفي وده بيسبب خلل مع الفخذ الأمامي','في الـ RDL خلي الحركة من الورك مش من الركبة','سخّن كويس قبل أي تمرين سريع أو انفجاري — العضلة دي عرضة للشد بسهولة'],recovery:72},
+ {id:'calves',ar:'السمانة',nameEn:'Gastrocnemius & Soleus',svgIds:['f-calf-l','f-calf-r','b-calf-l','b-calf-r'],
   fn:'رفع كعب القدم — دفع الجسم للأمام أثناء المشي والجري',
   antagonist:null,joints:['ankle'],
   compound:[],isolation:['standing-calf-raise','seated-calf-raise','donkey-calf-raise'],
   stretch:'تمديد السمانة على درجة (calf stretch on step)',
-  injuries:['شد السمانة','التهاب وتر أخيل (Achilles tendinitis)'],recovery:24}
+  injuries:['شد السمانة','التهاب وتر أخيل (Achilles tendinitis)'],
+  tips:['السمانة عضلة عنيدة — محتاجة حجم تدريبي عالي وتكرارات كتير','اعمل الرفرفة واقفة وجالسة الاثنين (بيستهدفوا أجزاء مختلفة)','مدى حركة كامل (نزول تحت واقف تمام) أهم من الوزن الزيادة'],recovery:24}
 ];
 const muscleOf=id=>MUSCLE_ATLAS.find(m=>m.id===id);
 
@@ -472,6 +509,39 @@ const EXERCISES=[
  {id:'donkey-calf-raise',ar:'دونكي كاف ريز',type:'isolation',primary:['calves'],secondary:[],joints:['ankle'],equip:'مكينة',level:'متوسط',cautionTags:['ankle'],sub:['standing-calf-raise']}
 ];
 const exerciseOf=id=>EXERCISES.find(x=>x.id===id);
+
+/* ---------- Exercise cards (thumbnail placeholders — no real photos available) ---------- */
+const EQUIP_GRAD={
+ 'باربل':'linear-gradient(135deg,var(--lime-bg),var(--s3))',
+ 'دمبل':'linear-gradient(135deg,var(--orange-bg),var(--s3))',
+ 'كابل':'linear-gradient(135deg,var(--violet-bg),var(--s3))',
+ 'مكينة':'linear-gradient(135deg,var(--blue-bg),var(--s3))',
+ 'مكينة/باربل':'linear-gradient(135deg,var(--blue-bg),var(--s3))',
+ 'باربل/دمبل':'linear-gradient(135deg,var(--lime-bg),var(--s3))',
+ 'وزن الجسم':'linear-gradient(135deg,var(--s2),var(--s3))',
+ 'وزن/دمبل':'linear-gradient(135deg,var(--s2),var(--s3))',
+ 'وزن الجسم/صندوق':'linear-gradient(135deg,var(--s2),var(--s3))',
+ 'دمبل/صندوق':'linear-gradient(135deg,var(--orange-bg),var(--s3))',
+ 'دمبل/كيتلبل':'linear-gradient(135deg,var(--orange-bg),var(--s3))',
+ 'بار عقلة':'linear-gradient(135deg,var(--lime-bg),var(--s3))',
+ 'بار متوازي':'linear-gradient(135deg,var(--lime-bg),var(--s3))',
+ 'بنش خاص':'linear-gradient(135deg,var(--red-bg),var(--s3))',
+ 'عجلة':'linear-gradient(135deg,var(--violet-bg),var(--s3))',
+ 'مكينة GHR':'linear-gradient(135deg,var(--blue-bg),var(--s3))'
+};
+const EQUIP_ICON={'باربل':'🏋️','دمبل':'🔩','كابل':'🔗','مكينة':'⚙️','وزن الجسم':'🤸','بار عقلة':'🧗','بار متوازي':'🤾','عجلة':'🛞'};
+const equipIcon=eq=>{for(const k in EQUIP_ICON){if(eq.includes(k))return EQUIP_ICON[k]}return '🏋️'};
+const equipGrad=eq=>EQUIP_GRAD[eq]||'linear-gradient(135deg,var(--s2),var(--s3))';
+const setsRepsOf=e=>e.type==='compound'?'4×8-12':'3×12-15';
+function exerciseCard(e,onClick){
+ return `<div class="ex-card"${onClick?` onclick="${onClick}"`:''}>
+  <div class="ex-thumb" style="background:${equipGrad(e.equip)}"><span>${equipIcon(e.equip)}</span></div>
+  <div class="grow">
+   <div class="t">${esc(e.ar)}</div>
+   <div class="d">${setsRepsOf(e)} · ${esc(e.equip)} · ${esc(e.level)}</div>
+  </div>
+ </div>`;
+}
 const S_KIND={paid:'مدفوعة',free:'مجانية',comp:'تعويضية'};
 const S_STATUS={scheduled:'مجدولة',done:'تمّت',missed:'لم يحضر',cancelled:'ملغية'};
 
@@ -718,14 +788,22 @@ const FIBER_LINES={
   'M42,108 Q40,122 44,140', // bicep L
   'M198,108 Q200,122 196,140', // bicep R
   'M85,232 Q82,260 84,290','M96,232 Q94,260 96,290', // quad L
-  'M155,232 Q158,260 156,290','M144,232 Q146,260 144,290' // quad R
+  'M155,232 Q158,260 156,290','M144,232 Q146,260 144,290', // quad R
+  'M46,64 Q50,88 46,112', // delt L split (anterior/lateral)
+  'M194,64 Q190,88 194,112', // delt R split
+  'M78,128 L88,134','M76,138 L86,144','M75,148 L85,154', // serratus hint L
+  'M162,128 L152,134','M164,138 L154,144','M165,148 L155,154' // serratus hint R
  ],
  back:[
-  'M100,70 Q110,80 120,86','M140,70 Q130,80 120,86', // traps
+  'M100,70 Q110,80 120,86','M140,70 Q130,80 120,86','M120,58 L120,95', // traps
   'M90,110 Q80,135 88,160','M94,120 Q86,142 92,165', // lat L
   'M150,110 Q160,135 152,160','M146,120 Q154,142 148,165', // lat R
   'M82,290 Q80,312 82,335','M90,290 Q88,312 90,335', // hamstring L
-  'M158,290 Q160,312 158,335','M150,290 Q152,312 150,335' // hamstring R
+  'M158,290 Q160,312 158,335','M150,290 Q152,312 150,335', // hamstring R
+  'M46,64 Q42,88 46,112', // delt L split (lateral/posterior)
+  'M194,64 Q198,88 194,112', // delt R split
+  'M40,110 Q36,124 40,136', // tricep horseshoe L
+  'M200,110 Q204,124 200,136' // tricep horseshoe R
  ]
 };
 const BODY_SHAPES={
@@ -1480,50 +1558,76 @@ function vAlerts(){
 }
 
 /* ============ MUSCLE ATLAS ============ */
-let atlasView='front';
+let atlasView='front', atlasTab='overview';
 function vAtlas(sel){
- $('#main').innerHTML=header('موسوعة العضلات والتمارين','دوس على أي عضلة عشان تعرف تفاصيلها')+`
- <div class="card mt body-map-wrap">
-  <div class="body-toggle">
-   <button class="chip ${atlasView==='front'?'on':''}" onclick="atlasView='front';vAtlas('${sel||''}')">وش</button>
-   <button class="chip ${atlasView==='back'?'on':''}" onclick="atlasView='back';vAtlas('${sel||''}')">ضهر</button>
+ $('#main').innerHTML=header('موسوعة العضلات والتمارين','اختر أي عضلة لمعرفة تفاصيلها وتمارينها')+`
+ <div class="atlas-wrap mt">
+  <div class="card body-map-wrap">
+   <div class="body-toggle">
+    <button class="chip ${atlasView==='front'?'on':''}" onclick="atlasView='front';vAtlas('${sel||''}')">من الأمام</button>
+    <button class="chip ${atlasView==='back'?'on':''}" onclick="atlasView='back';vAtlas('${sel||''}')">من الخلف</button>
+   </div>
+   ${bodyMapSvg(atlasView,null,sel,'lg')}
+   <p class="tiny">دوس على أي عضلة في الرسم</p>
   </div>
-  ${bodyMapSvg(atlasView,null,sel,'lg')}
-  <p class="tiny">دوس على أي عضلة في الرسم</p>
- </div>
- <div id="atlas-detail" class="mt">${sel?muscleDetailCard(sel):'<div class="empty"><div class="big">🧬</div><p>اختار عضلة من الرسم فوق عشان تشوف وظيفتها وأفضل تمارينها والإصابات الشائعة</p></div>'}</div>`;
+  <div class="atlas-backdrop ${sel?'open':''}" onclick="location.hash='#/atlas'"></div>
+  <div id="atlas-detail" class="atlas-detail ${sel?'open':''}">${sel?muscleDetailPanel(sel):'<div class="empty"><div class="big">🧬</div><p>اختار عضلة من الرسم عشان تشوف تفاصيلها وتمارينها</p></div>'}</div>
+ </div>`;
 }
-function pickMuscle(id){location.hash='#/atlas/'+id}
-function muscleDetailCard(id){
+function pickMuscle(id){atlasTab='overview';location.hash='#/atlas/'+id}
+function setAtlasTab(tab){
+ atlasTab=tab;
+ const p=location.hash.slice(2).split('/');
+ if(p[0]==='atlas'&&p[1])$('#atlas-detail').innerHTML=muscleDetailPanel(p[1]);
+}
+function muscleDetailPanel(id){
  const m=muscleOf(id);if(!m)return'';
- const listEx=ids=>ids.map(exerciseOf).filter(Boolean).map(e=>`<div class="li"><div class="t">${esc(e.ar)}</div><div class="d">${esc(e.equip)} · ${esc(e.level)}</div></div>`).join('')||'<div class="tiny">لا يوجد</div>';
- const antAr=m.antagonist?esc((muscleOf(m.antagonist)||{}).ar||m.antagonist):'—';
+ const TABS=[['overview','نظرة عامة'],['exercises','التمارين'],['anatomy','التشريح'],['tips','نصائح']];
+ const tabBar=`<div class="atlas-tabbar">${TABS.map(([k,l])=>`<button class="atlas-tab ${atlasTab===k?'on':''}" onclick="setAtlasTab('${k}')">${l}</button>`).join('')}</div>`;
  const allEx=[...m.compound,...m.isolation].map(exerciseOf).filter(Boolean);
- const byEquip={};
- allEx.forEach(e=>{(byEquip[e.equip]=byEquip[e.equip]||[]).push(e)});
- const equipHtml=Object.entries(byEquip).map(([eq,exs])=>`
-  <div class="li">
-   <div class="t" style="margin-bottom:7px">🛠️ ${esc(eq)}</div>
-   <div class="row" style="gap:6px;flex-wrap:wrap">${exs.map(e=>`<span class="tag ${e.type==='compound'?'vio':'info'}">${esc(e.ar)}</span>`).join('')}</div>
-  </div>`).join('')||'<div class="tiny">لا يوجد</div>';
- return `<div class="card">
-  <h2 style="font-size:18px">${esc(m.ar)}</h2>
-  <p class="muted" style="margin-top:6px">${esc(m.fn)}</p>
-  <div class="grid g2 mt">
+ let body='';
+ if(atlasTab==='exercises'){
+  body=`<div class="mt">${allEx.map(e=>exerciseCard(e)).join('')||'<div class="tiny">لا يوجد</div>'}</div>`;
+ }else if(atlasTab==='anatomy'){
+  const antAr=m.antagonist?esc((muscleOf(m.antagonist)||{}).ar||m.antagonist):'—';
+  body=`<div class="grid g2 mt">
+   <div class="kpi"><div class="l">الموقع / الوظيفة</div><div class="v" style="font-size:13px">${esc(m.fn)}</div></div>
    <div class="kpi"><div class="l">العضلة المضادة</div><div class="v" style="font-size:15px">${antAr}</div></div>
+   <div class="kpi"><div class="l">وقت التعافي</div><div class="v" style="font-size:15px">${m.recovery} ساعة</div></div>
+   <div class="kpi"><div class="l">المفاصل المعنية</div><div class="v" style="font-size:13px">${(m.joints&&m.joints.length)?m.joints.join('، '):'—'}</div></div>
+  </div>
+  <div class="sec-h"><h2>🧘 الإطالة الموصى بها</h2></div>
+  <div class="card">${esc(m.stretch)}</div>
+  <div class="sec-h"><h2>⚠️ إصابات شائعة</h2></div>
+  <div class="list">${m.injuries.map(i=>`<div class="li"><div class="t" style="font-size:13px">${esc(i)}</div></div>`).join('')}</div>`;
+ }else if(atlasTab==='tips'){
+  body=`<div class="list mt">${(m.tips||[]).map(t=>`<div class="li row"><span style="font-size:16px">💡</span><div class="grow" style="font-size:13.5px">${esc(t)}</div></div>`).join('')||'<div class="tiny">لا يوجد</div>'}</div>`;
+ }else{
+  const byEquip={};
+  allEx.forEach(e=>{(byEquip[e.equip]=byEquip[e.equip]||[]).push(e)});
+  const equipHtml=Object.entries(byEquip).map(([eq,exs])=>`
+   <div class="li">
+    <div class="t" style="margin-bottom:7px">🛠️ ${esc(eq)}</div>
+    <div class="row" style="gap:6px;flex-wrap:wrap">${exs.map(e=>`<span class="tag ${e.type==='compound'?'vio':'info'}">${esc(e.ar)}</span>`).join('')}</div>
+   </div>`).join('')||'<div class="tiny">لا يوجد</div>';
+  body=`<p class="muted mt">${esc(m.fn)}</p>
+  <div class="grid g2 mt">
+   <div class="kpi"><div class="l">عدد التمارين</div><div class="v">${allEx.length}</div></div>
    <div class="kpi"><div class="l">وقت التعافي</div><div class="v" style="font-size:15px">${m.recovery} ساعة</div></div>
   </div>
   <div class="sec-h"><h2>🛠️ التدريب حسب الجهاز</h2></div>
-  <div class="list">${equipHtml}</div>
-  <div class="sec-h"><h2>🏋️ تمارين مركّبة</h2></div>
-  <div class="list">${listEx(m.compound)}</div>
-  <div class="sec-h"><h2>🎯 تمارين عزل</h2></div>
-  <div class="list">${listEx(m.isolation)}</div>
-  <div class="sec-h"><h2>🧘 الإطالة</h2></div>
-  <div class="card">${esc(m.stretch)}</div>
-  <div class="sec-h"><h2>⚠️ إصابات شائعة</h2></div>
-  <div class="list">${m.injuries.map(i=>`<div class="li"><div class="t" style="font-size:13px">${esc(i)}</div></div>`).join('')}</div>
- </div>`;
+  <div class="list">${equipHtml}</div>`;
+ }
+ return `<div class="atlas-sheet-handle"></div>
+  <div class="row" style="margin-bottom:2px">
+   <div class="grow">
+    <h2 style="font-size:19px">${esc(m.ar)}</h2>
+    <div class="tiny" style="color:var(--lime);font-weight:700">${esc(m.nameEn||'')}</div>
+   </div>
+   <button class="icon-btn" onclick="location.hash='#/atlas'" aria-label="إغلاق">✕</button>
+  </div>
+  ${tabBar}
+  ${body}`;
 }
 
 /* ============ MORE / SETTINGS / AUDIT ============ */
