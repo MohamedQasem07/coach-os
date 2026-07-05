@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0C0E0A">
+<meta name="theme-color" content="#1B1712">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -11,28 +11,31 @@
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <style>
 :root{
-  --bg:#0C0E0A; --s1:#13160F; --s2:#1B1F16; --s3:#232819;
-  --line:#2A2F22; --line2:#39402E;
-  --tx:#EDF0E4; --tx2:#A9B19B; --tx3:#6E7562;
-  --lime:#C8F04A; --lime-d:#9EC432; --lime-bg:rgba(200,240,74,.12);
-  --violet:#A08CFF; --violet-bg:rgba(160,140,255,.12);
-  --blue:#5EC8F2; --blue-bg:rgba(94,200,242,.12);
-  --orange:#FF8A4C; --orange-bg:rgba(255,138,76,.14);
-  --red:#FF5C5C; --red-bg:rgba(255,92,92,.14);
-  --r:14px; --r-sm:10px;
+  /* Anatomical Ledger — warm ink + parchment, oxblood/brass/sage accents */
+  --bg:#1B1712; --s1:#241E17; --s2:#2E2620; --s3:#3A2F26;
+  --line:#4A3D30; --line2:#5C4B3A;
+  --tx:#EDE3D3; --tx2:#B9A98F; --tx3:#8A7A63;
+  --lime:#C1483A; --lime-d:#A23B2E; --lime-bg:rgba(193,72,58,.16);
+  --violet:#C9A227; --violet-bg:rgba(201,162,39,.15);
+  --blue:#8B9B7A; --blue-bg:rgba(139,155,122,.15);
+  --orange:#C97A3D; --orange-bg:rgba(201,122,61,.16);
+  --red:#C1483A; --red-bg:rgba(193,72,58,.16);
+  --r:10px; --r-sm:7px;
   --shadow:0 8px 24px rgba(0,0,0,.45);
-  --font-d:'Alexandria',sans-serif; --font-b:'IBM Plex Sans Arabic',sans-serif;
+  --font-d:'Alexandria',sans-serif; --font-b:'IBM Plex Sans Arabic',sans-serif; --font-plate:'Cinzel',serif;
 }
 [data-theme="light"]{
-  --bg:#F2F4EC; --s1:#FFFFFF; --s2:#F7F9F0; --s3:#EDF1E2;
-  --line:#DDE2CF; --line2:#C9D0B5;
-  --tx:#1C2015; --tx2:#5A6250; --tx3:#8B937D;
-  --lime:#7A9E1E; --lime-d:#5F7D14; --lime-bg:rgba(122,158,30,.13);
-  --shadow:0 8px 20px rgba(40,50,20,.12);
+  --bg:#EFE6D3; --s1:#FAF4E6; --s2:#F3EBD8; --s3:#E9DEC5;
+  --line:#D8C9A8; --line2:#C4B18A;
+  --tx:#2A2117; --tx2:#5C4E3D; --tx3:#8A7A63;
+  --lime:#8C2E22; --lime-d:#6E241A; --lime-bg:rgba(140,46,34,.13);
+  --violet:#9C7A1A; --violet-bg:rgba(156,122,26,.13);
+  --blue:#5E6E52; --blue-bg:rgba(94,110,82,.13);
+  --shadow:0 8px 20px rgba(60,45,20,.15);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
@@ -72,7 +75,7 @@ header.top .sub{font-size:12px;color:var(--tx2);font-weight:400;display:block}
 @media(min-width:960px){
   #bnav,#fab{display:none}
   #sidebar{display:flex;flex-direction:column;width:232px;flex-shrink:0;background:var(--s1);border-left:1px solid var(--line);padding:22px 14px;position:sticky;top:0;height:100dvh;gap:4px}
-  #sidebar .logo{font-family:var(--font-d);font-weight:800;font-size:21px;padding:0 10px 18px;letter-spacing:.01em}
+  #sidebar .logo{font-family:var(--font-plate);font-weight:700;font-size:19px;padding:0 10px 18px;letter-spacing:.03em}
   #sidebar .logo b{color:var(--lime)}
   #sidebar a{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:11px;color:var(--tx2);text-decoration:none;font-weight:600;font-size:14.5px}
   #sidebar a:hover{background:var(--s2);color:var(--tx)}
@@ -134,6 +137,19 @@ header.top .sub{font-size:12px;color:var(--tx2);font-weight:400;display:block}
 .ring .rt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--font-d)}
 .ring .rt b{font-size:15px;line-height:1}
 .ring .rt span{font-size:7.5px;color:var(--tx3);font-weight:600}
+
+/* Body map (muscle atlas + recovery widget) */
+.body-map-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+.body-map{width:100%;max-width:230px;height:auto}
+.body-map.lg{max-width:320px}
+.mgroup{fill:var(--s3);stroke:var(--line2);stroke-width:1.5;cursor:pointer;transition:fill .15s,stroke .15s}
+.mgroup:hover{fill:var(--line2)}
+.mgroup.sel{stroke:var(--tx);stroke-width:2.5}
+.mgroup.ok{fill:var(--blue)}
+.mgroup.warn{fill:var(--violet)}
+.mgroup.bad{fill:var(--lime)}
+.body-outline{fill:none;stroke:var(--line2);stroke-width:1.5}
+.body-toggle{display:flex;gap:6px}
 
 /* Client card */
 .ccard{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;transition:border-color .15s}
@@ -215,7 +231,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}
 .del-x{color:var(--red);font-size:17px;padding:4px 6px}
 .login-wrap{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px}
 .login-card{width:100%;max-width:380px}
-.login-card .logo{font-family:var(--font-d);font-weight:800;font-size:34px;text-align:center;margin-bottom:6px}
+.login-card .logo{font-family:var(--font-plate);font-weight:700;font-size:30px;text-align:center;margin-bottom:6px;letter-spacing:.03em}
 .login-card .logo b{color:var(--lime)}
 </style>
 </head>
@@ -229,6 +245,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}
     <a href="#/calendar" data-nav="calendar"><span>📅</span> التقويم</a>
     <a href="#/money" data-nav="money"><span>💰</span> الفلوس والباقات</a>
     <a href="#/reports" data-nav="reports"><span>📈</span> التقارير</a>
+    <a href="#/atlas" data-nav="atlas"><span>🧬</span> موسوعة العضلات</a>
     <a href="#/alerts" data-nav="alerts"><span>🔔</span> التنبيهات</a>
     <div class="grow"></div>
     <a href="#/settings" data-nav="settings"><span>⚙️</span> الإعدادات</a>
@@ -279,6 +296,174 @@ const MUSCLES=['صدر','ظهر','كتف','ذراع','رجل','بطن','كارد
 const GOALS=['تخسيس','زيادة عضل','لياقة','تأهيل إصابة','قوة'];
 const LEVELS=['مبتدئ','متوسط','متقدم'];
 const PAY_METHODS=['كاش','InstaPay','Vodafone Cash','تحويل بنكي','أخرى'];
+
+/* ---------- Muscle atlas (built-in reference data, not synced) ---------- */
+const MUSCLE_ATLAS=[
+ {id:'chest',ar:'الصدر',svgIds:['f-chest-l','f-chest-r'],
+  fn:'دفع أفقي وعلوي للذراع، وتقريب الذراع للجسم من الأمام',
+  antagonist:'lats',joints:['shoulder'],
+  compound:['bench-press','incline-db-press','dips','pushup'],isolation:['cable-fly','cable-crossover'],
+  stretch:'تمديد الصدر على الحائط (Doorway stretch)، تمرين الكوبرا',
+  injuries:['شد في وتر الصدر (pec strain)','التهاب المفصل القصّي الترقوي'],recovery:48},
+ {id:'shoulders',ar:'الكتف',svgIds:['f-delt-l','f-delt-r','b-delt-l','b-delt-r'],
+  fn:'رفع ودوران الذراع في كل الاتجاهات — أمامي وجانبي وخلفي',
+  antagonist:'lats',joints:['shoulder'],
+  compound:['ohp','arnold-press'],isolation:['lateral-raise','rear-delt-fly','front-raise'],
+  stretch:'تمديد الكتف عبر الجسم (cross-body stretch)',
+  injuries:['التهاب الكتف (shoulder impingement)','إصابة الكفة المدورة (rotator cuff)'],recovery:48},
+ {id:'biceps',ar:'الذراع الأمامي (باي)',svgIds:['f-bicep-l','f-bicep-r'],
+  fn:'ثني الكوع وتدوير الساعد للخارج',
+  antagonist:'triceps',joints:['elbow'],
+  compound:[],isolation:['barbell-curl','db-curl','hammer-curl','preacher-curl','concentration-curl'],
+  stretch:'تمديد الباي بالذراع ممدودة على حائط',
+  injuries:['شد العضلة ذات الرأسين','التهاب وتر الباي'],recovery:36},
+ {id:'triceps',ar:'الذراع الخلفي (تراي)',svgIds:['b-tricep-l','b-tricep-r'],
+  fn:'فرد الكوع — العضلة المسؤولة عن كل حركات الدفع',
+  antagonist:'biceps',joints:['elbow'],
+  compound:['close-grip-bench','diamond-pushup'],isolation:['triceps-pushdown','skull-crusher','overhead-extension'],
+  stretch:'تمديد الترايسبس خلف الرأس',
+  injuries:['التهاب وتر الترايسبس (tricep tendinitis)'],recovery:36},
+ {id:'forearms',ar:'الساعد',svgIds:['f-forearm-l','f-forearm-r'],
+  fn:'قبضة اليد وثني/فرد الرسغ',
+  antagonist:null,joints:['wrist'],
+  compound:['farmers-carry'],isolation:['wrist-curl','reverse-curl'],
+  stretch:'تمديد الرسغ للأمام وللخلف',
+  injuries:['التهاب لقيمة العضد (تنس إلبو)','متلازمة النفق الرسغي'],recovery:24},
+ {id:'abs',ar:'البطن',svgIds:['f-abs'],
+  fn:'ثني الجذع وتثبيت العمود الفقري',
+  antagonist:'lowerback',joints:[],
+  compound:[],isolation:['crunch','leg-raise','plank','cable-crunch','ab-wheel'],
+  stretch:'تمديد الكوبرا وتمديد الجذع للخلف',
+  injuries:['شد عضلي في البطن'],recovery:24},
+ {id:'obliques',ar:'البطن الجانبي',svgIds:['f-oblique-l','f-oblique-r'],
+  fn:'لف وثني الجذع جانبيًا',
+  antagonist:null,joints:[],
+  compound:[],isolation:['russian-twist','side-plank','woodchop'],
+  stretch:'تمديد جانبي واقف (side bend stretch)',
+  injuries:['شد في العضلة الجانبية'],recovery:24},
+ {id:'lats',ar:'الظهر العريض',svgIds:['b-lat-l','b-lat-r'],
+  fn:'سحب الذراع للأسفل وللخلف — يبني اتساع الظهر',
+  antagonist:'chest',joints:['shoulder'],
+  compound:['lat-pulldown','pullup','seated-row','barbell-row','t-bar-row'],isolation:['straight-arm-pulldown'],
+  stretch:'تمديد الظهر المعلّق (dead hang)',
+  injuries:['شد عضلي في الظهر العريض'],recovery:48},
+ {id:'traps',ar:'الترابيس',svgIds:['b-traps'],
+  fn:'رفع الكتف وتثبيت لوح الكتف',
+  antagonist:null,joints:['shoulder'],
+  compound:['upright-row'],isolation:['shrug','face-pull'],
+  stretch:'إمالة الرقبة جانبًا مع سحب خفيف',
+  injuries:['شد في الترابيس العلوي'],recovery:24},
+ {id:'lowerback',ar:'أسفل الظهر',svgIds:['b-lowerback'],
+  fn:'فرد الجذع وتثبيت العمود الفقري أثناء الرفع',
+  antagonist:'abs',joints:['lower-back'],
+  compound:['deadlift','good-morning'],isolation:['back-extension'],
+  stretch:"تمديد الطفل (child's pose)، تمديد الركبة للصدر",
+  injuries:['شد أسفل الظهر','انزلاق غضروفي (يحتاج تقييم طبي)'],recovery:72},
+ {id:'glutes',ar:'الأرداف',svgIds:['b-glute-l','b-glute-r'],
+  fn:'فرد الفخذ من الورك — أساسي في كل حركات الدفع بالرجل',
+  antagonist:null,joints:['hip'],
+  compound:['hip-thrust','bulgarian-split-squat'],isolation:['glute-bridge','cable-kickback'],
+  stretch:'تمديد الحمامة (pigeon pose)',
+  injuries:['شد في الأرداف'],recovery:48},
+ {id:'quads',ar:'الفخذ الأمامي',svgIds:['f-quad-l','f-quad-r'],
+  fn:'فرد الركبة — أساسي في القرفصاء والدفع بالرجل',
+  antagonist:'hamstrings',joints:['knee'],
+  compound:['squat','leg-press','lunge','step-up'],isolation:['leg-extension'],
+  stretch:'تمديد الفخذ الأمامي واقف (quad stretch)',
+  injuries:["التهاب وتر الرضفة (jumper's knee)",'إجهاد الفخذ الأمامي'],recovery:72},
+ {id:'hamstrings',ar:'الفخذ الخلفي',svgIds:['b-ham-l','b-ham-r'],
+  fn:'ثني الركبة وفرد الورك — عضلة العدّاء',
+  antagonist:'quads',joints:['knee','hip'],
+  compound:['rdl'],isolation:['leg-curl','nordic-curl','glute-ham-raise'],
+  stretch:'تمديد الفخذ الخلفي جالسًا (seated hamstring stretch)',
+  injuries:['شد العضلة الخلفية — من أشيع إصابات الرياضيين'],recovery:72},
+ {id:'calves',ar:'السمانة',svgIds:['f-calf-l','f-calf-r','b-calf-l','b-calf-r'],
+  fn:'رفع كعب القدم — دفع الجسم للأمام أثناء المشي والجري',
+  antagonist:null,joints:['ankle'],
+  compound:[],isolation:['standing-calf-raise','seated-calf-raise','donkey-calf-raise'],
+  stretch:'تمديد السمانة على درجة (calf stretch on step)',
+  injuries:['شد السمانة','التهاب وتر أخيل (Achilles tendinitis)'],recovery:24}
+];
+const muscleOf=id=>MUSCLE_ATLAS.find(m=>m.id===id);
+
+/* ---------- Exercise library (built-in reference data, not synced) ---------- */
+const EXERCISES=[
+ // chest
+ {id:'bench-press',ar:'بنش بريس (باربل)',type:'compound',primary:['chest'],secondary:['triceps','shoulders'],joints:['shoulder','elbow'],equip:'باربل',level:'متوسط',cautionTags:['shoulder-impingement','wrist-pain'],sub:['incline-db-press','cable-fly']},
+ {id:'incline-db-press',ar:'بنش عالي (دمبل)',type:'compound',primary:['chest'],secondary:['shoulders','triceps'],joints:['shoulder'],equip:'دمبل',level:'متوسط',cautionTags:['shoulder-impingement'],sub:['cable-fly','pushup']},
+ {id:'dips',ar:'متوازي (Dips)',type:'compound',primary:['chest'],secondary:['triceps','shoulders'],joints:['shoulder','elbow'],equip:'بار متوازي',level:'متقدم',cautionTags:['shoulder-impingement'],sub:['pushup','cable-fly']},
+ {id:'cable-fly',ar:'كابل فلاي',type:'isolation',primary:['chest'],secondary:[],joints:['shoulder'],equip:'كابل',level:'مبتدئ',cautionTags:['shoulder-impingement'],sub:['pushup']},
+ {id:'cable-crossover',ar:'كروس أوفر',type:'isolation',primary:['chest'],secondary:[],joints:['shoulder'],equip:'كابل',level:'متوسط',cautionTags:[],sub:['cable-fly']},
+ {id:'pushup',ar:'ضغط (Push-up)',type:'compound',primary:['chest'],secondary:['triceps','shoulders','abs'],joints:['shoulder','elbow','wrist'],equip:'وزن الجسم',level:'مبتدئ',cautionTags:['wrist-pain'],sub:['cable-fly']},
+ // shoulders
+ {id:'ohp',ar:'ضغط عسكري (OHP)',type:'compound',primary:['shoulders'],secondary:['triceps'],joints:['shoulder','elbow'],equip:'باربل',level:'متوسط',cautionTags:['shoulder-impingement','lower-back'],sub:['arnold-press','lateral-raise']},
+ {id:'arnold-press',ar:'أرنولد برس',type:'compound',primary:['shoulders'],secondary:['triceps'],joints:['shoulder'],equip:'دمبل',level:'متوسط',cautionTags:['shoulder-impingement'],sub:['lateral-raise']},
+ {id:'lateral-raise',ar:'رفرفة جانبية',type:'isolation',primary:['shoulders'],secondary:[],joints:['shoulder'],equip:'دمبل',level:'مبتدئ',cautionTags:['shoulder-impingement'],sub:['front-raise']},
+ {id:'rear-delt-fly',ar:'رفرفة خلفية',type:'isolation',primary:['shoulders'],secondary:['traps'],joints:['shoulder'],equip:'دمبل',level:'مبتدئ',cautionTags:[],sub:['face-pull']},
+ {id:'front-raise',ar:'رفرفة أمامية',type:'isolation',primary:['shoulders'],secondary:[],joints:['shoulder'],equip:'دمبل',level:'مبتدئ',cautionTags:['shoulder-impingement'],sub:['lateral-raise']},
+ // biceps
+ {id:'barbell-curl',ar:'بار كيرل',type:'isolation',primary:['biceps'],secondary:['forearms'],joints:['elbow','wrist'],equip:'باربل',level:'مبتدئ',cautionTags:['wrist-pain'],sub:['db-curl']},
+ {id:'db-curl',ar:'دمبل كيرل',type:'isolation',primary:['biceps'],secondary:['forearms'],joints:['elbow'],equip:'دمبل',level:'مبتدئ',cautionTags:[],sub:['hammer-curl']},
+ {id:'hammer-curl',ar:'هامر كيرل',type:'isolation',primary:['biceps'],secondary:['forearms'],joints:['elbow'],equip:'دمبل',level:'مبتدئ',cautionTags:[],sub:['db-curl']},
+ {id:'preacher-curl',ar:'بريتشر كيرل',type:'isolation',primary:['biceps'],secondary:[],joints:['elbow'],equip:'بار/دمبل',level:'متوسط',cautionTags:[],sub:['db-curl']},
+ {id:'concentration-curl',ar:'كيرل تركيز',type:'isolation',primary:['biceps'],secondary:[],joints:['elbow'],equip:'دمبل',level:'مبتدئ',cautionTags:[],sub:['preacher-curl']},
+ // triceps
+ {id:'close-grip-bench',ar:'بنش قبضة ضيقة',type:'compound',primary:['triceps'],secondary:['chest','shoulders'],joints:['shoulder','elbow','wrist'],equip:'باربل',level:'متوسط',cautionTags:['wrist-pain','shoulder-impingement'],sub:['triceps-pushdown']},
+ {id:'diamond-pushup',ar:'ضغط ماسي',type:'compound',primary:['triceps'],secondary:['chest'],joints:['elbow','wrist'],equip:'وزن الجسم',level:'متوسط',cautionTags:['wrist-pain'],sub:['triceps-pushdown']},
+ {id:'triceps-pushdown',ar:'بوش داون كابل',type:'isolation',primary:['triceps'],secondary:[],joints:['elbow'],equip:'كابل',level:'مبتدئ',cautionTags:[],sub:['overhead-extension']},
+ {id:'skull-crusher',ar:'سكال كراشر',type:'isolation',primary:['triceps'],secondary:[],joints:['elbow'],equip:'باربل/دمبل',level:'متوسط',cautionTags:[],sub:['triceps-pushdown']},
+ {id:'overhead-extension',ar:'إكستنشن فوق الرأس',type:'isolation',primary:['triceps'],secondary:[],joints:['elbow','shoulder'],equip:'دمبل',level:'مبتدئ',cautionTags:['shoulder-impingement'],sub:['triceps-pushdown']},
+ // forearms
+ {id:'farmers-carry',ar:'فارمرز كاري',type:'compound',primary:['forearms'],secondary:['traps','abs'],joints:['wrist'],equip:'دمبل/كيتلبل',level:'مبتدئ',cautionTags:['wrist-pain'],sub:['wrist-curl']},
+ {id:'wrist-curl',ar:'رست كيرل',type:'isolation',primary:['forearms'],secondary:[],joints:['wrist'],equip:'باربل',level:'مبتدئ',cautionTags:['wrist-pain'],sub:['reverse-curl']},
+ {id:'reverse-curl',ar:'كيرل عكسي',type:'isolation',primary:['forearms'],secondary:['biceps'],joints:['wrist','elbow'],equip:'باربل',level:'مبتدئ',cautionTags:['wrist-pain'],sub:['wrist-curl']},
+ // abs
+ {id:'crunch',ar:'كرنش',type:'isolation',primary:['abs'],secondary:[],joints:[],equip:'وزن الجسم',level:'مبتدئ',cautionTags:[],sub:['plank']},
+ {id:'leg-raise',ar:'رفع الرجل معلق',type:'isolation',primary:['abs'],secondary:[],joints:['hip'],equip:'وزن الجسم',level:'متوسط',cautionTags:['lower-back'],sub:['crunch']},
+ {id:'plank',ar:'بلانك',type:'isolation',primary:['abs'],secondary:['lowerback'],joints:[],equip:'وزن الجسم',level:'مبتدئ',cautionTags:[],sub:['crunch']},
+ {id:'cable-crunch',ar:'كرنش كابل',type:'isolation',primary:['abs'],secondary:[],joints:[],equip:'كابل',level:'متوسط',cautionTags:[],sub:['crunch']},
+ {id:'ab-wheel',ar:'عجلة البطن',type:'isolation',primary:['abs'],secondary:['lowerback','shoulders'],joints:['shoulder'],equip:'عجلة',level:'متقدم',cautionTags:['lower-back','shoulder-impingement'],sub:['plank']},
+ // obliques
+ {id:'russian-twist',ar:'روسي تويست',type:'isolation',primary:['obliques'],secondary:['abs'],joints:[],equip:'وزن/دمبل',level:'مبتدئ',cautionTags:['lower-back'],sub:['side-plank']},
+ {id:'side-plank',ar:'بلانك جانبي',type:'isolation',primary:['obliques'],secondary:[],joints:[],equip:'وزن الجسم',level:'مبتدئ',cautionTags:[],sub:['russian-twist']},
+ {id:'woodchop',ar:'وود تشوب كابل',type:'isolation',primary:['obliques'],secondary:['abs'],joints:[],equip:'كابل',level:'متوسط',cautionTags:['lower-back'],sub:['side-plank']},
+ // lats
+ {id:'lat-pulldown',ar:'سحب أمامي (لات بولداون)',type:'compound',primary:['lats'],secondary:['biceps'],joints:['shoulder','elbow'],equip:'كابل',level:'مبتدئ',cautionTags:['shoulder-impingement'],sub:['seated-row']},
+ {id:'pullup',ar:'عقلة (Pull-up)',type:'compound',primary:['lats'],secondary:['biceps'],joints:['shoulder','elbow'],equip:'بار عقلة',level:'متقدم',cautionTags:['shoulder-impingement'],sub:['lat-pulldown']},
+ {id:'seated-row',ar:'سحب جالس (Seated Row)',type:'compound',primary:['lats'],secondary:['biceps','traps'],joints:['shoulder'],equip:'كابل',level:'مبتدئ',cautionTags:['lower-back'],sub:['lat-pulldown']},
+ {id:'barbell-row',ar:'باربل رو',type:'compound',primary:['lats'],secondary:['biceps','traps'],joints:['shoulder','lower-back'],equip:'باربل',level:'متوسط',cautionTags:['lower-back'],sub:['seated-row']},
+ {id:'t-bar-row',ar:'تي بار رو',type:'compound',primary:['lats'],secondary:['traps','biceps'],joints:['lower-back'],equip:'باربل',level:'متوسط',cautionTags:['lower-back'],sub:['seated-row']},
+ {id:'straight-arm-pulldown',ar:'سحب ذراع مستقيمة',type:'isolation',primary:['lats'],secondary:[],joints:['shoulder'],equip:'كابل',level:'مبتدئ',cautionTags:[],sub:['lat-pulldown']},
+ // traps
+ {id:'shrug',ar:'شراج',type:'isolation',primary:['traps'],secondary:[],joints:['shoulder'],equip:'باربل/دمبل',level:'مبتدئ',cautionTags:[],sub:['face-pull']},
+ {id:'upright-row',ar:'أبرايت رو',type:'compound',primary:['traps'],secondary:['shoulders'],joints:['shoulder','wrist'],equip:'باربل',level:'متوسط',cautionTags:['shoulder-impingement'],sub:['shrug']},
+ {id:'face-pull',ar:'فيس بول',type:'isolation',primary:['traps'],secondary:['shoulders'],joints:['shoulder'],equip:'كابل',level:'مبتدئ',cautionTags:[],sub:['rear-delt-fly']},
+ // lowerback
+ {id:'deadlift',ar:'ديدليفت',type:'compound',primary:['lowerback'],secondary:['glutes','hamstrings','lats'],joints:['lower-back','knee','hip'],equip:'باربل',level:'متقدم',cautionTags:['lower-back','knee'],sub:['back-extension','rdl']},
+ {id:'good-morning',ar:'جود مورنينج',type:'compound',primary:['lowerback'],secondary:['hamstrings','glutes'],joints:['lower-back','hip'],equip:'باربل',level:'متقدم',cautionTags:['lower-back'],sub:['back-extension']},
+ {id:'back-extension',ar:'إكستنشن أسفل الظهر',type:'isolation',primary:['lowerback'],secondary:['glutes'],joints:['lower-back'],equip:'بنش خاص',level:'مبتدئ',cautionTags:['lower-back'],sub:['plank']},
+ // glutes
+ {id:'hip-thrust',ar:'هيب ثرست',type:'compound',primary:['glutes'],secondary:['hamstrings'],joints:['hip'],equip:'باربل',level:'متوسط',cautionTags:['lower-back'],sub:['glute-bridge']},
+ {id:'bulgarian-split-squat',ar:'بلغاري سبليت سكوات',type:'compound',primary:['glutes'],secondary:['quads'],joints:['knee','hip'],equip:'دمبل',level:'متوسط',cautionTags:['knee'],sub:['glute-bridge']},
+ {id:'glute-bridge',ar:'جلوت بريدج',type:'isolation',primary:['glutes'],secondary:[],joints:['hip'],equip:'وزن الجسم',level:'مبتدئ',cautionTags:[],sub:['cable-kickback']},
+ {id:'cable-kickback',ar:'كيك باك كابل',type:'isolation',primary:['glutes'],secondary:[],joints:['hip'],equip:'كابل',level:'مبتدئ',cautionTags:[],sub:['glute-bridge']},
+ // quads
+ {id:'squat',ar:'سكوات (باربل)',type:'compound',primary:['quads'],secondary:['glutes','hamstrings'],joints:['knee','lower-back','hip'],equip:'باربل',level:'متوسط',cautionTags:['knee','lower-back'],sub:['leg-press']},
+ {id:'leg-press',ar:'ليج بريس',type:'compound',primary:['quads'],secondary:['glutes'],joints:['knee'],equip:'مكينة',level:'مبتدئ',cautionTags:['knee'],sub:['leg-extension']},
+ {id:'lunge',ar:'لانج',type:'compound',primary:['quads'],secondary:['glutes'],joints:['knee'],equip:'دمبل/وزن الجسم',level:'مبتدئ',cautionTags:['knee'],sub:['leg-press']},
+ {id:'step-up',ar:'ستيب أب',type:'compound',primary:['quads'],secondary:['glutes'],joints:['knee','ankle'],equip:'دمبل/صندوق',level:'مبتدئ',cautionTags:['knee','ankle'],sub:['leg-press']},
+ {id:'leg-extension',ar:'ليج إكستنشن',type:'isolation',primary:['quads'],secondary:[],joints:['knee'],equip:'مكينة',level:'مبتدئ',cautionTags:['knee'],sub:['leg-press']},
+ // hamstrings
+ {id:'rdl',ar:'رومانيان ديدليفت (RDL)',type:'compound',primary:['hamstrings'],secondary:['glutes','lowerback'],joints:['hip','lower-back'],equip:'باربل/دمبل',level:'متوسط',cautionTags:['lower-back'],sub:['leg-curl']},
+ {id:'leg-curl',ar:'ليج كيرل',type:'isolation',primary:['hamstrings'],secondary:[],joints:['knee'],equip:'مكينة',level:'مبتدئ',cautionTags:['knee'],sub:['glute-ham-raise']},
+ {id:'nordic-curl',ar:'نورديك كيرل',type:'isolation',primary:['hamstrings'],secondary:[],joints:['knee'],equip:'وزن الجسم',level:'متقدم',cautionTags:['knee'],sub:['leg-curl']},
+ {id:'glute-ham-raise',ar:'جلوت-هام ريز (GHR)',type:'isolation',primary:['hamstrings'],secondary:['glutes'],joints:['knee'],equip:'مكينة GHR',level:'متقدم',cautionTags:['knee'],sub:['leg-curl']},
+ // calves
+ {id:'standing-calf-raise',ar:'رفرفة سمانة واقفة',type:'isolation',primary:['calves'],secondary:[],joints:['ankle'],equip:'مكينة/باربل',level:'مبتدئ',cautionTags:['ankle'],sub:['seated-calf-raise']},
+ {id:'seated-calf-raise',ar:'رفرفة سمانة جالسة',type:'isolation',primary:['calves'],secondary:[],joints:['ankle'],equip:'مكينة',level:'مبتدئ',cautionTags:[],sub:['standing-calf-raise']},
+ {id:'donkey-calf-raise',ar:'دونكي كاف ريز',type:'isolation',primary:['calves'],secondary:[],joints:['ankle'],equip:'مكينة',level:'متوسط',cautionTags:['ankle'],sub:['standing-calf-raise']}
+];
+const exerciseOf=id=>EXERCISES.find(x=>x.id===id);
 const S_KIND={paid:'مدفوعة',free:'مجانية',comp:'تعويضية'};
 const S_STATUS={scheduled:'مجدولة',done:'تمّت',missed:'لم يحضر',cancelled:'ملغية'};
 
@@ -408,8 +593,9 @@ function route(){
  if(!db.settings.setup){renderSetup();return}
  $('#login-screen').innerHTML='';$('#app').style.display='flex';$('#bnav').style.display='flex';$('#fab').style.display='flex';
  const h=location.hash||'#/dash';const p=h.slice(2).split('/');
- const map={dash:vDash,clients:vClients,sessions:vSessions,calendar:vCalendar,money:vMoney,reports:vReports,alerts:vAlerts,settings:vSettings,more:vMore,audit:vAudit};
+ const map={dash:vDash,clients:vClients,sessions:vSessions,calendar:vCalendar,money:vMoney,reports:vReports,alerts:vAlerts,settings:vSettings,more:vMore,audit:vAudit,atlas:vAtlas};
  if(p[0]==='client'&&p[1]){setNav('clients');vClient(p[1],p[2]||'overview');return}
+ if(p[0]==='atlas'){setNav('atlas');vAtlas(p[1]||null);return}
  setNav(p[0]);(map[p[0]]||vDash)();
  window.scrollTo(0,0);
 }
@@ -493,6 +679,61 @@ function ring(rem,total){
   <circle cx="26" cy="26" r="${r}" fill="none" stroke="var(--s3)" stroke-width="4.5"/>
   <circle cx="26" cy="26" r="${r}" fill="none" stroke="${col}" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-pct)}"/></svg>
   <div class="rt"><b class="num" style="color:${col}">${rem}</b><span>متبقي</span></div></div>`;
+}
+
+/* ---------- Body map SVG (muscle atlas + recovery widget) ---------- */
+const BODY_SHAPES={
+ front:[
+  {m:'shoulders',id:'f-delt-l',tag:'ellipse',a:{cx:72,cy:72,rx:16,ry:18}},
+  {m:'shoulders',id:'f-delt-r',tag:'ellipse',a:{cx:168,cy:72,rx:16,ry:18}},
+  {m:'chest',id:'f-chest-l',tag:'ellipse',a:{cx:100,cy:95,rx:22,ry:16}},
+  {m:'chest',id:'f-chest-r',tag:'ellipse',a:{cx:140,cy:95,rx:22,ry:16}},
+  {m:'biceps',id:'f-bicep-l',tag:'ellipse',a:{cx:58,cy:130,rx:11,ry:28}},
+  {m:'biceps',id:'f-bicep-r',tag:'ellipse',a:{cx:182,cy:130,rx:11,ry:28}},
+  {m:'forearms',id:'f-forearm-l',tag:'ellipse',a:{cx:52,cy:195,rx:10,ry:30}},
+  {m:'forearms',id:'f-forearm-r',tag:'ellipse',a:{cx:188,cy:195,rx:10,ry:30}},
+  {m:'abs',id:'f-abs',tag:'rect',a:{x:104,y:118,width:32,height:70,rx:10}},
+  {m:'obliques',id:'f-oblique-l',tag:'rect',a:{x:86,y:125,width:16,height:60,rx:8}},
+  {m:'obliques',id:'f-oblique-r',tag:'rect',a:{x:138,y:125,width:16,height:60,rx:8}},
+  {m:'quads',id:'f-quad-l',tag:'ellipse',a:{cx:102,cy:290,rx:17,ry:48}},
+  {m:'quads',id:'f-quad-r',tag:'ellipse',a:{cx:138,cy:290,rx:17,ry:48}},
+  {m:'calves',id:'f-calf-l',tag:'ellipse',a:{cx:102,cy:400,rx:13,ry:38}},
+  {m:'calves',id:'f-calf-r',tag:'ellipse',a:{cx:138,cy:400,rx:13,ry:38}}
+ ],
+ back:[
+  {m:'shoulders',id:'b-delt-l',tag:'ellipse',a:{cx:72,cy:72,rx:16,ry:18}},
+  {m:'shoulders',id:'b-delt-r',tag:'ellipse',a:{cx:168,cy:72,rx:16,ry:18}},
+  {m:'traps',id:'b-traps',tag:'ellipse',a:{cx:120,cy:70,rx:30,ry:16}},
+  {m:'lats',id:'b-lat-l',tag:'ellipse',a:{cx:95,cy:115,rx:20,ry:35}},
+  {m:'lats',id:'b-lat-r',tag:'ellipse',a:{cx:145,cy:115,rx:20,ry:35}},
+  {m:'triceps',id:'b-tricep-l',tag:'ellipse',a:{cx:58,cy:130,rx:11,ry:28}},
+  {m:'triceps',id:'b-tricep-r',tag:'ellipse',a:{cx:182,cy:130,rx:11,ry:28}},
+  {m:'lowerback',id:'b-lowerback',tag:'rect',a:{x:104,y:155,width:32,height:45,rx:10}},
+  {m:'glutes',id:'b-glute-l',tag:'ellipse',a:{cx:102,cy:245,rx:19,ry:24}},
+  {m:'glutes',id:'b-glute-r',tag:'ellipse',a:{cx:138,cy:245,rx:19,ry:24}},
+  {m:'hamstrings',id:'b-ham-l',tag:'ellipse',a:{cx:102,cy:300,rx:16,ry:45}},
+  {m:'hamstrings',id:'b-ham-r',tag:'ellipse',a:{cx:138,cy:300,rx:16,ry:45}},
+  {m:'calves',id:'b-calf-l',tag:'ellipse',a:{cx:102,cy:400,rx:13,ry:38}},
+  {m:'calves',id:'b-calf-r',tag:'ellipse',a:{cx:138,cy:400,rx:13,ry:38}}
+ ]
+};
+const svgAttrs=a=>Object.entries(a).map(([k,v])=>`${k}="${v}"`).join(' ');
+function bodyMapSvg(view,dataFn,selectedId,size){
+ const shapes=BODY_SHAPES[view]||BODY_SHAPES.front;
+ const body=`<circle cx="120" cy="28" r="20" class="body-outline"/>
+  <rect x="110" y="46" width="20" height="14" rx="6" class="body-outline"/>
+  <rect x="80" y="60" width="80" height="170" rx="30" class="body-outline"/>
+  <rect x="45" y="65" width="22" height="150" rx="11" class="body-outline"/>
+  <rect x="173" y="65" width="22" height="150" rx="11" class="body-outline"/>
+  <rect x="88" y="230" width="28" height="200" rx="14" class="body-outline"/>
+  <rect x="124" y="230" width="28" height="200" rx="14" class="body-outline"/>`;
+ const groups=shapes.map(s=>{
+  const st=dataFn?dataFn(s.m):null;
+  const cls=['mgroup',selectedId===s.m?'sel':'',st?st.cls:''].filter(Boolean).join(' ');
+  const mus=muscleOf(s.m);
+  return `<${s.tag} ${svgAttrs(s.a)} class="${cls}" data-m="${s.m}" onclick="pickMuscle('${s.m}')"><title>${mus?mus.ar:s.m}</title></${s.tag}>`;
+ }).join('');
+ return `<svg viewBox="0 0 240 480" class="body-map${size==='lg'?' lg':''}" xmlns="http://www.w3.org/2000/svg">${body}${groups}</svg>`;
 }
 
 /* ============ DASHBOARD ============ */
@@ -641,6 +882,23 @@ function vClient(id,tab){
  ({overview:tOverview,sub:tSub,sessions:tSessions,progress:tProgress,goals:tGoals,notes:tNotes}[tab]||tOverview)(c);
 }
 
+const COARSE_MUSCLE_MAP={'صدر':['chest'],'ظهر':['lats','traps','lowerback'],'كتف':['shoulders'],'ذراع':['biceps','triceps','forearms'],'رجل':['quads','hamstrings','glutes','calves'],'بطن':['abs','obliques'],'كارديو':[],'Full Body':MUSCLE_ATLAS.map(m=>m.id)};
+function muscleRecoveryStatus(clientId,muscleId){
+ const sessions=db.sessions.filter(s=>s.clientId===clientId&&s.status==='done').sort((a,b)=>b.date.localeCompare(a.date));
+ let lastDate=null;
+ for(const s of sessions){
+  const fromEx=(s.exercises||[]).some(e=>{const ex=e.exId&&exerciseOf(e.exId);return ex&&ex.primary.includes(muscleId)});
+  const fromCoarse=(s.muscles||[]).some(m=>(COARSE_MUSCLE_MAP[m]||[]).includes(muscleId));
+  if(fromEx||fromCoarse){lastDate=s.date;break}
+ }
+ if(!lastDate)return{cls:''};
+ const hrsAgo=(Date.now()-D(lastDate).getTime())/36e5;
+ const rec=muscleOf(muscleId).recovery;
+ if(hrsAgo<=rec)return{cls:'ok'};
+ if(hrsAgo<=rec*2.5)return{cls:'warn'};
+ return{cls:'bad'};
+}
+let ovBodyView='front';
 function tOverview(c){
  const s=activeSub(c.id),lm=lastMeas(c.id),ld=lastDone(c.id),bal=balance(c.id);
  $('#ctab').innerHTML=`
@@ -663,6 +921,20 @@ function tOverview(c){
   </div>
   ${c.health?`<div class="mt" style="font-size:13.5px">🏥 <b>الحالة الصحية:</b> ${esc(c.health)}</div>`:''}
   ${c.phone?`<div class="mt tiny">📱 <span class="num" dir="ltr">${esc(c.phone)}</span></div>`:''}
+ </div>
+ <div class="card mt">
+  <div class="row"><h2 class="grow" style="font-size:15px">🧬 خريطة التعافي</h2>
+   <div class="body-toggle">
+    <button class="chip ${ovBodyView==='front'?'on':''}" onclick="ovBodyView='front';tOverview(client('${c.id}'))">وش</button>
+    <button class="chip ${ovBodyView==='back'?'on':''}" onclick="ovBodyView='back';tOverview(client('${c.id}'))">ضهر</button>
+   </div>
+  </div>
+  <div class="body-map-wrap mt">${bodyMapSvg(ovBodyView,m=>muscleRecoveryStatus(c.id,m))}</div>
+  <div class="row" style="gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px">
+   <span class="tiny"><span style="display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--blue);margin-inline-end:4px"></span>اتدرب مؤخرًا</span>
+   <span class="tiny"><span style="display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--violet);margin-inline-end:4px"></span>قرب وقته</span>
+   <span class="tiny"><span style="display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--lime);margin-inline-end:4px"></span>محتاج شغل</span>
+  </div>
  </div>
  <div class="row mt" style="gap:8px;flex-wrap:wrap">
   <button class="chip" onclick="formMeas('${c.id}')">⚖️ تسجيل قياس</button>
@@ -795,12 +1067,12 @@ function tProgress(c){
   <div class="d">${['fat','waist','chest','arms','hips','thighs'].filter(k=>m[k]).map(k=>({fat:'دهون',waist:'وسط',chest:'صدر',arms:'ذراع',hips:'أرداف',thighs:'فخذ'}[k])+': '+m[k]).join(' · ')||''} ${m.notes?'· '+esc(m.notes):''}</div></div>`).join('')}</div>`
  :`<div class="empty mt"><div class="big">📊</div><p>سجّل أول قياس وهتشوف منحنى التقدم هنا</p></div>`}`;
  if(ms.length){
-  drawLine('ch-w','الوزن (كجم)',ms.map(m=>fD(m.date)),[{label:'الوزن',data:ms.map(m=>m.weight),color:'#C8F04A'}]);
+  drawLine('ch-w','الوزن (كجم)',ms.map(m=>fD(m.date)),[{label:'الوزن',data:ms.map(m=>m.weight),color:'#C1483A'}]);
   if(ms.some(m=>m.waist||m.chest||m.arms))
    drawLine('ch-m','القياسات (سم)',ms.map(m=>fD(m.date)),[
-    {label:'وسط',data:ms.map(m=>m.waist),color:'#FF8A4C'},
-    {label:'صدر',data:ms.map(m=>m.chest),color:'#A08CFF'},
-    {label:'ذراع',data:ms.map(m=>m.arms),color:'#5EC8F2'}]);
+    {label:'وسط',data:ms.map(m=>m.waist),color:'#C97A3D'},
+    {label:'صدر',data:ms.map(m=>m.chest),color:'#C9A227'},
+    {label:'ذراع',data:ms.map(m=>m.arms),color:'#8B9B7A'}]);
  }
 }
 function formMeas(cid){
@@ -959,14 +1231,15 @@ function formSession(cid,editId){
  <div class="f-2"><div class="f-row"><label>RPE / الشدة</label><input id="fs-rpe" type="number" min="1" max="10" inputmode="numeric" value="${s?.rpe||''}"></div>
  <div class="f-row"><label>النوع</label><select id="fs-kind">${Object.entries(S_KIND).map(([k,v])=>`<option value="${k}" ${s?.kind===k?'selected':''}>${v}</option>`).join('')}</select></div></div>
  <div class="f-row"><label>💪 التمارين (Workout Log)</label><div id="ex-list"></div>
- <button class="btn btn-s btn-sm" onclick="exRows.push({name:'',sets:'',reps:'',weight:'',pr:0});drawEx()">➕ تمرين</button></div>
+ <datalist id="ex-datalist">${EXERCISES.map(e=>`<option value="${esc(e.ar)}">`).join('')}</datalist>
+ <button class="btn btn-s btn-sm" onclick="exRows.push({name:'',sets:'',reps:'',weight:'',pr:0,exId:null});drawEx()">➕ تمرين</button></div>
  <div class="f-row"><label>ملاحظات المدرب / تحذير ألم أو إصابة</label><textarea id="fs-notes" rows="2">${esc(s?.notes||'')}</textarea></div>
  <button class="btn btn-p btn-block" onclick="saveFull('${editId||''}')">✓ حفظ</button>`);
  drawEx();
 }
 function drawEx(){
  $('#ex-list').innerHTML=exRows.map((e,i)=>`<div class="ex-row">
-  <input placeholder="Bench Press" value="${esc(e.name)}" oninput="exRows[${i}].name=this.value">
+  <input placeholder="Bench Press" list="ex-datalist" value="${esc(e.name)}" oninput="exRows[${i}].name=this.value;exRows[${i}].exId=(EXERCISES.find(x=>x.ar===this.value)||{}).id||null">
   <input placeholder="Sets" inputmode="numeric" value="${esc(e.sets)}" oninput="exRows[${i}].sets=this.value">
   <input placeholder="Reps" inputmode="numeric" value="${esc(e.reps)}" oninput="exRows[${i}].reps=this.value">
   <input placeholder="kg" inputmode="decimal" value="${esc(e.weight)}" oninput="exRows[${i}].weight=this.value">
@@ -1055,7 +1328,7 @@ function vMoney(){
  <div class="list">${pays.slice(0,30).map(p=>`<div class="li row"><div class="grow"><div class="t">${esc(client(p.clientId)?.name||'?')}</div>
   <div class="d">${fD(p.date)} · ${esc(p.method)} ${p.notes?'· '+esc(p.notes):''}</div></div>
   <b class="num" style="color:var(--lime)">${fM(p.amount)}</b></div>`).join('')||'<div class="tiny">لا يوجد</div>'}</div>`;
- drawBar('ch-rev','الإيراد الشهري',months.map(m=>AR_M[+m.slice(5)-1]),mrev,'#C8F04A');
+ drawBar('ch-rev','الإيراد الشهري',months.map(m=>AR_M[+m.slice(5)-1]),mrev,'#C1483A');
 }
 function formPackage(id){
  const p=id?db.packages.find(x=>x.id===id):{};
@@ -1128,7 +1401,7 @@ function vReports(){
   <button class="chip" onclick="csv('payments')">💵 المدفوعات</button>
   <button class="chip" onclick="csv('meas')">⚖️ القياسات</button>
  </div>`;
- drawBar('ch-att','الجلسات المكتملة أسبوعيًا',wkLabels,wkData,'#A08CFF');
+ drawBar('ch-att','الجلسات المكتملة أسبوعيًا',wkLabels,wkData,'#C9A227');
 }
 function csv(kind){
  let rows,head,name=kind;
@@ -1154,12 +1427,50 @@ function vAlerts(){
  ||'<div class="empty"><div class="big">✅</div><p>كله تمام! مفيش حاجة محتاجة انتباهك دلوقتي</p></div>'}</div>`;
 }
 
+/* ============ MUSCLE ATLAS ============ */
+let atlasView='front';
+function vAtlas(sel){
+ $('#main').innerHTML=header('موسوعة العضلات والتمارين','دوس على أي عضلة عشان تعرف تفاصيلها')+`
+ <div class="card mt body-map-wrap">
+  <div class="body-toggle">
+   <button class="chip ${atlasView==='front'?'on':''}" onclick="atlasView='front';vAtlas('${sel||''}')">وش</button>
+   <button class="chip ${atlasView==='back'?'on':''}" onclick="atlasView='back';vAtlas('${sel||''}')">ضهر</button>
+  </div>
+  ${bodyMapSvg(atlasView,null,sel,'lg')}
+  <p class="tiny">دوس على أي عضلة في الرسم</p>
+ </div>
+ <div id="atlas-detail" class="mt">${sel?muscleDetailCard(sel):'<div class="empty"><div class="big">🧬</div><p>اختار عضلة من الرسم فوق عشان تشوف وظيفتها وأفضل تمارينها والإصابات الشائعة</p></div>'}</div>`;
+}
+function pickMuscle(id){location.hash='#/atlas/'+id}
+function muscleDetailCard(id){
+ const m=muscleOf(id);if(!m)return'';
+ const listEx=ids=>ids.map(exerciseOf).filter(Boolean).map(e=>`<div class="li"><div class="t">${esc(e.ar)}</div><div class="d">${esc(e.equip)} · ${esc(e.level)}</div></div>`).join('')||'<div class="tiny">لا يوجد</div>';
+ const antAr=m.antagonist?esc((muscleOf(m.antagonist)||{}).ar||m.antagonist):'—';
+ return `<div class="card">
+  <h2 style="font-size:18px">${esc(m.ar)}</h2>
+  <p class="muted" style="margin-top:6px">${esc(m.fn)}</p>
+  <div class="grid g2 mt">
+   <div class="kpi"><div class="l">العضلة المضادة</div><div class="v" style="font-size:15px">${antAr}</div></div>
+   <div class="kpi"><div class="l">وقت التعافي</div><div class="v" style="font-size:15px">${m.recovery} ساعة</div></div>
+  </div>
+  <div class="sec-h"><h2>🏋️ تمارين مركّبة</h2></div>
+  <div class="list">${listEx(m.compound)}</div>
+  <div class="sec-h"><h2>🎯 تمارين عزل</h2></div>
+  <div class="list">${listEx(m.isolation)}</div>
+  <div class="sec-h"><h2>🧘 الإطالة</h2></div>
+  <div class="card">${esc(m.stretch)}</div>
+  <div class="sec-h"><h2>⚠️ إصابات شائعة</h2></div>
+  <div class="list">${m.injuries.map(i=>`<div class="li"><div class="t" style="font-size:13px">${esc(i)}</div></div>`).join('')}</div>
+ </div>`;
+}
+
 /* ============ MORE / SETTINGS / AUDIT ============ */
 function vMore(){
  $('#main').innerHTML=header('المزيد')+`
  <div class="list mt">
   <a class="li row" href="#/money" style="text-decoration:none;color:inherit"><span style="font-size:20px">💰</span><div class="grow t">الفلوس والباقات</div>›</a>
   <a class="li row" href="#/reports" style="text-decoration:none;color:inherit"><span style="font-size:20px">📈</span><div class="grow t">التقارير والتحليلات</div>›</a>
+  <a class="li row" href="#/atlas" style="text-decoration:none;color:inherit"><span style="font-size:20px">🧬</span><div class="grow t">موسوعة العضلات والتمارين</div>›</a>
   <a class="li row" href="#/alerts" style="text-decoration:none;color:inherit"><span style="font-size:20px">🔔</span><div class="grow t">التنبيهات</div>›</a>
   <a class="li row" href="#/audit" style="text-decoration:none;color:inherit"><span style="font-size:20px">🧾</span><div class="grow t">سجل العمليات (Audit)</div>›</a>
   <a class="li row" href="#/settings" style="text-decoration:none;color:inherit"><span style="font-size:20px">⚙️</span><div class="grow t">الإعدادات والنسخ الاحتياطي</div>›</a>
