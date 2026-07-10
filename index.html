@@ -163,26 +163,9 @@ header.top .sub{font-size:12px;color:var(--tx2);font-weight:400;display:block}
 .body-toggle{display:flex;gap:6px}
 
 /* Exercise cards (muscle atlas) */
-.ex-card{display:flex;gap:12px;align-items:center;background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:10px;margin-bottom:8px}
-.ex-thumb{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;border:1px solid var(--line2)}
-.ex-card .t{font-weight:700;font-size:13.5px}
-.ex-card .d{font-size:11.5px;color:var(--tx2);margin-top:2px}
 
 /* Atlas split layout (desktop side panel / mobile bottom sheet) */
-.atlas-wrap{position:relative}
-.atlas-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:59;opacity:0;pointer-events:none;transition:opacity .25s}
-.atlas-backdrop.open{opacity:1;pointer-events:auto}
-.atlas-detail{position:fixed;left:0;right:0;bottom:0;background:var(--s1);border-radius:20px 20px 0 0;box-shadow:0 -8px 28px rgba(0,0,0,.45);max-height:82vh;overflow-y:auto;transform:translateY(105%);transition:transform .28s cubic-bezier(.32,.72,0,1);z-index:60;padding:10px 16px calc(16px + env(safe-area-inset-bottom))}
-.atlas-detail.open{transform:translateY(0)}
-.atlas-sheet-handle{width:38px;height:4px;background:var(--line2);border-radius:3px;margin:2px auto 12px}
-.atlas-tabbar{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:10px 0 14px;overflow-x:auto}
-.atlas-tab{padding:9px 4px;font-size:12.5px;font-weight:700;color:var(--tx3);border-bottom:2px solid transparent;white-space:nowrap;flex:1}
-.atlas-tab.on{color:var(--lime);border-color:var(--lime)}
 @media(min-width:900px){
- .atlas-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
- .atlas-detail{position:sticky;top:76px;transform:none!important;max-height:calc(100dvh - 96px);border-radius:var(--r);box-shadow:none;z-index:1;padding:18px;border:1px solid var(--line)}
- .atlas-backdrop{display:none}
- .atlas-sheet-handle{display:none}
 }
 
 /* Client card */
@@ -274,6 +257,8 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}
 .login-card .logo{font-family:var(--font-plate);font-weight:700;font-size:32px;text-align:center;letter-spacing:.03em}
 .login-card .logo b{color:var(--lime)}
 .login-card .rule{width:46px;height:2px;background:var(--lime-d);margin:14px auto 24px;border-radius:2px;opacity:.8}
+/* Trainee portal renders inside #login-screen, outside the coach shell. */
+.portal{max-width:560px;margin:0 auto;padding:20px 16px 40px}
 
 /* ============================================================
    FITNESS SECTION — Exercises / Programs / Stats
@@ -351,20 +336,14 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}
 .fit-ex{border-radius:24px;overflow:hidden;background:var(--fit-glass);border:1px solid var(--fit-brd);
   display:flex;flex-direction:column;transition:transform .16s}
 .fit-ex:active{transform:scale(.98)}
-.fit-ex-media{position:relative;aspect-ratio:1/.84;overflow:hidden;background:#fff}
+/* Matches the plate the anatomy renders are baked onto, so there is no seam. */
+.fit-ex-media{position:relative;aspect-ratio:1/.84;overflow:hidden;background:#f4f6f8}
 .fit-ex-media>img,.fit-ex-media>svg.fit-ex-fb{position:absolute;inset:0;width:100%;height:100%;display:block}
 /* The photo is only revealed once it has actually decoded. Until then (or
    forever, if the file isn't shipped) the fallback illustration shows through,
    so a missing asset can never paint a blank white card. */
-.fit-ex-media>img{object-fit:cover;z-index:1;background:#fff;opacity:0;transition:opacity .2s}
+.fit-ex-media>img{object-fit:cover;z-index:1;background:#f4f6f8;opacity:0;transition:opacity .2s}
 .fit-ex-media>img.is-loaded{opacity:1}
-.fit-ex-play{position:absolute;left:9px;bottom:9px;z-index:2;width:28px;height:28px;border-radius:50%;
-  background:rgba(20,20,22,.55);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;
-  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.22)}
-.fit-ex-bm{position:absolute;right:9px;top:9px;z-index:2;width:30px;height:30px;border-radius:50%;
-  background:rgba(20,20,22,.42);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;
-  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.22)}
-.fit-ex-bm.on{background:var(--fit-accent);border-color:transparent}
 .fit-ex-body{padding:12px 12px 14px;display:flex;flex-direction:column;gap:10px;flex:1}
 .fit-ex-name{font-size:14.5px;font-weight:700;color:#fff;line-height:1.3}
 .fit-ex-foot{display:flex;align-items:center;gap:8px;margin-top:auto}
@@ -391,10 +370,6 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}
   font-size:12.5px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
 .fit-prog-rate .st{color:#fbbf24;display:flex;align-items:center;gap:4px}
 .fit-prog-rate .dl{color:rgba(255,255,255,.82);display:flex;align-items:center;gap:4px}
-.fit-prog-bm{position:absolute;right:11px;top:11px;z-index:2;width:32px;height:32px;border-radius:50%;
-  background:rgba(0,0,0,.42);border:1px solid rgba(255,255,255,.22);color:#fff;display:flex;align-items:center;
-  justify-content:center;font-size:14px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.fit-prog-bm.on{background:var(--fit-accent);border-color:transparent}
 .fit-prog-t{padding:14px 15px 16px;font-size:15px;font-weight:700;color:#fff}
 
 /* Stats */
@@ -446,11 +421,41 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}
 .fit-3d-sheet{margin-top:16px;padding:18px;border-radius:26px;background:var(--fit-glass);
   border:1px solid var(--fit-brd);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 .fit-3d-sheet h3{font-family:var(--font-d);font-size:22px;font-weight:800;color:#fff}
-.fit-3d-sheet .ar{font-size:14px;color:var(--fit-accent);margin-top:2px}
-.fit-3d-sheet .fn{font-size:14px;color:var(--fit-tx2);line-height:1.65;margin-top:10px}
-.fit-3d-sheet .fit-chips{margin-top:14px}
-.fit-3d-sheet .rec{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--fit-tx2)}
+.fit-3d-sheet .ar{font-size:13px;color:var(--fit-accent);margin-top:2px;font-weight:700}
+.fit-3d-sheet .fn{font-size:14px;color:var(--fit-tx2);line-height:1.7;margin-top:10px}
+.fit-3d-sheet .fit-chips{margin-top:10px}
+.fit-3d-sheet .rec{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12.5px;color:var(--fit-tx2)}
 .fit-3d-sheet .rec b{color:#fff;font-weight:700}
+.fit-3d-head{display:flex;align-items:flex-start;gap:10px}
+.fit-3d-x{width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;background:rgba(255,255,255,.08);border:1px solid var(--fit-brd);color:#fff;font-size:15px}
+.fit-subtabs{display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(255,255,255,.05);
+  border:1px solid var(--fit-brd);margin-top:14px}
+.fit-subtabs button{flex:1;padding:9px 0;border-radius:999px;font-size:12.5px;font-weight:700;color:var(--fit-tx2)}
+.fit-subtabs button.on{background:linear-gradient(135deg,var(--fit-accent-2),#e8630f);color:#fff}
+.fit-3d-body{margin-top:16px}
+.fit-sub2{display:flex;align-items:center;gap:7px;margin:18px 0 8px;font-size:13px;font-weight:700;color:#fff}
+.fit-bullets{list-style:none;display:flex;flex-direction:column;gap:9px}
+.fit-bullets li{position:relative;padding-right:16px;font-size:13.5px;line-height:1.7;color:var(--fit-tx2)}
+.fit-bullets li::before{content:'';position:absolute;right:0;top:9px;width:6px;height:6px;border-radius:50%;
+  background:var(--fit-accent)}
+.fit-equip{margin-bottom:12px;padding:12px;border-radius:16px;background:rgba(255,255,255,.05);
+  border:1px solid var(--fit-brd)}
+.fit-equip .e{font-size:13px;font-weight:700;color:#fff;margin-bottom:8px}
+.fit-exlist{display:flex;flex-direction:column;gap:9px}
+.fit-exrow{display:flex;align-items:center;gap:11px;padding:12px;border-radius:16px;
+  background:rgba(255,255,255,.05);border:1px solid var(--fit-brd)}
+.fit-exrow-i{width:36px;height:36px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;background:rgba(255,122,26,.14);color:var(--fit-accent);font-size:16px}
+.fit-exrow .n{font-size:13.5px;font-weight:700;color:#fff}
+.fit-exrow .d{font-size:11.5px;color:var(--fit-tx2);margin-top:3px}
+.fit-exrow-t{flex-shrink:0;font-size:10.5px;font-weight:700;padding:4px 8px;border-radius:7px}
+.fit-exrow-t.c{background:rgba(255,122,26,.16);color:var(--fit-accent-3)}
+.fit-exrow-t.i{background:rgba(91,141,239,.16);color:#8fb0f5}
+.fit-3d-more{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:14px;
+  padding:14px;border-radius:999px;background:rgba(255,122,26,.12);border:1px solid rgba(255,122,26,.3);
+  color:var(--fit-accent);font-size:13.5px;font-weight:700}
+.fit-3d-more:active{transform:scale(.98)}
 .fit-legend{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:12px;
   font-size:11.5px;color:var(--fit-tx2)}
 .fit-legend i{width:12px;height:12px;border-radius:4px;display:inline-block;margin-right:5px;vertical-align:-2px}
@@ -545,7 +550,6 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}
 <symbol id="i-chevron-up" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></symbol>
 <symbol id="i-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></symbol>
 <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
-<symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
 <symbol id="i-layers" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></symbol>
 <symbol id="i-play" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3" fill="currentColor" stroke="none"/></symbol>
 <symbol id="i-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor" stroke="none"/></symbol>
@@ -563,8 +567,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}
     <a href="#/calendar" data-nav="calendar"><span><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg></span> التقويم</a>
     <a href="#/money" data-nav="money"><span><svg class="ic" aria-hidden="true"><use href="#i-banknote"/></svg></span> الفلوس والباقات</a>
     <a href="#/reports" data-nav="reports"><span><svg class="ic" aria-hidden="true"><use href="#i-trending-up"/></svg></span> التقارير</a>
-    <a href="#/atlas" data-nav="atlas"><span><svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg></span> موسوعة العضلات</a>
-    <a href="#/fitness" data-nav="fitness"><span><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg></span> التمارين والبرامج</a>
+    <a href="#/fitness" data-nav="fitness"><span><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg></span> التمارين والعضلات</a>
     <a href="#/alerts" data-nav="alerts"><span><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg></span> التنبيهات</a>
     <div class="grow"></div>
     <a href="#/settings" data-nav="settings"><span><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg></span> الإعدادات</a>
@@ -800,37 +803,306 @@ const EXERCISES=[
 const exerciseOf=id=>EXERCISES.find(x=>x.id===id);
 
 /* ---------- Exercise cards (thumbnail placeholders — no real photos available) ---------- */
-const EQUIP_GRAD={
- 'باربل':'linear-gradient(135deg,var(--lime-bg),var(--s3))',
- 'دمبل':'linear-gradient(135deg,var(--orange-bg),var(--s3))',
- 'كابل':'linear-gradient(135deg,var(--violet-bg),var(--s3))',
- 'مكينة':'linear-gradient(135deg,var(--blue-bg),var(--s3))',
- 'مكينة/باربل':'linear-gradient(135deg,var(--blue-bg),var(--s3))',
- 'باربل/دمبل':'linear-gradient(135deg,var(--lime-bg),var(--s3))',
- 'وزن الجسم':'linear-gradient(135deg,var(--s2),var(--s3))',
- 'وزن/دمبل':'linear-gradient(135deg,var(--s2),var(--s3))',
- 'وزن الجسم/صندوق':'linear-gradient(135deg,var(--s2),var(--s3))',
- 'دمبل/صندوق':'linear-gradient(135deg,var(--orange-bg),var(--s3))',
- 'دمبل/كيتلبل':'linear-gradient(135deg,var(--orange-bg),var(--s3))',
- 'بار عقلة':'linear-gradient(135deg,var(--lime-bg),var(--s3))',
- 'بار متوازي':'linear-gradient(135deg,var(--lime-bg),var(--s3))',
- 'بنش خاص':'linear-gradient(135deg,var(--red-bg),var(--s3))',
- 'عجلة':'linear-gradient(135deg,var(--violet-bg),var(--s3))',
- 'مكينة GHR':'linear-gradient(135deg,var(--blue-bg),var(--s3))'
-};
-const EQUIP_ICON={'باربل':'<svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg>','دمبل':'','كابل':'<svg class="ic" aria-hidden="true"><use href="#i-link"/></svg>','مكينة':'<svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg>','وزن الجسم':'<svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg>','بار عقلة':'<svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg>','بار متوازي':'<svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg>','عجلة':'<svg class="ic" aria-hidden="true"><use href="#i-disc"/></svg>'};
-const equipIcon=eq=>{for(const k in EQUIP_ICON){if(eq.includes(k))return EQUIP_ICON[k]}return '<svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg>'};
-const equipGrad=eq=>EQUIP_GRAD[eq]||'linear-gradient(135deg,var(--s2),var(--s3))';
+/* Prescription shown next to each exercise in the atlas sheet. */
 const setsRepsOf=e=>e.type==='compound'?'4×8-12':'3×12-15';
-function exerciseCard(e,onClick){
- return `<div class="ex-card"${onClick?` onclick="${onClick}"`:''}>
-  <div class="ex-thumb" style="background:${equipGrad(e.equip)}"><span>${equipIcon(e.equip)}</span></div>
-  <div class="grow">
-   <div class="t">${esc(e.ar)}</div>
-   <div class="d">${setsRepsOf(e)} · ${esc(e.equip)} · ${esc(e.level)}</div>
-  </div>
- </div>`;
+/* ============================================================
+   NUTRITION
+   Mifflin-St Jeor for BMR, an activity factor for maintenance, then a
+   goal-driven surplus/deficit. Everything is derived from data the app
+   already holds: age and gender on the client, weight and height from the
+   latest measurement. Nothing is invented.
+   ============================================================ */
+
+/* How hard the trainee lives outside the gym. Stored on the client. */
+const ACTIVITY=[
+ {k:1.2,   ar:'خامل — مكتب ومفيش حركة'},
+ {k:1.375, ar:'خفيف — تمرين 1-3 أيام'},
+ {k:1.55,  ar:'متوسط — تمرين 3-5 أيام'},
+ {k:1.725, ar:'عالي — تمرين 6-7 أيام'},
+ {k:1.9,   ar:'شديد — شغل بدني + تمرين يومي'}
+];
+/* kcal offset and protein target per goal. Protein is g per kg of bodyweight. */
+const GOAL_PLAN={
+ 'تخسيس':      {pct:-0.20, protein:2.2, note:'عجز 20% — نزول ~0.5 كجم أسبوعيًا'},
+ 'زيادة عضل':  {pct:+0.12, protein:2.0, note:'فائض 12% — زيادة نظيفة بأقل دهون'},
+ 'قوة':        {pct:+0.05, protein:2.0, note:'فائض بسيط يدعم الأداء'},
+ 'لياقة':      {pct: 0.00, protein:1.8, note:'ثبات على وزن الجسم'},
+ 'تأهيل إصابة':{pct: 0.00, protein:1.8, note:'ثبات مع بروتين كافٍ للتعافي'}
+};
+
+const mifflin=(w,h,age,male)=>10*w+6.25*h-5*age+(male?5:-161);
+const isMale=c=>String(c.gender||'').indexOf('ذكر')===0||String(c.gender||'').toLowerCase()==='male';
+
+/* Returns null when we genuinely cannot compute it, rather than guessing. */
+function nutritionFor(cid){
+ const c=client(cid); if(!c)return null;
+ const m=lastMeas(cid);
+ const w=m&&m.weight, h=c.height||(m&&m.height);   // client height wins; measurements rarely carry it
+ const missing=[];
+ if(!w)missing.push('الوزن');
+ if(!h)missing.push('الطول');
+ if(!c.age)missing.push('السن');
+ if(missing.length)return{missing};
+
+ const act=c.activity||1.55;
+ const plan=GOAL_PLAN[c.goal]||GOAL_PLAN['لياقة'];
+ const bmrRaw=mifflin(w,h,c.age,isMale(c));
+ const tdeeRaw=bmrRaw*act;
+ const targetRaw=tdeeRaw*(1+plan.pct);
+
+ // Protein and fat come from bodyweight; carbs take what is left.
+ // On an aggressive cut, g/kg protein can eat most of the budget, so cap it at
+ // 40% of calories — otherwise the meal plan asks for absurd portions.
+ let protein=Math.round(plan.protein*w);
+ protein=Math.min(protein,Math.round(targetRaw*0.40/4));
+ const fat=Math.max(Math.round(0.6*w),Math.round(0.8*w));
+ const carbs=Math.max(0,Math.round((targetRaw-protein*4-fat*9)/4));
+
+ return{weight:w,height:h,age:c.age,male:isMale(c),activity:act,goal:c.goal||'لياقة',
+  bmr:Math.round(bmrRaw),tdee:Math.round(tdeeRaw),target:Math.round(targetRaw),
+  delta:Math.round(targetRaw-tdeeRaw),note:plan.note,
+  macros:{protein,carbs,fat},
+  water:+(w*0.035).toFixed(1)};
 }
+
+/* ---------- Food database (per 100 g) ----------
+   `role` drives portioning: p = protein source, c = carb source,
+   f = fat source, v = vegetable (portion stays fixed). */
+const FOOD={
+ // Egyptian staples
+ foul:      {ar:'فول مدمس',        kcal:110, p:7.6, c:19,  f:0.5,  role:'c'},
+ baladi:    {ar:'عيش بلدي',        kcal:275, p:9,   c:55,  f:1.5,  role:'c'},
+ egg:       {ar:'بيض',             kcal:143, p:13,  c:1,   f:10,   role:'p'},
+ qarish:    {ar:'جبنة قريش',       kcal:98,  p:14,  c:3,   f:1,    role:'p'},
+ chicken:   {ar:'صدور فراخ',       kcal:165, p:31,  c:0,   f:3.6,  role:'p'},
+ rice:      {ar:'أرز أبيض مطبوخ',  kcal:130, p:2.7, c:28,  f:0.3,  role:'c'},
+ lentils:   {ar:'عدس مطبوخ',       kcal:116, p:9,   c:20,  f:0.4,  role:'c'},
+ tuna:      {ar:'تونة في الماء',   kcal:116, p:26,  c:0,   f:1,    role:'p'},
+ tilapia:   {ar:'سمك بلطي',        kcal:96,  p:20,  c:0,   f:1.7,  role:'p'},
+ salad:     {ar:'سلطة خضراء',      kcal:20,  p:1,   c:4,   f:0.2,  role:'v'},
+ yogurt:    {ar:'زبادي',           kcal:61,  p:3.5, c:4.7, f:3.3,  role:'p'},
+ banana:    {ar:'موز',             kcal:89,  p:1.1, c:23,  f:0.3,  role:'c'},
+ almonds:   {ar:'لوز',             kcal:579, p:21,  c:22,  f:50,   role:'f'},
+ oliveoil:  {ar:'زيت زيتون',       kcal:884, p:0,   c:0,   f:100,  role:'f'},
+ // International
+ oats:      {ar:'شوفان',           kcal:389, p:16.9,c:66,  f:6.9,  role:'c'},
+ whey:      {ar:'واي بروتين',      kcal:400, p:80,  c:8,   f:6,    role:'p'},
+ brownrice: {ar:'أرز بني مطبوخ',   kcal:111, p:2.6, c:23,  f:0.9,  role:'c'},
+ sweetpot:  {ar:'بطاطا',           kcal:86,  p:1.6, c:20,  f:0.1,  role:'c'},
+ salmon:    {ar:'سلمون',           kcal:208, p:20,  c:0,   f:13,   role:'p'},
+ greekyog:  {ar:'زبادي يوناني',    kcal:59,  p:10,  c:3.6, f:0.4,  role:'p'},
+ avocado:   {ar:'أفوكادو',         kcal:160, p:2,   c:9,   f:15,   role:'f'},
+ peanut:    {ar:'زبدة فول سوداني', kcal:588, p:25,  c:20,  f:50,   role:'f'},
+ broccoli:  {ar:'بروكلي',          kcal:34,  p:2.8, c:7,   f:0.4,  role:'v'}
+};
+
+/* Meal templates. Base grams only set the starting ratio between items —
+   the portions are solved for, not scaled blindly. */
+const MEAL_SHARE=[0.28,0.34,0.13,0.25];
+const MEAL_NAMES=['الفطار','الغدا','سناك','العشا'];
+const CUISINES={
+ egy:{ar:'مصري',meals:[
+  [['foul',200],['baladi',60],['egg',100],['salad',100]],
+  [['chicken',180],['rice',200],['salad',150],['oliveoil',5]],
+  [['yogurt',200],['banana',100],['almonds',20]],
+  [['tuna',120],['baladi',40],['qarish',100],['salad',150]]]},
+ intl:{ar:'أجنبي',meals:[
+  [['oats',80],['whey',30],['banana',100],['peanut',15]],
+  [['chicken',180],['brownrice',200],['broccoli',150],['oliveoil',5]],
+  [['greekyog',200],['almonds',25]],
+  [['salmon',150],['sweetpot',250],['broccoli',150],['avocado',50]]]}
+};
+
+const mealTotals=items=>items.reduce((t,[k,g])=>{
+ const f=FOOD[k],r=g/100;
+ t.kcal+=f.kcal*r;t.p+=f.p*r;t.c+=f.c*r;t.f+=f.f*r;return t;
+},{kcal:0,p:0,c:0,f:0});
+
+/* Nobody weighs out 660 g of yogurt. Sanity ceiling per serving, in grams.
+   Staples are generous because a 3400 kcal bulk genuinely eats that much rice. */
+const FOOD_MAX={oliveoil:25,almonds:60,peanut:45,avocado:150,whey:60,egg:200,
+ baladi:200,yogurt:300,greekyog:300,qarish:200,chicken:300,salmon:250,tuna:200,
+ tilapia:250,rice:450,brownrice:450,oats:180,foul:400,banana:200,sweetpot:450,
+ salad:200,broccoli:250,lentils:400};
+
+/* Portion the whole day at once.
+
+   Scaling each meal by one calorie factor gets calories right and protein badly
+   wrong — a 3000 kcal bulk lands at 3.5 g/kg protein, a cut lands short. Solving
+   each meal independently is worse: a snack whose only protein is yogurt is told
+   to deliver its full protein share, and asks for 660 g of it.
+
+   So we solve once, across the day, for three scale factors — one each for the
+   protein, carb and fat foods — hitting all three macro targets simultaneously:
+
+       sp*Pp + sc*Pc + sf*Pf = Ptarget - Pveg
+       sp*Fp + sc*Fc + sf*Ff = Ftarget - Fveg
+       sp*Kp + sc*Kc + sf*Kf = Ktarget - Kveg
+
+   Vegetables keep their base portion. Three equations, three unknowns, Cramer's
+   rule. Singular systems fall back to plain calorie scaling. Scales are clamped,
+   portions capped by FOOD_MAX, and grams rounded to 5 so a kitchen scale can
+   actually hit them — all of which reintroduce a little error, so the caller is
+   shown the plan's ACTUAL macros rather than the targets. */
+function solve3(a,b){
+ const d=(m)=>m[0][0]*(m[1][1]*m[2][2]-m[1][2]*m[2][1])
+              -m[0][1]*(m[1][0]*m[2][2]-m[1][2]*m[2][0])
+              +m[0][2]*(m[1][0]*m[2][1]-m[1][1]*m[2][0]);
+ const det=d(a);
+ if(Math.abs(det)<1e-9)return null;
+ const col=(m,i,v)=>m.map((r,j)=>r.map((x,k)=>k===i?v[j]:x));
+ return [0,1,2].map(i=>d(col(a,i,b))/det);
+}
+
+function mealPlan(targetKcal,cuisine,targetProtein,targetFat){
+ const tpl=(CUISINES[cuisine]||CUISINES.egy).meals;
+ const all=tpl.flatMap((items,mi)=>items.map(([k,g])=>({k,g,mi})));
+ const sum=(role,fn)=>all.filter(x=>FOOD[x.k].role===role)
+                         .reduce((a,x)=>a+fn(FOOD[x.k])*x.g/100,0);
+
+ const veg={p:sum('v',f=>f.p),f:sum('v',f=>f.f),k:sum('v',f=>f.kcal)};
+ const A=[
+  [sum('p',f=>f.p),    sum('c',f=>f.p),    sum('f',f=>f.p)],
+  [sum('p',f=>f.f),    sum('c',f=>f.f),    sum('f',f=>f.f)],
+  [sum('p',f=>f.kcal), sum('c',f=>f.kcal), sum('f',f=>f.kcal)]
+ ];
+ const b=[(targetProtein||0)-veg.p,(targetFat||0)-veg.f,targetKcal-veg.k];
+
+ let s=solve3(A,b);
+ if(!s||s.some(x=>!isFinite(x))){
+  const kAll=A[2][0]+A[2][1]+A[2][2];
+  const u=kAll?(targetKcal-veg.k)/kAll:1;
+  s=[u,u,u];
+ }
+ const clamp=x=>Math.min(3.5,Math.max(0.25,x>0?x:0.25));
+ const [sp,sc,sf]=s.map(clamp);
+ const scaleOf={p:sp,c:sc,f:sf,v:1};
+
+ // Apply the scales, then clip to the per-serving ceilings.
+ const grams=all.map(x=>Math.min(x.g*scaleOf[FOOD[x.k].role],FOOD_MAX[x.k]||400));
+
+ // Clipping loses calories on a big bulk (450 g of rice is not enough on its
+ // own), so push the shortfall onto whichever foods still have headroom.
+ // Protein first, because it is the macro that matters, then calories via carbs.
+ const now=()=>grams.reduce((t,g,i)=>{
+  const f=FOOD[all[i].k],r=g/100;
+  t.p+=f.p*r;t.k+=f.kcal*r;return t;
+ },{p:0,k:0});
+ const refill=(role,deficitOf)=>{
+  for(let pass=0;pass<6;pass++){
+   const need=deficitOf(now());
+   if(need<=1)break;
+   const idx=all.map((x,i)=>i).filter(i=>FOOD[all[i].k].role===role
+     && grams[i]<(FOOD_MAX[all[i].k]||400)-1);
+   if(!idx.length)break;
+   const head=idx.reduce((a,i)=>a+((FOOD_MAX[all[i].k]||400)-grams[i]),0);
+   if(head<1)break;
+   idx.forEach(i=>{
+    const room=(FOOD_MAX[all[i].k]||400)-grams[i];
+    grams[i]=Math.min(grams[i]+room,grams[i]+room*Math.min(1,need/Math.max(1,head)*3));
+   });
+  }
+ };
+ refill('p',t=>(targetProtein||0)-t.p);
+ refill('c',t=>(targetKcal-t.k)/4);   // grams of carb still needed
+ refill('f',t=>(targetKcal-t.k)/9);
+
+ let gi=0;
+ const meals=tpl.map((items,mi)=>{
+  const portioned=items.map(([k])=>[k,Math.max(5,Math.round(grams[gi++]/5)*5)]);
+  return{name:MEAL_NAMES[mi],items:portioned,totals:mealTotals(portioned)};
+ });
+ const day=meals.reduce((t,m)=>{
+  t.kcal+=m.totals.kcal;t.p+=m.totals.p;t.c+=m.totals.c;t.f+=m.totals.f;return t;
+ },{kcal:0,p:0,c:0,f:0});
+ return{meals,day};
+}
+
+/* ============================================================
+   TRAINING INTELLIGENCE
+   Which muscle should this trainee hit today? Rank the coarse muscle
+   groups by recovery debt: how long since it was trained, against how
+   long that muscle actually needs. Never-trained groups come first.
+   ============================================================ */
+const TRAINABLE=MUSCLES.filter(m=>m!=='كارديو'&&m!=='Full Body');
+
+/* Recovery window for a coarse group = the slowest muscle inside it. */
+const groupRecoveryHours=coarse=>{
+ const ids=COARSE_MUSCLE_MAP[coarse]||[];
+ return ids.reduce((mx,id)=>Math.max(mx,(muscleOf(id)||{recovery:48}).recovery),0)||48;
+};
+
+/* Last day this trainee trained a coarse group, from either the session's
+   muscle chips or the exercises actually logged in it. */
+function lastTrainedDay(cid,coarse){
+ const ids=COARSE_MUSCLE_MAP[coarse]||[];
+ const done=db.sessions.filter(s=>s.clientId===cid&&s.status==='done')
+   .sort((a,b)=>b.date.localeCompare(a.date));
+ for(const s of done){
+  const byChip=(s.muscles||[]).includes(coarse);
+  const byEx=(s.exercises||[]).some(e=>{const ex=e.exId&&exerciseOf(e.exId);
+    return ex&&ex.primary.some(p=>ids.includes(p))});
+  if(byChip||byEx)return s.date;
+ }
+ return null;
+}
+
+/* Ratio > 1 means recovered and overdue. null date sorts to the very front:
+   a muscle that has never been trained is the most neglected thing there is. */
+function suggestNextMuscles(cid){
+ const rows=TRAINABLE.map(m=>{
+  const d=lastTrainedDay(cid,m);
+  const rec=groupRecoveryHours(m);
+  const hrs=d?(Date.now()-D(d).getTime())/36e5:Infinity;
+  const days=d?Math.floor(hrs/24):null;
+  return{muscle:m,lastDate:d,days,recovery:rec,hours:hrs,ratio:hrs/rec,ready:hrs>=rec};
+ });
+ rows.sort((a,b)=>b.ratio-a.ratio);
+ return rows;
+}
+const suggestReason=r=>r.lastDate===null
+ ? 'لسه متدربتش خالص'
+ : r.ready
+   ? `آخر مرة من ${r.days} يوم — متعافية وجاهزة`
+   : `آخر مرة من ${r.days} يوم — لسه بتتعافى (${r.recovery} ساعة)`;
+
+/* Log "trained today" in one tap. Builds the session, then hands it to
+   markDone so the subscription deduction stays in exactly one place. */
+function logTrainedToday(cid,muscles){
+ if(!muscles.length){toast('<svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> اختار عضلة على الأقل');return}
+ const s={id:uid(),clientId:cid,date:todayS(),time:new Date().toTimeString().slice(0,5),
+  dur:60,muscles,rpe:null,attended:0,deduct:0,kind:'paid',status:'scheduled',notes:'',exercises:[]};
+ db.sessions.push(s);
+ closeModal();
+ markDone(s.id);            // deducts from the active subscription and saves
+}
+
+function formQuickLog(cid){
+ const c=client(cid); if(!c)return;
+ const rows=suggestNextMuscles(cid);
+ const top=rows[0];
+ const rem=remaining(cid);
+ openModal(`<h3><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg> ${esc(c.name)} — تمرين النهاردة</h3>
+  <div class="card" style="margin-bottom:12px">
+   <div class="row" style="align-items:center;gap:10px">
+    <div class="grow"><div class="tiny">المقترح النهاردة</div>
+     <div style="font-size:17px;font-weight:800;color:var(--lime)">${esc(top.muscle)}</div>
+     <div class="tiny">${esc(suggestReason(top))}</div></div>
+    <div style="text-align:center"><div style="font-size:22px;font-weight:800">${rem}</div><div class="tiny">جلسة متبقية</div></div>
+   </div>
+  </div>
+  <div class="f-row"><label>العضلات اللي اتدرّبت النهاردة</label>
+   <div class="chips" id="ql-chips" style="flex-wrap:wrap">${MUSCLES.map(m=>{
+     const r=rows.find(x=>x.muscle===m);
+     const cls=m===top.muscle?'on':'';
+     const dot=r?(r.ready?'ok':'warn'):'';
+     return `<button class="chip ${cls}" data-m="${esc(m)}" onclick="this.classList.toggle('on')">${esc(m)}${r&&r.lastDate===null?' •':''}</button>`;
+   }).join('')}</div></div>
+  <p class="tiny" style="margin-bottom:10px">${rows.filter(r=>r.ready).length} عضلة متعافية · ${rows.filter(r=>!r.ready).length} لسه بتتعافى</p>
+  <button class="btn btn-p btn-block" onclick="logTrainedToday('${cid}',[...document.querySelectorAll('#ql-chips .chip.on')].map(b=>b.dataset.m))">
+   <svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg> سجّل الجلسة واخصمها</button>`);
+}
+
 const S_KIND={paid:'مدفوعة',free:'مجانية',comp:'تعويضية'};
 const S_STATUS={scheduled:'مجدولة',done:'تمّت',missed:'لم يحضر',cancelled:'ملغية'};
 
@@ -852,13 +1124,13 @@ function seedDemo(){
   {id:'p12',name:'12 جلسة',sessions:12,price:2200,days:45,active:1},
   {id:'p16',name:'16 جلسة',sessions:16,price:2800,days:60,active:1},
   {id:'pm',name:'شهري مفتوح',sessions:30,price:3500,days:30,active:1}];
- const mk=(name,phone,age,goal,lvl,daysAgoJoin)=>({id:uid(),name,phone,age,gender:'ذكر',goal,level:lvl,health:'',
-  joinDate:new Date(Date.now()-daysAgoJoin*864e5).toISOString().slice(0,10),archived:0,pinned:''});
- const c1=mk('محمود سامي','01011111111',27,'زيادة عضل','متوسط',120);
- const c2=mk('سارة عادل','01022222222',31,'تخسيس','مبتدئ',60);c2.gender='أنثى';
- const c3=mk('كريم حسن','01033333333',22,'قوة','متقدم',200);
- const c4=mk('منى فؤاد','01044444444',38,'لياقة','مبتدئ',30);c4.gender='أنثى';
- const c5=mk('عمر طارق','01055555555',24,'زيادة عضل','متوسط',90);
+ const mk=(name,phone,age,goal,lvl,daysAgoJoin,height,activity)=>({id:uid(),name,phone,age,gender:'ذكر',goal,level:lvl,health:'',
+  height,activity,joinDate:new Date(Date.now()-daysAgoJoin*864e5).toISOString().slice(0,10),archived:0,pinned:''});
+ const c1=mk('محمود سامي','01011111111',27,'زيادة عضل','متوسط',120,178,1.55);
+ const c2=mk('سارة عادل','01022222222',31,'تخسيس','مبتدئ',60,163,1.375);c2.gender='أنثى';
+ const c3=mk('كريم حسن','01033333333',22,'قوة','متقدم',200,183,1.725);
+ const c4=mk('منى فؤاد','01044444444',38,'لياقة','مبتدئ',30,158,1.2);c4.gender='أنثى';
+ const c5=mk('عمر طارق','01055555555',24,'زيادة عضل','متوسط',90,175,1.55);
  d.clients=[c1,c2,c3,c4,c5];
  const ago=n=>new Date(Date.now()-n*864e5).toISOString().slice(0,10);
  const fut=n=>new Date(Date.now()+n*864e5).toISOString().slice(0,10);
@@ -956,16 +1228,23 @@ const $=s=>document.querySelector(s);
 function setNav(k){document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('on',a.dataset.nav===k))}
 function route(){
  chartRefs.forEach(c=>{try{c.destroy()}catch(e){}});chartRefs=[];
+ // The trainee portal is public: it must render before the coach auth gate,
+ // and it never touches the local coach database.
+ if((location.hash||'').indexOf('#/p/')===0){
+  fitStopTimer();fit3dDispose();
+  renderPortal(location.hash.slice(4));return;
+ }
  if(SYNC_ENABLED&&!appPassword){renderAuth();return}
  if(!db.settings.setup){renderSetup();return}
  $('#login-screen').innerHTML='';$('#app').style.display='flex';$('#bnav').style.display='flex';$('#fab').style.display='flex';
  const h=location.hash||'#/dash';const p=h.slice(2).split('/');
  // The fitness section renders its own floating chrome; every other route clears it.
  if(p[0]!=='fitness'){$('#fit-chrome').innerHTML='';fitStopTimer();fit3dDispose()}
- const map={dash:vDash,clients:vClients,sessions:vSessions,calendar:vCalendar,money:vMoney,reports:vReports,alerts:vAlerts,settings:vSettings,more:vMore,audit:vAudit,atlas:vAtlas};
+ const map={dash:vDash,clients:vClients,sessions:vSessions,calendar:vCalendar,money:vMoney,reports:vReports,alerts:vAlerts,settings:vSettings,more:vMore,audit:vAudit};
  if(p[0]==='fitness'){setNav('fitness');renderFitnessShell(p[1]||'home',p[2]);return}
  if(p[0]==='client'&&p[1]){setNav('clients');vClient(p[1],p[2]||'overview');return}
- if(p[0]==='atlas'){setNav('atlas');vAtlas(p[1]||null);return}
+ // The old #/atlas encyclopedia was folded into the 3D atlas; keep old links working.
+ if(p[0]==='atlas'){location.replace('#/fitness/atlas'+(p[1]?'/'+p[1]:''));return}
  setNav(p[0]);(map[p[0]]||vDash)();
  window.scrollTo(0,0);
 }
@@ -1267,8 +1546,10 @@ function formClient(id){
   <div class="f-2"><div class="f-row"><label>الموبايل</label><input id="f-phone" inputmode="tel" value="${esc(c.phone||'')}"></div>
   <div class="f-row"><label>السن</label><input id="f-age" type="number" inputmode="numeric" value="${c.age||''}"></div></div>
   <div class="f-2"><div class="f-row"><label>النوع</label><select id="f-gender">${['ذكر','أنثى'].map(g=>`<option ${c.gender===g?'selected':''}>${g}</option>`).join('')}</select></div>
-  <div class="f-row"><label>المستوى</label><select id="f-level">${LEVELS.map(l=>`<option ${c.level===l?'selected':''}>${l}</option>`).join('')}</select></div></div>
-  <div class="f-row"><label>الهدف</label><select id="f-goal">${GOALS.map(g=>`<option ${c.goal===g?'selected':''}>${g}</option>`).join('')}</select></div>
+  <div class="f-row"><label>الطول (سم)</label><input id="f-height" type="number" inputmode="numeric" value="${c.height||''}"></div></div>
+  <div class="f-2"><div class="f-row"><label>المستوى</label><select id="f-level">${LEVELS.map(l=>`<option ${c.level===l?'selected':''}>${l}</option>`).join('')}</select></div>
+  <div class="f-row"><label>الهدف</label><select id="f-goal">${GOALS.map(g=>`<option ${c.goal===g?'selected':''}>${g}</option>`).join('')}</select></div></div>
+  <div class="f-row"><label>مستوى النشاط (لحساب السعرات)</label><select id="f-activity">${ACTIVITY.map(a=>`<option value="${a.k}" ${(c.activity||1.55)==a.k?'selected':''}>${a.ar}</option>`).join('')}</select></div>
   <div class="f-row"><label>حالة صحية / إصابات</label><textarea id="f-health" rows="2">${esc(c.health||'')}</textarea></div>
   <div class="f-row"><label>ملاحظة مثبّتة (تظهر أعلى البروفايل)</label><input id="f-pin" value="${esc(c.pinned||'')}"></div>
   <div class="f-row"><label>تاريخ الانضمام</label><input id="f-join" type="date" value="${c.joinDate||todayS()}"></div>
@@ -1276,7 +1557,10 @@ function formClient(id){
 }
 function saveClient(id){
  const name=$('#f-name').value.trim();if(!name){toast('<svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> الاسم مطلوب');return}
+ // height and activity live on the client, not on each measurement: an adult's
+ // height does not change, and the nutrition maths needs both to exist at all.
  const data={name,phone:$('#f-phone').value.trim(),age:+$('#f-age').value||null,gender:$('#f-gender').value,
+  height:+$('#f-height').value||null,activity:+$('#f-activity').value||1.55,
   level:$('#f-level').value,goal:$('#f-goal').value,health:$('#f-health').value.trim(),pinned:$('#f-pin').value.trim(),joinDate:$('#f-join').value||todayS()};
  if(id){Object.assign(client(id),data);log('تعديل متدرب',name)}
  else{const c=Object.assign({id:uid(),archived:0},data);db.clients.push(c);log('إضافة متدرب',name);closeModal();location.hash='#/client/'+c.id;save('✓ اتضاف '+name);return}
@@ -1292,16 +1576,177 @@ function unarchive(id){const c=client(id);c.archived=0;log('استرجاع من 
 function vClient(id,tab){
  const c=client(id);if(!c){location.hash='#/clients';return}
  const st=statusOf(c),s=activeSub(c.id)||db.subs.find(x=>x.clientId===id&&x.status==='frozen'),lm=lastMeas(id),ld=lastDone(id);
- const TABS=[['overview','نظرة عامة'],['sub','الاشتراك'],['sessions','الجلسات'],['progress','التقدم'],['goals','الأهداف'],['notes','الملاحظات']];
+ const TABS=[['overview','نظرة عامة'],['nutrition','التغذية'],['sub','الاشتراك'],['sessions','الجلسات'],['progress','التقدم'],['goals','الأهداف'],['notes','الملاحظات']];
  $('#main').innerHTML=`<header class="top">
   <button class="icon-btn" onclick="history.back()" aria-label="رجوع">→</button>
   <div class="grow"><h1 style="font-size:18px">${esc(c.name)} <span class="tag ${st.cls}">${st.t}</span></h1></div>
+  <button class="icon-btn" onclick="formQuickLog('${id}')" aria-label="سجّل تمرين النهاردة" title="سجّل تمرين النهاردة"><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg></button>
+  <button class="icon-btn" onclick="inviteClient('${id}')" aria-label="دعوة المتدرب" title="دعوة المتدرب للبورتال"><svg class="ic" aria-hidden="true"><use href="#i-link"/></svg></button>
   ${c.phone?`<a class="icon-btn" href="https://wa.me/2${c.phone}" target="_blank" aria-label="واتساب"><svg class="ic" aria-hidden="true"><use href="#i-message"/></svg></a><a class="icon-btn" href="tel:${c.phone}" aria-label="اتصال"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg></a>`:''}
   <button class="icon-btn" onclick="formClient('${id}')" aria-label="تعديل"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg></button></header>
  ${c.pinned?`<div class="pin-note"><svg class="ic" aria-hidden="true"><use href="#i-map-pin"/></svg> <b>${esc(c.pinned)}</b></div>`:''}
  <div class="tabs">${TABS.map(([k,t])=>`<button class="${tab===k?'on':''}" onclick="location.hash='#/client/${id}/${k}'">${t}</button>`).join('')}</div>
  <div id="ctab"></div>`;
- ({overview:tOverview,sub:tSub,sessions:tSessions,progress:tProgress,goals:tGoals,notes:tNotes}[tab]||tOverview)(c);
+ ({overview:tOverview,nutrition:tNutrition,sub:tSub,sessions:tSessions,progress:tProgress,goals:tGoals,notes:tNotes}[tab]||tOverview)(c);
+}
+
+/* ---------- Trainee invite ----------
+   The link carries a long random token; the 4-digit code is what actually
+   authorises, and it is only ever checked on the server. The two travel
+   separately: link on WhatsApp, code told to the trainee. */
+const randToken=()=>{
+ const a=new Uint8Array(16);crypto.getRandomValues(a);
+ return [...a].map(b=>b.toString(16).padStart(2,'0')).join('');
+};
+const portalUrl=t=>location.origin+location.pathname+'#/p/'+t;
+
+function inviteClient(cid){
+ const c=client(cid); if(!c)return;
+ if(!c.portalToken){
+  c.portalToken=randToken();
+  c.portalCode=String(Math.floor(1000+Math.random()*9000));
+  log('دعوة متدرب',c.name);save();
+ }
+ const url=portalUrl(c.portalToken);
+ const msg=encodeURIComponent(`أهلاً ${c.name} 👋\nده لينك متابعة تمارينك:\n${url}\n\nكود الدخول هيوصلك في رسالة منفصلة.`);
+ openModal(`<h3><svg class="ic" aria-hidden="true"><use href="#i-link"/></svg> دعوة ${esc(c.name)}</h3>
+  <div class="f-row"><label>اللينك</label><input value="${esc(url)}" readonly onclick="this.select()"></div>
+  <div class="card" style="text-align:center;margin-bottom:12px">
+   <div class="tiny">كود الدخول</div>
+   <div style="font-size:34px;font-weight:800;letter-spacing:.3em;color:var(--lime);font-variant-numeric:tabular-nums">${c.portalCode}</div>
+   <p class="tiny" style="margin-top:6px">ابعت الكود ده في رسالة <b>منفصلة</b> عن اللينك.</p>
+  </div>
+  ${c.phone?`<a class="btn btn-p btn-block" href="https://wa.me/2${c.phone}?text=${msg}" target="_blank"><svg class="ic" aria-hidden="true"><use href="#i-message"/></svg> ابعت اللينك على واتساب</a>`:''}
+  <button class="btn btn-s btn-block mt" onclick="navigator.clipboard.writeText('${url}');toast('✓ اتنسخ')"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"/></svg> انسخ اللينك</button>
+  <button class="btn btn-s btn-block mt" onclick="if(confirm('هيبطّل اللينك القديم ويعمل كود جديد. متأكد؟')){const c=client('${cid}');c.portalToken=randToken();c.portalCode=String(Math.floor(1000+Math.random()*9000));save('✓ اتجدد');inviteClient('${cid}')}">
+   <svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg> جدّد اللينك والكود</button>
+  ${!SYNC_ENABLED?'<p class="tiny mt2" style="color:var(--red)">تحذير: المزامنة السحابية مقفولة، فالبورتال مش هيشتغل للمتدرب.</p>':''}`);
+}
+
+/* ---------- Trainee portal (public, no coach password) ---------- */
+let portalData=null;
+function renderPortal(token){
+ $('#app').style.display='none';$('#bnav').style.display='none';$('#fab').style.display='none';
+ $('#fit-chrome').innerHTML='';
+ if(!portalData){
+  $('#login-screen').innerHTML=`<div class="login-wrap"><div class="login-card">
+   <div class="seal"><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg></div>
+   <div class="eyebrow">Coach OS</div><div class="logo">متابعة<b> تمارينك</b></div><div class="rule"></div>
+   <p class="muted" style="margin-bottom:14px">دخّل كود الدخول اللي المدرب بعتهولك</p>
+   <input id="p-code" inputmode="numeric" maxlength="4" placeholder="••••"
+     style="text-align:center;font-size:30px;letter-spacing:.4em" onkeydown="if(event.key==='Enter')portalLogin('${token}')">
+   <div id="p-err" class="tiny" style="color:var(--red);min-height:18px;margin:8px 0"></div>
+   <button class="btn btn-p btn-block" onclick="portalLogin('${token}')">دخول</button>
+  </div></div>`;
+  return;
+ }
+ const d=portalData, c=d.client;
+ const rem=d.sub?Math.max(0,d.sub.total-d.sub.used):0;
+ const w=d.meas[0]?d.meas[0].weight:null;
+ // Recompute the calorie target locally from the fields the server returned.
+ let nut=null;
+ if(w&&c.height&&c.age){
+  const bmr=mifflin(w,c.height,c.age,isMale(c));
+  const tdee=bmr*(c.activity||1.55);
+  const plan=GOAL_PLAN[c.goal]||GOAL_PLAN['لياقة'];
+  nut={bmr:Math.round(bmr),tdee:Math.round(tdee),target:Math.round(tdee*(1+plan.pct)),
+       protein:Math.round(plan.protein*w)};
+ }
+ $('#login-screen').innerHTML=`<div class="portal">
+  <header class="top"><div class="grow"><h1 style="font-size:20px">${esc(c.name)}</h1>
+   <span class="sub">${esc(c.goal||'')} · ${esc(c.level||'')}</span></div></header>
+  <div class="grid g2 mt">
+   <div class="kpi"><div class="v">${rem}</div><div class="l">جلسة متبقية</div></div>
+   <div class="kpi"><div class="v num" style="font-size:19px">${w?w+' كجم':'—'}</div><div class="l">آخر وزن</div></div>
+  </div>
+  ${nut?`<div class="card mt" style="text-align:center">
+    <div class="tiny">سعراتك اليومية المطلوبة</div>
+    <div style="font-size:38px;font-weight:800;color:var(--lime);line-height:1.1">${nut.target}</div>
+    <div class="tiny">حرقك اليومي ${nut.tdee} · بروتين ${nut.protein} جم</div></div>`:''}
+  <div class="sec-h"><h2>آخر تمارينك</h2></div>
+  <div class="list">${d.sessions.length?d.sessions.map(s=>`<div class="li">
+    <div class="t" style="font-size:13.5px">${esc((s.muscles||[]).join(' · ')||'تمرين')}</div>
+    <div class="d">${fD(s.date)}${s.dur?' · '+s.dur+' دقيقة':''}</div></div>`).join('')
+   :'<div class="tiny">لسه مفيش تمارين مسجّلة</div>'}</div>
+  <p class="tiny mt2" style="text-align:center">Coach OS · بيانات للعرض فقط</p>
+ </div>`;
+}
+async function portalLogin(token){
+ const code=$('#p-code').value.trim();
+ const err=$('#p-err');
+ if(!/^\d{4}$/.test(code)){err.textContent='الكود لازم يكون 4 أرقام';return}
+ err.textContent='بيتحقق…';
+ try{
+  const r=await apiCall('portal',{token,code});
+  if(!r.ok){
+   err.textContent=r.error==='locked'
+    ? 'محاولات كتير غلط — استنى 15 دقيقة'
+    : 'كود غلط';
+   return;
+  }
+  portalData=r;renderPortal(token);
+ }catch(e){err.textContent='مفيش اتصال بالسيرفر'}
+}
+
+/* ---------- Nutrition tab ---------- */
+let nutCuisine='egy';
+function setCuisine(k){nutCuisine=k;route()}
+function tNutrition(c){
+ const n=nutritionFor(c.id);
+ if(n.missing){
+  $('#ctab').innerHTML=`<div class="card mt" style="text-align:center">
+   <p class="muted">مش قادر أحسب السعرات — ناقص: <b>${n.missing.join('، ')}</b></p>
+   <p class="tiny" style="margin:10px 0 14px">الطول والسن في بيانات المتدرب، والوزن من آخر قياس.</p>
+   <button class="btn btn-p" onclick="formClient('${c.id}')"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg> كمّل البيانات</button>
+  </div>`;
+  return;
+ }
+ const m=n.macros;
+ const plan=mealPlan(n.target,nutCuisine,m.protein,m.fat);
+ const pct=x=>Math.round(x);
+ const deltaTxt=n.delta===0?'ثبات':(n.delta>0?`+${n.delta}`:`${n.delta}`)+' سعر';
+ const macroBar=(label,g,kcal,color)=>{
+  const share=Math.round(kcal/n.target*100);
+  return `<div style="margin-bottom:10px">
+   <div class="row" style="font-size:12.5px"><span class="grow">${label}</span><b>${g} جم</b><span class="tiny" style="margin-right:6px">${share}%</span></div>
+   <div style="height:7px;border-radius:4px;background:var(--s3);margin-top:5px;overflow:hidden">
+    <div style="width:${share}%;height:100%;background:${color}"></div></div></div>`;
+ };
+ $('#ctab').innerHTML=`
+ <div class="grid g2 mt">
+  <div class="kpi"><div class="l">الحرق الأساسي (BMR)</div><div class="v">${n.bmr}</div><div class="tiny">سعر / يوم وهو نايم</div></div>
+  <div class="kpi"><div class="l">حرق يومي كامل (TDEE)</div><div class="v">${n.tdee}</div><div class="tiny">مع النشاط ×${n.activity}</div></div>
+ </div>
+ <div class="card mt" style="text-align:center">
+  <div class="tiny">المطلوب عشان هدف «${esc(n.goal)}»</div>
+  <div style="font-size:40px;font-weight:800;font-family:var(--font-d);color:var(--lime);line-height:1.1">${n.target}</div>
+  <div class="tiny">سعر / يوم · ${deltaTxt} عن الحرق</div>
+  <p class="tiny" style="margin-top:8px;color:var(--tx2)">${esc(n.note)}</p>
+ </div>
+ <div class="sec-h"><h2>الماكروز اليومية</h2></div>
+ <div class="card">
+  ${macroBar('بروتين',m.protein,m.protein*4,'var(--lime)')}
+  ${macroBar('كربوهيدرات',m.carbs,m.carbs*4,'var(--blue)')}
+  ${macroBar('دهون',m.fat,m.fat*9,'var(--orange)')}
+  <div class="tiny" style="margin-top:6px">مياه مقترحة: <b>${n.water} لتر</b> · بروتين ${(m.protein/n.weight).toFixed(1)} جم لكل كجم</div>
+ </div>
+ <div class="sec-h"><h2>وجبات مقترحة</h2>
+  <div class="chips">${Object.entries(CUISINES).map(([k,v])=>`<button class="chip ${nutCuisine===k?'on':''}" onclick="setCuisine('${k}')">${v.ar}</button>`).join('')}</div>
+ </div>
+ ${plan.meals.map(meal=>`
+  <div class="card" style="margin-bottom:10px">
+   <div class="row" style="margin-bottom:8px"><b class="grow">${meal.name}</b>
+    <span class="tag">${Math.round(meal.totals.kcal)} سعر</span></div>
+   ${meal.items.map(([k,g])=>`<div class="row" style="font-size:13px;padding:4px 0">
+     <span class="grow">${esc(FOOD[k].ar)}</span><b>${g} جم</b></div>`).join('')}
+   <div class="tiny" style="margin-top:6px;border-top:1px solid var(--line);padding-top:6px">
+    ب ${Math.round(meal.totals.p)} · ك ${Math.round(meal.totals.c)} · د ${Math.round(meal.totals.f)}</div>
+  </div>`).join('')}
+ <div class="card">
+  <div class="row"><b class="grow">إجمالي اليوم فعليًا</b><b>${Math.round(plan.day.kcal)} سعر</b></div>
+  <div class="tiny" style="margin-top:4px">بروتين ${Math.round(plan.day.p)} · كربوهيدرات ${Math.round(plan.day.c)} · دهون ${Math.round(plan.day.f)}</div>
+  <p class="tiny" style="margin-top:8px;color:var(--tx2)">الأرقام دي هي اللي الوجبات بتديها فعلًا بعد تقريب الجرامات — مش الأهداف النظرية فوق.</p>
+ </div>`;
 }
 
 const COARSE_MUSCLE_MAP={'صدر':['chest'],'ظهر':['lats','traps','lowerback'],'كتف':['shoulders'],'ذراع':['biceps','triceps','forearms'],'رجل':['quads','hamstrings','glutes','calves'],'بطن':['abs','obliques'],'كارديو':[],'Full Body':MUSCLE_ATLAS.map(m=>m.id)};
@@ -1332,10 +1777,27 @@ function tOverview(c){
    ${bal>0?`<span class="tag bad" style="margin-top:5px"><svg class="ic" aria-hidden="true"><use href="#i-banknote"/></svg> متبقي عليه ${fM(bal)}</span>`:''}
   </div>
   <button class="btn btn-p btn-sm" onclick="quickSession('${c.id}')"><svg class="ic" aria-hidden="true"><use href="#i-zap"/></svg> جلسة</button></div>
+ ${(()=>{const sg=suggestNextMuscles(c.id),t=sg[0],ready=sg.filter(r=>r.ready).length;
+  return `<div class="card mt row" style="gap:14px;align-items:center">
+   <div class="grow">
+    <div class="tiny">تمرين النهاردة المقترح</div>
+    <div style="font-size:19px;font-weight:800;color:var(--lime)">${esc(t.muscle)}</div>
+    <div class="tiny">${esc(suggestReason(t))} · ${ready} من ${sg.length} عضلات متعافية</div>
+   </div>
+   <button class="btn btn-p btn-sm" onclick="formQuickLog('${c.id}')"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg> سجّل</button>
+  </div>`})()}
  <div class="grid g2 mt">
   <div class="kpi"><div class="v num" style="font-size:19px">${lm?.weight?lm.weight+' كجم':'—'}</div><div class="l">آخر وزن (${fD(lm?.date)})</div></div>
   <div class="kpi"><div class="v num" style="font-size:19px">${ld?fD(ld.date):'—'}</div><div class="l">آخر حضور</div></div>
  </div>
+ ${(()=>{const n=nutritionFor(c.id);
+  return n.missing
+   ? `<div class="card mt tiny">حاسبة السعرات ناقصها: <b>${n.missing.join('، ')}</b> — <a href="#/client/${c.id}/nutrition" style="color:var(--lime)">كمّل البيانات</a></div>`
+   : `<a class="card mt row" href="#/client/${c.id}/nutrition" style="gap:14px;align-items:center;text-decoration:none;color:inherit">
+      <div class="grow"><div class="tiny">السعرات المطلوبة يوميًا (${esc(n.goal)})</div>
+       <div style="font-size:22px;font-weight:800">${n.target} <span class="tiny">سعر</span></div></div>
+      <div style="text-align:center"><div class="tiny">بروتين</div><b>${n.macros.protein} جم</b></div>
+      <span style="color:var(--tx2)">›</span></a>`})()}
  <div class="card mt">
   <div class="row" style="flex-wrap:wrap;gap:7px">
    <span class="tag vio"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg> ${esc(c.goal||'—')}</span><span class="tag info"><svg class="ic" aria-hidden="true"><use href="#i-wifi"/></svg> ${esc(c.level||'—')}</span>
@@ -1849,78 +2311,10 @@ function vAlerts(){
  ||'<div class="empty"><div class="big"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg></div><p>كله تمام! مفيش حاجة محتاجة انتباهك دلوقتي</p></div>'}</div>`;
 }
 
-/* ============ MUSCLE ATLAS ============ */
-let atlasView='front', atlasTab='overview';
-function vAtlas(sel){
- $('#main').innerHTML=header('موسوعة العضلات والتمارين','اختر أي عضلة لمعرفة تفاصيلها وتمارينها')+`
- <div class="atlas-wrap mt">
-  <div class="card body-map-wrap">
-   <div class="body-toggle">
-    <button class="chip ${atlasView==='front'?'on':''}" onclick="atlasView='front';vAtlas('${sel||''}')">من الأمام</button>
-    <button class="chip ${atlasView==='back'?'on':''}" onclick="atlasView='back';vAtlas('${sel||''}')">من الخلف</button>
-   </div>
-   ${bodyMapSvg(atlasView,null,sel,'lg')}
-   <p class="tiny">دوس على أي عضلة في الرسم</p>
-  </div>
-  <div class="atlas-backdrop ${sel?'open':''}" onclick="location.hash='#/atlas'"></div>
-  <div id="atlas-detail" class="atlas-detail ${sel?'open':''}">${sel?muscleDetailPanel(sel):'<div class="empty"><div class="big"><svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg></div><p>اختار عضلة من الرسم عشان تشوف تفاصيلها وتمارينها</p></div>'}</div>
- </div>`;
-}
-function pickMuscle(id){atlasTab='overview';location.hash='#/atlas/'+id}
-function setAtlasTab(tab){
- atlasTab=tab;
- const p=location.hash.slice(2).split('/');
- if(p[0]==='atlas'&&p[1])$('#atlas-detail').innerHTML=muscleDetailPanel(p[1]);
-}
-function muscleDetailPanel(id){
- const m=muscleOf(id);if(!m)return'';
- const TABS=[['overview','نظرة عامة'],['exercises','التمارين'],['anatomy','التشريح'],['tips','نصائح']];
- const tabBar=`<div class="atlas-tabbar">${TABS.map(([k,l])=>`<button class="atlas-tab ${atlasTab===k?'on':''}" onclick="setAtlasTab('${k}')">${l}</button>`).join('')}</div>`;
- const allEx=[...m.compound,...m.isolation].map(exerciseOf).filter(Boolean);
- let body='';
- if(atlasTab==='exercises'){
-  body=`<div class="mt">${allEx.map(e=>exerciseCard(e)).join('')||'<div class="tiny">لا يوجد</div>'}</div>`;
- }else if(atlasTab==='anatomy'){
-  const antAr=m.antagonist?esc((muscleOf(m.antagonist)||{}).ar||m.antagonist):'—';
-  body=`<div class="grid g2 mt">
-   <div class="kpi"><div class="l">الموقع / الوظيفة</div><div class="v" style="font-size:13px">${esc(m.fn)}</div></div>
-   <div class="kpi"><div class="l">العضلة المضادة</div><div class="v" style="font-size:15px">${antAr}</div></div>
-   <div class="kpi"><div class="l">وقت التعافي</div><div class="v" style="font-size:15px">${m.recovery} ساعة</div></div>
-   <div class="kpi"><div class="l">المفاصل المعنية</div><div class="v" style="font-size:13px">${(m.joints&&m.joints.length)?m.joints.join('، '):'—'}</div></div>
-  </div>
-  <div class="sec-h"><h2>الإطالة الموصى بها</h2></div>
-  <div class="card">${esc(m.stretch)}</div>
-  <div class="sec-h"><h2><svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> إصابات شائعة</h2></div>
-  <div class="list">${m.injuries.map(i=>`<div class="li"><div class="t" style="font-size:13px">${esc(i)}</div></div>`).join('')}</div>`;
- }else if(atlasTab==='tips'){
-  body=`<div class="list mt">${(m.tips||[]).map(t=>`<div class="li row"><span style="font-size:16px"></span><div class="grow" style="font-size:13.5px">${esc(t)}</div></div>`).join('')||'<div class="tiny">لا يوجد</div>'}</div>`;
- }else{
-  const byEquip={};
-  allEx.forEach(e=>{(byEquip[e.equip]=byEquip[e.equip]||[]).push(e)});
-  const equipHtml=Object.entries(byEquip).map(([eq,exs])=>`
-   <div class="li">
-    <div class="t" style="margin-bottom:7px"><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg> ${esc(eq)}</div>
-    <div class="row" style="gap:6px;flex-wrap:wrap">${exs.map(e=>`<span class="tag ${e.type==='compound'?'vio':'info'}">${esc(e.ar)}</span>`).join('')}</div>
-   </div>`).join('')||'<div class="tiny">لا يوجد</div>';
-  body=`<p class="muted mt">${esc(m.fn)}</p>
-  <div class="grid g2 mt">
-   <div class="kpi"><div class="l">عدد التمارين</div><div class="v">${allEx.length}</div></div>
-   <div class="kpi"><div class="l">وقت التعافي</div><div class="v" style="font-size:15px">${m.recovery} ساعة</div></div>
-  </div>
-  <div class="sec-h"><h2><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg> التدريب حسب الجهاز</h2></div>
-  <div class="list">${equipHtml}</div>`;
- }
- return `<div class="atlas-sheet-handle"></div>
-  <div class="row" style="margin-bottom:2px">
-   <div class="grow">
-    <h2 style="font-size:19px">${esc(m.ar)}</h2>
-    <div class="tiny" style="color:var(--lime);font-weight:700">${esc(m.nameEn||'')}</div>
-   </div>
-   <button class="icon-btn" onclick="location.hash='#/atlas'" aria-label="إغلاق"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
-  </div>
-  ${tabBar}
-  ${body}`;
-}
+/* The old 2D encyclopedia (#/atlas) was folded into the 3D atlas.
+   pickMuscle survives because bodyMapSvg still powers the login backdrop
+   and the per-client recovery map, and both let you tap a muscle. */
+function pickMuscle(id){fit3dTab='overview';location.hash='#/fitness/atlas/'+id}
 
 /* ============ MORE / SETTINGS / AUDIT ============ */
 function vMore(){
@@ -1928,8 +2322,7 @@ function vMore(){
  <div class="list mt">
   <a class="li row" href="#/money" style="text-decoration:none;color:inherit"><span style="font-size:20px"><svg class="ic" aria-hidden="true"><use href="#i-banknote"/></svg></span><div class="grow t">الفلوس والباقات</div>›</a>
   <a class="li row" href="#/reports" style="text-decoration:none;color:inherit"><span style="font-size:20px"><svg class="ic" aria-hidden="true"><use href="#i-trending-up"/></svg></span><div class="grow t">التقارير والتحليلات</div>›</a>
-  <a class="li row" href="#/atlas" style="text-decoration:none;color:inherit"><span style="font-size:20px"><svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg></span><div class="grow t">موسوعة العضلات والتمارين</div>›</a>
-  <a class="li row" href="#/fitness" style="text-decoration:none;color:inherit"><span style="font-size:20px"><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg></span><div class="grow t">التمارين والبرامج (Fitness)</div>›</a>
+  <a class="li row" href="#/fitness" style="text-decoration:none;color:inherit"><span style="font-size:20px"><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg></span><div class="grow t">التمارين والعضلات</div>›</a>
   <a class="li row" href="#/alerts" style="text-decoration:none;color:inherit"><span style="font-size:20px"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg></span><div class="grow t">التنبيهات</div>›</a>
   <a class="li row" href="#/audit" style="text-decoration:none;color:inherit"><span style="font-size:20px"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg></span><div class="grow t">سجل العمليات (Audit)</div>›</a>
   <a class="li row" href="#/settings" style="text-decoration:none;color:inherit"><span style="font-size:20px"><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg></span><div class="grow t">الإعدادات والنسخ الاحتياطي</div>›</a>
@@ -2017,7 +2410,11 @@ function drawBar(id,title,labels,data,color){
 
 /* ---------- Cloud sync engine (side-car on save()/boot; view/CRUD code untouched) ---------- */
 async function apiCall(action,extra,pwOverride){
- const payload=Object.assign({action,password:pwOverride||appPassword},extra||{});
+ // The portal runs on a trainee's phone. Never put the coach password in that
+ // request — the token and 4-digit code are its only credentials.
+ const payload=action==='portal'
+  ? Object.assign({action},extra||{})
+  : Object.assign({action,password:pwOverride||appPassword},extra||{});
  const res=await fetch(SHEET_API_URL,{method:'POST',body:JSON.stringify(payload)});
  return res.json();
 }
@@ -2180,7 +2577,7 @@ function exercisesForGroup(key){
 
 /* ---------- Runtime state (in-memory only) ---------- */
 let fitWorkout={active:true,startedAt:Date.now(),collapsed:false};
-let fitTimerId=null, fitSaved=new Set(), fitChestTab='exercises';
+let fitTimerId=null;
 
 /* ---------- Small view helpers ---------- */
 const fitIc=(n,cls='')=>`<svg class="ic ${cls}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
@@ -2294,14 +2691,23 @@ function exerciseFallbackSvg(ex){
  </svg>`;
 }
 
-/* Designed fallback underneath, real photo layered on top but transparent
-   until it decodes (see .fit-ex-media>img). A missing/blocked/slow file
-   therefore degrades to the illustration instead of a blank white card.
-   Dropping PNGs into public/assets/exercises/<group>/ needs no code change. */
+/* Each exercise card shows an anatomy render: the muscles it trains, primary in
+   red and secondary in amber, on the same figure the 3D atlas uses. The images
+   are baked from muscles.glb (see docs in public/assets/exercises/anat/), and
+   many exercises share one render because they train the same muscles — 60
+   exercises collapse to 32 images.
+
+   Only the 10-char content hash is stored per slug; the path is rebuilt here. */
+const EX_ANAT={'ab-wheel':'69adca14de','arnold-press':'aaa5c88dac','back-extension':'ccfae8cda8','barbell-curl':'ac60345049','barbell-row':'bdd23179ba','bench-press':'3d57246cab','bulgarian-split-squat':'bbd2bbae25','cable-crunch':'3a28e04e7c','cable-fly':'3355a6c415','cable-kickback':'b1012f3d6d','chest-press-machine':'8c1be8df73','close-grip-bench':'3d43775250','concentration-curl':'ec8b612375','crunch':'3a28e04e7c','db-curl':'ac60345049','deadlift':'40eb25ad6e','diamond-pushup':'018b29f8a2','dips':'8c1be8df73','donkey-calf-raise':'6fbbfcc226','dumbbell-fly':'3355a6c415','face-pull':'56d4859ee1','front-raise':'96dd197a19','glute-bridge':'b1012f3d6d','glute-ham-raise':'38b8d5dbe0','good-morning':'2ffe0e4c38','hammer-curl':'ac60345049','hip-thrust':'cae1c1ebca','incline-bench-press':'d747d0734a','lat-pulldown':'b5c4b4f51b','lateral-raise':'96dd197a19','leg-curl':'bfa4cb71d2','leg-extension':'2f08b36c83','leg-press':'0fce28cb71','leg-raise':'3a28e04e7c','lever-seated-fly':'3355a6c415','lunge':'0fce28cb71','nordic-curl':'bfa4cb71d2','ohp':'aaa5c88dac','overhead-extension':'e252123f06','pec-deck':'3355a6c415','plank':'9d599a3774','preacher-curl':'ec8b612375','pullup':'b5c4b4f51b','push-up':'fd6b96bfc4','rdl':'d2f087b502','rear-delt-fly':'8b3b4e92a4','russian-twist':'bac432d51f','seated-calf-raise':'6fbbfcc226','seated-row':'bdd23179ba','shrug':'f9a440b62b','side-plank':'3027012bfb','skull-crusher':'e252123f06','squat':'d2a65d26e2','standing-calf-raise':'6fbbfcc226','step-up':'0fce28cb71','straight-arm-pulldown':'c1f2da04f0','t-bar-row':'bdd23179ba','triceps-pushdown':'e252123f06','upright-row':'56d4859ee1','woodchop':'bac432d51f'};
+
+/* Anatomy render on top, equipment illustration underneath. The <img> is
+   transparent until it decodes, so an exercise with no render (or a failed
+   fetch) degrades to the illustration instead of a blank card. */
 function exerciseImageOrFallback(ex,group){
- const src=`${EX_IMG_BASE}${group}/${ex.slug}.png`;
+ const h=EX_ANAT[ex.slug];
+ if(!h)return exerciseFallbackSvg(ex);
  return exerciseFallbackSvg(ex)+
-  `<img src="${src}" alt="${esc(ex.name)}" decoding="async"
+  `<img src="${EX_IMG_BASE}anat/anat-${h}.png" alt="${esc(ex.name)}" decoding="async"
     onload="this.classList.add('is-loaded')" onerror="this.remove()">`;
 }
 
@@ -2316,8 +2722,8 @@ function fitProgArt(kind,color){
 }
 
 /* ---------- Floating chrome ---------- */
-const FIT_NAV=[['home','Exercises','dumbbell'],['programs','Programs','layers'],['stats','Stats','bar-chart'],
- ['saved','Saved','bookmark'],['settings','Settings','settings']];
+const FIT_NAV=[['home','Exercises','dumbbell'],['atlas','Atlas','activity'],
+ ['programs','Programs','layers'],['stats','Stats','bar-chart']];
 function renderFitnessBottomNav(view){
  return `<nav id="fit-nav">${FIT_NAV.map(([k,label,icon])=>
   `<a href="#/fitness/${k==='home'?'':k}" class="${view===k?'on':''}">${fitIc(icon)}${label}</a>`).join('')}</nav>`;
@@ -2348,11 +2754,6 @@ function fitStopTimer(){if(fitTimerId){clearInterval(fitTimerId);fitTimerId=null
 function fitToggleCollapse(){fitWorkout.collapsed=!fitWorkout.collapsed;fitRenderChrome()}
 function fitEndWorkout(){fitWorkout.active=false;fitStopTimer();fitRenderChrome()}
 function fitStartWorkout(){fitWorkout={active:true,startedAt:Date.now(),collapsed:false};fitRenderChrome();toast('Workout started')}
-function fitToggleSave(id,el,ev){
- if(ev)ev.stopPropagation();
- fitSaved.has(id)?fitSaved.delete(id):fitSaved.add(id);
- el.classList.toggle('on',fitSaved.has(id));
-}
 function fitRenderChrome(){
  const view=fitCurrentView();
  $('#fit-chrome').innerHTML=renderWorkoutBar()+renderFitnessBottomNav(view);
@@ -2403,11 +2804,16 @@ function recoveryColor(THREE,days){
 function fit3dDispose(){
  if(!fit3d)return;
  cancelAnimationFrame(fit3d.raf);
+ if(fit3d.onResize)window.removeEventListener('resize',fit3d.onResize);
  fit3d.controls?.dispose();
- fit3d.renderer?.dispose();
  fit3d.scene?.traverse(o=>{if(o.isMesh){o.geometry.dispose();o.material.dispose()}});
  fit3d.draco?.dispose();
+ // dispose() alone leaves the GL context alive: navigate in and out of the
+ // atlas enough times and the browser starts force-losing older contexts.
+ // Detach the canvas first, otherwise three re-acquires the context it just lost.
  fit3d.renderer?.domElement?.remove();
+ try{fit3d.renderer?.forceContextLoss()}catch(e){}
+ fit3d.renderer?.dispose();
  fit3d=null;fit3dSel=null;
 }
 
@@ -2539,21 +2945,93 @@ function fit3dFace(dir){
  controls.update();
 }
 
+/* Which fitness group screen a given atlas muscle belongs to, so the sheet can
+   deep-link into the full exercise grid. `forearms` has no group of its own. */
+const MUSCLE_TO_GROUP={chest:'chest',shoulders:'shoulders',biceps:'biceps',triceps:'triceps',
+ lats:'back',traps:'back',lowerback:'back',abs:'abs',obliques:'abs',
+ quads:'legs',hamstrings:'legs',glutes:'legs',calves:'legs'};
+
+const FIT3D_TABS=[['overview','نظرة عامة'],['exercises','التمارين'],['anatomy','التشريح'],['tips','نصائح']];
+let fit3dTab='overview';
+function fit3dSetTab(t){
+ fit3dTab=t;
+ const sheet=document.getElementById('fit3d-sheet');
+ if(sheet)sheet.innerHTML=fit3dSheet(fit3dSel);
+}
+
+const fit3dRecLine=(m,days)=>days===null
+ ? 'لم تُدرَّب بعد'
+ : `دُرِّبت <b>${days===0?'النهاردة':'من '+days+' يوم'}</b> · تحتاج ${m.recovery} ساعة تعافي`;
+
 function fit3dSheet(id){
- if(!id)return `<p class="fit-note">Tap a muscle on the figure to see how to train it.</p>`;
+ if(!id)return `<p class="fit-note">دوس على أي عضلة في المجسم عشان تشوف تفاصيلها وتمارينها.</p>`;
  const m=muscleOf(id);
  if(!m)return '';
  const days=daysSinceTrained(id);
- const ex=[...(m.compound||[]),...(m.isolation||[])].slice(0,3)
-   .map(eid=>exerciseOf(eid)).filter(Boolean);
- const rec=days===null
-   ? 'Never logged'
-   : `Trained <b>${days===0?'today':days+' day'+(days===1?'':'s')+' ago'}</b> · needs ${m.recovery}h`;
- return `<h3>${esc(m.nameEn)}</h3>
-  <div class="ar" dir="rtl">${esc(m.ar)}</div>
-  <p class="fn" dir="rtl">${esc(m.fn)}</p>
-  ${ex.length?`<div class="fit-chips">${ex.map(e=>`<span class="fit-pill">${fitIc('dumbbell')}<span dir="rtl">${esc(e.ar)}</span></span>`).join('')}</div>`:''}
-  <div class="rec">${fitIc('clock')}<span>${rec}</span></div>`;
+ const allEx=[...(m.compound||[]),...(m.isolation||[])].map(exerciseOf).filter(Boolean);
+ const group=MUSCLE_TO_GROUP[id];
+
+ let body='';
+ if(fit3dTab==='exercises'){
+  body=allEx.length
+   ? `<div class="fit-exlist">${allEx.map(e=>`
+      <div class="fit-exrow">
+       <span class="fit-exrow-i">${fitIc('dumbbell')}</span>
+       <div class="grow">
+        <div class="n" dir="rtl">${esc(e.ar)}</div>
+        <div class="d" dir="rtl">${setsRepsOf(e)} · ${esc(e.equip)} · ${esc(e.level)}</div>
+       </div>
+       <span class="fit-exrow-t ${e.type==='compound'?'c':'i'}">${e.type==='compound'?'مركّب':'عزل'}</span>
+      </div>`).join('')}</div>
+      ${group?`<button class="fit-3d-more" onclick="location.hash='#/fitness/m/${group}'">
+        عرض كل التمارين بالصور ${fitIc('chevron-right')}</button>`:''}`
+   : `<p class="fit-note">لا يوجد تمارين مسجّلة لهذه العضلة.</p>`;
+
+ }else if(fit3dTab==='anatomy'){
+  const ant=m.antagonist?(muscleOf(m.antagonist)||{}).ar||m.antagonist:'—';
+  body=`<div class="fit-metrics">
+    <div class="fit-metric"><b style="font-size:15px">${esc(ant)}</b><span>العضلة المضادة</span></div>
+    <div class="fit-metric"><b>${m.recovery}<span style="font-size:13px">س</span></b><span>وقت التعافي</span></div>
+   </div>
+   <div class="fit-sub2">المفاصل المعنية</div>
+   <div class="fit-chips">${(m.joints||[]).map(j=>`<span class="fit-pill">${esc(j)}</span>`).join('')||'<span class="fit-note">—</span>'}</div>
+   <div class="fit-sub2">الإطالة الموصى بها</div>
+   <p class="fn" dir="rtl">${esc(m.stretch)}</p>
+   <div class="fit-sub2">${fitIc('alert-triangle')} إصابات شائعة</div>
+   <ul class="fit-bullets" dir="rtl">${(m.injuries||[]).map(i=>`<li>${esc(i)}</li>`).join('')||'<li>—</li>'}</ul>`;
+
+ }else if(fit3dTab==='tips'){
+  body=(m.tips||[]).length
+   ? `<ul class="fit-bullets" dir="rtl">${m.tips.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`
+   : `<p class="fit-note">لا يوجد نصائح.</p>`;
+
+ }else{
+  const byEquip={};
+  allEx.forEach(e=>{(byEquip[e.equip]=byEquip[e.equip]||[]).push(e)});
+  body=`<p class="fn" dir="rtl">${esc(m.fn)}</p>
+   <div class="fit-metrics" style="margin-top:14px">
+    <div class="fit-metric"><b>${allEx.length}</b><span>عدد التمارين</span></div>
+    <div class="fit-metric"><b>${m.recovery}<span style="font-size:13px">س</span></b><span>وقت التعافي</span></div>
+   </div>
+   <div class="fit-sub2">${fitIc('settings')} التدريب حسب الجهاز</div>
+   ${Object.entries(byEquip).map(([eq,exs])=>`
+     <div class="fit-equip" dir="rtl">
+      <div class="e">${esc(eq)}</div>
+      <div class="fit-chips">${exs.map(e=>`<span class="fit-pill">${esc(e.ar)}</span>`).join('')}</div>
+     </div>`).join('')||'<p class="fit-note">—</p>'}`;
+ }
+
+ return `<div class="fit-3d-head">
+   <div class="grow" dir="rtl">
+    <h3>${esc(m.ar)}</h3>
+    <div class="ar">${esc(m.nameEn||'')}</div>
+   </div>
+   <button class="fit-3d-x" onclick="fit3dSelect(null)" aria-label="إغلاق">${fitIc('x')}</button>
+  </div>
+  <div class="rec">${fitIc('clock')}<span dir="rtl">${fit3dRecLine(m,days)}</span></div>
+  <div class="fit-subtabs">${FIT3D_TABS.map(([k,l])=>
+    `<button class="${fit3dTab===k?'on':''}" onclick="fit3dSetTab('${k}')">${l}</button>`).join('')}</div>
+  <div class="fit-3d-body">${body}</div>`;
 }
 
 function renderAtlas3D(){
@@ -2593,11 +3071,6 @@ function renderExercisesHome(){
    <span><span class="v">954<span>kcal</span></span><span class="l">Burned today</span></span>
    <span class="chev">${fitIc('chevron-right')}</span>
   </button>
-  <button class="fit-glass fit-summary" style="margin-top:12px" onclick="location.hash='#/fitness/atlas'">
-   <span class="fit-orb" style="background:linear-gradient(145deg,#5B8DEF,#3b62b8);box-shadow:0 6px 18px rgba(91,141,239,.35)">${fitIc('activity')}</span>
-   <span><span class="v" style="font-size:19px">3D Muscle Atlas</span><span class="l">Rotate, tap a muscle, see recovery</span></span>
-   <span class="chev">${fitIc('chevron-right')}</span>
-  </button>
   <div class="fit-mgrid" style="margin-top:20px">
    ${FITNESS_MUSCLE_GROUPS.map(g=>`
     <button class="fit-mcell" onclick="location.hash='#/fitness/m/${g.key}'">
@@ -2614,32 +3087,25 @@ function renderMuscleExercises(key){
  const g=groupOf(key);
  if(!g){location.hash='#/fitness';return ''}
  const list=exercisesForGroup(key);
- const body=fitChestTab==='custom'
-  ? `<div class="fit-empty">${fitIc('plus')}<p>No custom exercises yet</p></div>`
-  : (list.length
-    ? `<div class="fit-exgrid">${list.map(ex=>`
-       <div class="fit-ex">
-        <div class="fit-ex-media">
-         ${exerciseImageOrFallback(ex,key)}
-         <button class="fit-ex-bm ${fitSaved.has(ex.slug)?'on':''}" onclick="fitToggleSave('${ex.slug}',this,event)" aria-label="Save">${fitIc('bookmark')}</button>
-         <span class="fit-ex-play">${fitIc('play')}</span>
-        </div>
-        <div class="fit-ex-body">
-         <div class="fit-ex-name" dir="auto">${esc(ex.name)}</div>
-         <div class="fit-ex-foot">
-          <span class="fit-pill">${fitIc('dumbbell')}${esc(ex.equip)}</span>
-          <span class="fit-diff">${[1,2,3].map(i=>`<i class="${i<=ex.diff?'on':''}"></i>`).join('')}</span>
-         </div>
-        </div>
-       </div>`).join('')}</div>`
-    : `<div class="fit-empty">${fitIc('heart-pulse')}<p>Cardio sessions are tracked from the coach dashboard</p></div>`);
+ const body=list.length
+  ? `<div class="fit-exgrid">${list.map(ex=>`
+     <div class="fit-ex">
+      <div class="fit-ex-media">
+       ${exerciseImageOrFallback(ex,key)}
+      </div>
+      <div class="fit-ex-body">
+       <div class="fit-ex-name" dir="auto">${esc(ex.name)}</div>
+       <div class="fit-ex-foot">
+        <span class="fit-pill">${fitIc('dumbbell')}${esc(ex.equip)}</span>
+        <span class="fit-diff">${[1,2,3].map(i=>`<i class="${i<=ex.diff?'on':''}"></i>`).join('')}</span>
+       </div>
+      </div>
+     </div>`).join('')}</div>`
+  : `<div class="fit-empty">${fitIc('heart-pulse')}<p>Cardio sessions are tracked from the coach dashboard</p></div>`;
  return `<div class="fit-head">
    <button class="fit-back" onclick="location.hash='#/fitness'" aria-label="Back">${fitIc('arrow-left')}</button>
    <h1 class="fit-h1" style="margin-top:16px">${g.name}</h1>
-  </div>
-  <div class="fit-tabs">
-   <button class="${fitChestTab==='exercises'?'on':''}" onclick="fitChestTab='exercises';route()">Exercises</button>
-   <button class="${fitChestTab==='custom'?'on':''}" onclick="fitChestTab='custom';route()">Custom</button>
+   <p class="fit-sub">${list.length} exercise${list.length===1?'':'s'}</p>
   </div>
   ${body}`;
 }
@@ -2654,7 +3120,6 @@ function renderPrograms(){
       <div class="fit-prog-cover" style="background:linear-gradient(150deg,${c.g[0]},${c.g[1]})">
        ${fitProgArt(c.art,'#ff7a1a')}
        <span class="fit-prog-tag">${esc(c.tag)}</span>
-       <button class="fit-prog-bm ${fitSaved.has(c.id)?'on':''}" onclick="fitToggleSave('${c.id}',this,event)" aria-label="Save">${fitIc('bookmark')}</button>
        <span class="fit-prog-rate">
         <span class="st">${fitIc('star')}${c.rating.toFixed(1)}</span>
         <span class="dl">${fitIc('download')}${c.dl}</span>
@@ -2704,11 +3169,6 @@ function renderStats(){
   <button class="fit-start" onclick="fitStartWorkout()">${fitIc('dumbbell')}Start Workout</button>`;
 }
 
-function renderFitnessPlaceholder(title,icon,note){
- return `<div class="fit-head"><h1 class="fit-h1">${title}</h1></div>
-  <div class="fit-empty">${fitIc(icon)}<p>${note}</p></div>`;
-}
-
 /* ---------- Shell + routing entry ---------- */
 function renderFitnessShell(view,arg){
  // The fitness section owns the whole viewport: hide the coach chrome.
@@ -2718,9 +3178,7 @@ function renderFitnessShell(view,arg){
  if(view==='m')            inner=renderMuscleExercises(arg);
  else if(view==='programs')inner=renderPrograms();
  else if(view==='stats')   inner=renderStats();
- else if(view==='atlas')   inner=renderAtlas3D();
- else if(view==='saved')   inner=renderFitnessPlaceholder('Saved','bookmark','Nothing saved yet — tap the bookmark on any exercise');
- else if(view==='settings')inner=renderFitnessPlaceholder('Settings','settings','Fitness preferences are coming next');
+ else if(view==='atlas')   {fit3dSel=(arg&&muscleOf(arg))?arg:null;inner=renderAtlas3D()}
  else                      inner=renderExercisesHome();
  $('#main').innerHTML=`<div class="fit">${inner}</div>`;
  fitRenderChrome();

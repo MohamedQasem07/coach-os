@@ -18,6 +18,13 @@ function doPost(e) {
   } catch (err) {
     return respond({ok:false, error:'bad_request'});
   }
+  // The trainee portal is the one action a trainee reaches without the coach's
+  // password. It authenticates itself with a link token plus a 4-digit code,
+  // so it must be handled BEFORE the coach password check.
+  if (body.action === 'portal') {
+    try { return respond(handlePortal(body)); }
+    catch (err) { return respond({ok:false, error:'server_error'}); }
+  }
   if (!checkPassword(body.password)) {
     return respond({ok:false, error:'unauthorized'});
   }
@@ -29,6 +36,74 @@ function doPost(e) {
   } catch (err) {
     return respond({ok:false, error:String(err)});
   }
+}
+
+/* ---------- trainee portal ----------
+   A 4-digit code is only 10,000 possibilities, so the code must never be
+   checked in the browser and guessing must be throttled here. Five wrong
+   attempts locks that token for 15 minutes.
+
+   The response is a deliberately narrow projection of the trainee's own
+   record. Payments, phone numbers, coach notes, the audit log and every other
+   client stay on the server. */
+function readAll(entity) {
+  const sh = getSheet(entity);
+  const lastRow = sh.getLastRow();
+  if (lastRow < 2) return [];
+  return sh.getRange(2, 1, lastRow - 1, 4).getValues()
+    .filter(function(r){ return r[0] && !r[3]; })          // skip deleted rows
+    .map(function(r){
+      var d = {};
+      try { d = r[1] ? JSON.parse(r[1]) : {}; } catch (e) {}
+      d.id = String(r[0]);
+      return d;
+    });
+}
+
+function handlePortal(body) {
+  const token = String(body.token || '');
+  const code  = String(body.code  || '');
+  if (token.length < 16) return {ok:false, error:'bad_code'};
+
+  const cache = CacheService.getScriptCache();
+  const lockKey = 'pf_' + token;
+  const fails = Number(cache.get(lockKey) || 0);
+  if (fails >= 5) return {ok:false, error:'locked'};
+
+  const clients = readAll('clients');
+  let me = null;
+  for (var i = 0; i < clients.length; i++) {
+    if (clients[i].portalToken && clients[i].portalToken === token) { me = clients[i]; break; }
+  }
+  // Same generic error and same work whether the token or the code was wrong,
+  // so the response cannot be used to tell valid tokens from invalid ones.
+  if (!me || String(me.portalCode || '') !== code || !code) {
+    cache.put(lockKey, String(fails + 1), 900);
+    return {ok:false, error:'bad_code'};
+  }
+  cache.remove(lockKey);
+
+  const mine = function(rows){ return rows.filter(function(r){ return r.clientId === me.id; }); };
+  const subs = mine(readAll('subs'));
+  const sub  = subs.filter(function(s){ return s.status === 'active'; })[0] || null;
+
+  const sessions = mine(readAll('sessions'))
+    .filter(function(s){ return s.status === 'done'; })
+    .sort(function(a,b){ return String(b.date).localeCompare(String(a.date)); })
+    .slice(0, 20)
+    .map(function(s){ return {date:s.date, muscles:s.muscles || [], dur:s.dur || null}; });
+
+  const meas = mine(readAll('meas'))
+    .sort(function(a,b){ return String(b.date).localeCompare(String(a.date)); })
+    .slice(0, 12)
+    .map(function(m){ return {date:m.date, weight:m.weight || null}; });
+
+  return {ok:true, client:{
+    name: me.name, goal: me.goal || null, level: me.level || null,
+    age: me.age || null, gender: me.gender || null,
+    height: me.height || null, activity: me.activity || 1.55
+  }, sub: sub ? {total:sub.total, used:sub.used, end:sub.end} : null,
+     sessions: sessions, meas: meas};
 }
 
 function respond(obj) {
