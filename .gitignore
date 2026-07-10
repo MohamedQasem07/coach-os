@@ -1,1 +1,6 @@
 .claude/
+
+# Dropped-in asset packs: raw downloads and their nested public/ trees.
+# Only curated assets belong under public/assets/.
+public/assets/exercises/**/*.zip
+public/assets/exercises/**/coachpro_chest_assets_pack*/

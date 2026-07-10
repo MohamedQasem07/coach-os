@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1B1712">
+<meta name="theme-color" content="#0F1115">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -11,33 +11,43 @@
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<!-- Three.js is only ever pulled in by the 3D muscle atlas, via dynamic import().
+     The import map has to be declared before the first module loads, hence here.
+     If the CDN is unreachable the atlas falls back to the 2D SVG figure. -->
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
 <style>
 :root{
-  /* Anatomical Ledger — warm ink + parchment, oxblood/brass/sage accents */
-  --bg:#1B1712; --s1:#241E17; --s2:#2E2620; --s3:#3A2F26;
-  --line:#4A3D30; --line2:#5C4B3A;
-  --tx:#EDE3D3; --tx2:#B9A98F; --tx3:#8A7A63;
-  --lime:#C1483A; --lime-d:#A23B2E; --lime-bg:rgba(193,72,58,.16);
-  --violet:#C9A227; --violet-bg:rgba(201,162,39,.15);
-  --blue:#8B9B7A; --blue-bg:rgba(139,155,122,.15);
-  --orange:#C97A3D; --orange-bg:rgba(201,122,61,.16);
-  --red:#C1483A; --red-bg:rgba(193,72,58,.16);
-  --r:10px; --r-sm:7px;
+  /* Coach OS — charcoal + vivid orange, native-app feel */
+  --bg:#0F1115; --s1:#171A20; --s2:#1E222A; --s3:#262B35;
+  --line:#2A2F3A; --line2:#3A414F;
+  --tx:#F2F3F5; --tx2:#9CA3AF; --tx3:#6B7280;
+  --lime:#FF7A33; --lime-d:#E8631F; --lime-bg:rgba(255,122,51,.16);
+  --violet:#FFB74D; --violet-bg:rgba(255,183,77,.15);
+  --blue:#5B8DEF; --blue-bg:rgba(91,141,239,.15);
+  --orange:#F2A93B; --orange-bg:rgba(242,169,59,.16);
+  --red:#EF4444; --red-bg:rgba(239,68,68,.16);
+  --r:14px; --r-sm:9px;
   --shadow:0 8px 24px rgba(0,0,0,.45);
-  --font-d:'Alexandria',sans-serif; --font-b:'IBM Plex Sans Arabic',sans-serif; --font-plate:'Cinzel',serif;
+  --font-d:'Alexandria',sans-serif; --font-b:'IBM Plex Sans Arabic',sans-serif; --font-plate:'Alexandria',sans-serif;
 }
 [data-theme="light"]{
-  --bg:#EFE6D3; --s1:#FAF4E6; --s2:#F3EBD8; --s3:#E9DEC5;
-  --line:#D8C9A8; --line2:#C4B18A;
-  --tx:#2A2117; --tx2:#5C4E3D; --tx3:#8A7A63;
-  --lime:#8C2E22; --lime-d:#6E241A; --lime-bg:rgba(140,46,34,.13);
-  --violet:#9C7A1A; --violet-bg:rgba(156,122,26,.13);
-  --blue:#5E6E52; --blue-bg:rgba(94,110,82,.13);
-  --shadow:0 8px 20px rgba(60,45,20,.15);
+  --bg:#F7F5F2; --s1:#FFFFFF; --s2:#F1EEE9; --s3:#E8E4DC;
+  --line:#E3DFD6; --line2:#D2CCBD;
+  --tx:#1C1B19; --tx2:#5C574C; --tx3:#8A8478;
+  --lime:#D9631A; --lime-d:#B84F12; --lime-bg:rgba(217,99,26,.13);
+  --violet:#B9790A; --violet-bg:rgba(185,121,10,.13);
+  --blue:#3E63C2; --blue-bg:rgba(62,99,194,.13);
+  --shadow:0 8px 20px rgba(20,20,20,.12);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+svg.ic{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:inline-block;vertical-align:-.125em;flex-shrink:0}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--tx);font-family:var(--font-b);font-size:15px;line-height:1.55;min-height:100dvh;overscroll-behavior-y:contain}
 h1,h2,h3,h4,.disp{font-family:var(--font-d)}
@@ -264,38 +274,317 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}
 .login-card .logo{font-family:var(--font-plate);font-weight:700;font-size:32px;text-align:center;letter-spacing:.03em}
 .login-card .logo b{color:var(--lime)}
 .login-card .rule{width:46px;height:2px;background:var(--lime-d);margin:14px auto 24px;border-radius:2px;opacity:.8}
+
+/* ============================================================
+   FITNESS SECTION — Exercises / Programs / Stats
+   Dark premium mobile fitness UI. Everything is scoped under
+   `.fit` so none of it leaks into the coach/admin screens.
+   ============================================================ */
+/* Tokens live on :root, not on `.fit` — the floating nav and workout bar
+   render inside #fit-chrome, which is a sibling of the .fit subtree and so
+   cannot inherit custom properties scoped to it. */
+:root{
+  --fit-accent:#ff7a1a; --fit-accent-2:#ff8a2a; --fit-accent-3:#fb923c;
+  --fit-glass:rgba(255,255,255,.055); --fit-brd:rgba(255,255,255,.10);
+  --fit-tx:#fff; --fit-tx2:#a8a29b; --fit-tx3:#6f6a64;
+}
+.fit{
+  direction:ltr;text-align:left;
+  margin:0 -16px;padding:0 18px calc(190px + env(safe-area-inset-bottom));
+  min-height:100dvh;position:relative;color:var(--fit-tx);
+}
+@media(min-width:960px){.fit{margin:0 -30px}}
+/* Full-bleed gradient behind everything, including the floating chrome */
+.fit::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(90% 55% at 50% -8%, rgba(255,122,26,.20) 0%, rgba(255,122,26,0) 60%),
+    radial-gradient(120% 90% at 50% 0%, #35220f 0%, #1b1510 30%, #0e1015 62%, #090b0f 100%);}
+.fit-glass{background:var(--fit-glass);border:1px solid var(--fit-brd);border-radius:26px;
+  backdrop-filter:blur(18px) saturate(1.25);-webkit-backdrop-filter:blur(18px) saturate(1.25);
+  box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.fit-h1{font-family:var(--font-d);font-size:38px;line-height:1.1;font-weight:800;letter-spacing:-.02em;color:#fff}
+.fit-sub{color:var(--fit-tx2);font-size:15px;margin-top:6px}
+.fit-head{padding:26px 0 18px}
+.fit-sec-t{font-size:21px;font-weight:800;color:#fff;margin:26px 0 12px;font-family:var(--font-d)}
+.fit-accent-txt{color:var(--fit-accent)}
+
+/* Summary card (flame / kcal burned today) */
+.fit-summary{display:flex;align-items:center;gap:14px;padding:14px 16px;width:100%;text-align:left;color:inherit}
+.fit-summary .fit-orb{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(145deg,var(--fit-accent-2),#e2600d);color:#fff;font-size:22px;flex-shrink:0;
+  box-shadow:0 6px 18px rgba(255,122,26,.4)}
+.fit-summary .v{display:block;font-size:26px;font-weight:800;font-family:var(--font-d);line-height:1.1}
+.fit-summary .v span{font-size:13px;font-weight:600;color:var(--fit-tx2);margin-left:4px}
+.fit-summary .l{display:block;font-size:12.5px;color:var(--fit-tx2);margin-top:2px}
+.fit-summary .chev{margin-left:auto;color:var(--fit-tx2);font-size:20px}
+
+/* Muscle group grid */
+.fit-mgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.fit-mcell{display:flex;flex-direction:column;gap:9px;text-align:center;background:none;padding:0}
+.fit-mcard{position:relative;border-radius:24px;aspect-ratio:1/.92;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(165deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+  border:1px solid var(--fit-brd);overflow:hidden;transition:transform .16s,border-color .16s}
+.fit-mcard::after{content:'';position:absolute;inset:-40% -40% auto auto;width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle,var(--g,#ff7a1a) 0%,transparent 65%);opacity:.20;pointer-events:none}
+.fit-mcell:active .fit-mcard{transform:scale(.97)}
+.fit-mcard:hover{border-color:color-mix(in srgb,var(--g,#ff7a1a) 55%,transparent)}
+.fit-mini{height:118px;width:auto;display:block}
+.fit-mini-cardio{height:72px}
+.fit-badge{position:absolute;right:9px;bottom:9px;background:var(--g,#ff7a1a);color:#fff;font-size:11.5px;font-weight:800;
+  padding:3px 9px;border-radius:9px;letter-spacing:.01em;font-variant-numeric:tabular-nums;
+  box-shadow:0 3px 10px rgba(0,0,0,.35)}
+.fit-mname{font-size:15px;font-weight:700;color:#fff}
+
+/* Back button + pill tabs */
+.fit-back{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:var(--fit-glass);border:1px solid var(--fit-brd);color:#fff;font-size:19px;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.fit-back:active{transform:scale(.93)}
+.fit-tabs{display:flex;gap:6px;padding:5px;border-radius:999px;background:rgba(255,255,255,.06);
+  border:1px solid var(--fit-brd);margin-bottom:20px}
+.fit-tabs button{flex:1;padding:11px 0;border-radius:999px;font-size:14.5px;font-weight:700;color:var(--fit-tx2)}
+.fit-tabs button.on{background:linear-gradient(135deg,var(--fit-accent-2),#e8630f);color:#fff;
+  box-shadow:0 4px 14px rgba(255,122,26,.35)}
+
+/* Exercise cards */
+.fit-exgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fit-ex{border-radius:24px;overflow:hidden;background:var(--fit-glass);border:1px solid var(--fit-brd);
+  display:flex;flex-direction:column;transition:transform .16s}
+.fit-ex:active{transform:scale(.98)}
+.fit-ex-media{position:relative;aspect-ratio:1/.84;overflow:hidden;background:#fff}
+.fit-ex-media>img,.fit-ex-media>svg.fit-ex-fb{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* The photo is only revealed once it has actually decoded. Until then (or
+   forever, if the file isn't shipped) the fallback illustration shows through,
+   so a missing asset can never paint a blank white card. */
+.fit-ex-media>img{object-fit:cover;z-index:1;background:#fff;opacity:0;transition:opacity .2s}
+.fit-ex-media>img.is-loaded{opacity:1}
+.fit-ex-play{position:absolute;left:9px;bottom:9px;z-index:2;width:28px;height:28px;border-radius:50%;
+  background:rgba(20,20,22,.55);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.22)}
+.fit-ex-bm{position:absolute;right:9px;top:9px;z-index:2;width:30px;height:30px;border-radius:50%;
+  background:rgba(20,20,22,.42);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.22)}
+.fit-ex-bm.on{background:var(--fit-accent);border-color:transparent}
+.fit-ex-body{padding:12px 12px 14px;display:flex;flex-direction:column;gap:10px;flex:1}
+.fit-ex-name{font-size:14.5px;font-weight:700;color:#fff;line-height:1.3}
+.fit-ex-foot{display:flex;align-items:center;gap:8px;margin-top:auto}
+.fit-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;font-size:11.5px;
+  font-weight:600;color:var(--fit-tx2);background:rgba(255,255,255,.07);border:1px solid var(--fit-brd);white-space:nowrap}
+.fit-diff{display:flex;gap:3px;margin-left:auto;flex-shrink:0}
+.fit-diff i{width:9px;height:4px;border-radius:2px;background:rgba(255,255,255,.16)}
+.fit-diff i.on{background:var(--fit-accent)}
+
+/* Programs — horizontal scrollers */
+.fit-hscroll{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x proximity;padding:2px 18px 10px;
+  margin:0 -18px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.fit-hscroll::-webkit-scrollbar{display:none}
+.fit-prog{flex:0 0 72%;max-width:280px;scroll-snap-align:start;border-radius:28px;overflow:hidden;
+  border:1px solid var(--fit-brd);background:var(--fit-glass);display:flex;flex-direction:column}
+.fit-prog-cover{position:relative;height:170px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.fit-prog-cover .fit-prog-art{position:absolute;inset:0;width:100%;height:100%}
+.fit-prog-cover::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,.82) 0%,rgba(0,0,0,.15) 45%,rgba(0,0,0,.05) 100%)}
+.fit-prog-tag{position:absolute;top:12px;left:12px;z-index:2;font-size:10.5px;font-weight:800;letter-spacing:.06em;
+  text-transform:uppercase;padding:5px 10px;border-radius:8px;background:rgba(0,0,0,.45);color:#fff;
+  border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.fit-prog-rate{position:absolute;left:12px;bottom:11px;z-index:2;display:flex;align-items:center;gap:9px;
+  font-size:12.5px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+.fit-prog-rate .st{color:#fbbf24;display:flex;align-items:center;gap:4px}
+.fit-prog-rate .dl{color:rgba(255,255,255,.82);display:flex;align-items:center;gap:4px}
+.fit-prog-bm{position:absolute;right:11px;top:11px;z-index:2;width:32px;height:32px;border-radius:50%;
+  background:rgba(0,0,0,.42);border:1px solid rgba(255,255,255,.22);color:#fff;display:flex;align-items:center;
+  justify-content:center;font-size:14px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.fit-prog-bm.on{background:var(--fit-accent);border-color:transparent}
+.fit-prog-t{padding:14px 15px 16px;font-size:15px;font-weight:700;color:#fff}
+
+/* Stats */
+.fit-ring-wrap{display:flex;flex-direction:column;align-items:center;padding:14px 0 6px}
+.fit-ring{position:relative;width:230px;height:230px}
+.fit-ring svg{transform:rotate(-90deg);width:100%;height:100%}
+.fit-ring .fit-ring-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.fit-ring .fit-ring-c b{font-family:var(--font-d);font-size:54px;font-weight:800;line-height:1;color:#fff}
+.fit-ring .fit-ring-c .u{font-size:15px;color:var(--fit-tx2);margin-top:6px}
+.fit-ring .fit-ring-c .l{font-size:13px;color:var(--fit-tx3);margin-top:2px}
+.fit-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.fit-stat{padding:16px}
+.fit-stat .h{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#fff}
+.fit-stat .v{font-family:var(--font-d);font-size:26px;font-weight:800;margin-top:10px;color:#fff}
+.fit-stat .v span{font-size:13px;font-weight:600;color:var(--fit-tx2);margin-left:4px}
+.fit-stat .l{font-size:12px;color:var(--fit-tx2);margin-top:4px}
+.fit-card{padding:18px;margin-top:14px}
+.fit-card-h{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.fit-card-h h3{font-size:19px;font-weight:800;color:#fff;font-family:var(--font-d);flex:1}
+.fit-edit{padding:7px 15px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid var(--fit-brd);
+  color:var(--fit-accent);font-size:13px;font-weight:700}
+.fit-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.fit-metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fit-metric{background:rgba(255,255,255,.05);border:1px solid var(--fit-brd);border-radius:16px;padding:14px;text-align:center}
+.fit-metric b{display:block;font-family:var(--font-d);font-size:26px;font-weight:800;color:#fff}
+.fit-metric span{font-size:11.5px;color:var(--fit-tx2)}
+.fit-note{color:var(--fit-tx2);font-size:14px}
+.fit-start{position:sticky;bottom:calc(160px + env(safe-area-inset-bottom));margin-top:22px;width:100%;
+  display:flex;align-items:center;justify-content:center;gap:9px;padding:17px;border-radius:999px;
+  background:linear-gradient(135deg,var(--fit-accent-2),#e8630f);color:#fff;font-size:16px;font-weight:800;
+  box-shadow:0 10px 30px rgba(255,122,26,.42)}
+.fit-start:active{transform:scale(.98)}
+
+/* 3D muscle atlas */
+.fit-3d-stage{position:relative;height:min(58vh,470px);border-radius:26px;overflow:hidden;
+  background:radial-gradient(70% 60% at 50% 30%,rgba(255,122,26,.10),transparent 70%);
+  touch-action:none}
+.fit-3d-stage canvas{display:block;width:100%;height:100%}
+.fit-3d-msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:12px;color:var(--fit-tx2);font-size:14px;text-align:center;padding:24px}
+.fit-3d-msg .fit-spin{width:30px;height:30px;border-radius:50%;border:3px solid rgba(255,255,255,.14);
+  border-top-color:var(--fit-accent);animation:fit-spin .8s linear infinite}
+@keyframes fit-spin{to{transform:rotate(360deg)}}
+.fit-3d-ctrl{display:flex;justify-content:center;gap:10px;margin-top:14px}
+.fit-3d-ctrl button{display:inline-flex;align-items:center;gap:7px;padding:11px 18px;border-radius:999px;
+  background:var(--fit-glass);border:1px solid var(--fit-brd);color:#fff;font-size:13.5px;font-weight:700;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.fit-3d-ctrl button:active{transform:scale(.96)}
+.fit-3d-sheet{margin-top:16px;padding:18px;border-radius:26px;background:var(--fit-glass);
+  border:1px solid var(--fit-brd);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.fit-3d-sheet h3{font-family:var(--font-d);font-size:22px;font-weight:800;color:#fff}
+.fit-3d-sheet .ar{font-size:14px;color:var(--fit-accent);margin-top:2px}
+.fit-3d-sheet .fn{font-size:14px;color:var(--fit-tx2);line-height:1.65;margin-top:10px}
+.fit-3d-sheet .fit-chips{margin-top:14px}
+.fit-3d-sheet .rec{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--fit-tx2)}
+.fit-3d-sheet .rec b{color:#fff;font-weight:700}
+.fit-legend{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:12px;
+  font-size:11.5px;color:var(--fit-tx2)}
+.fit-legend i{width:12px;height:12px;border-radius:4px;display:inline-block;margin-right:5px;vertical-align:-2px}
+.fit-credit{margin-top:22px;font-size:10.5px;line-height:1.7;color:var(--fit-tx3);text-align:center}
+
+/* Empty state */
+.fit-empty{text-align:center;padding:60px 20px;color:var(--fit-tx2)}
+.fit-empty svg.ic{font-size:44px;opacity:.35;margin-bottom:14px}
+.fit-empty p{font-size:14.5px}
+
+/* Floating workout-in-progress bar */
+/* #fit-chrome lives outside .fit, so it inherits the document's RTL direction
+   and would mirror the bar and the nav. Both are LTR by design. */
+#fit-workout{direction:ltr;position:fixed;z-index:70;left:14px;right:14px;bottom:calc(88px + env(safe-area-inset-bottom));
+  display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:28px;
+  background:rgba(28,24,22,.72);border:1px solid rgba(255,122,26,.45);
+  backdrop-filter:blur(20px) saturate(1.3);-webkit-backdrop-filter:blur(20px) saturate(1.3);
+  box-shadow:0 10px 30px rgba(0,0,0,.5),0 0 0 1px rgba(255,122,26,.08);
+  max-width:520px;margin:0 auto;transition:max-width .25s,padding .25s}
+#fit-workout .fit-orb{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;background:linear-gradient(145deg,var(--fw-a,#ff8a2a),#e2600d);color:#fff;font-size:18px}
+#fit-workout .fit-wt{flex:1;min-width:0}
+#fit-workout .fit-wt b{display:block;font-size:14.5px;font-weight:700;color:#fff;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+#fit-workout .fit-wt span{font-size:12.5px;color:#a8a29b;font-variant-numeric:tabular-nums}
+#fit-workout button{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:#a8a29b;font-size:16px;flex-shrink:0}
+#fit-workout button.fit-wclose{background:rgba(255,255,255,.10);color:#fff}
+#fit-workout.is-collapsed{max-width:74px;padding:9px}
+#fit-workout.is-collapsed .fit-wt,#fit-workout.is-collapsed .fit-wclose{display:none}
+
+/* Floating bottom navigation */
+#fit-nav{direction:ltr;position:fixed;z-index:75;left:14px;right:14px;bottom:calc(10px + env(safe-area-inset-bottom));
+  display:flex;gap:2px;padding:8px 6px;border-radius:32px;max-width:520px;margin:0 auto;
+  background:rgba(24,22,26,.78);border:1px solid rgba(255,255,255,.10);
+  backdrop-filter:blur(22px) saturate(1.3);-webkit-backdrop-filter:blur(22px) saturate(1.3);
+  box-shadow:0 12px 34px rgba(0,0,0,.55)}
+#fit-nav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0;border-radius:24px;
+  color:#7d7873;font-size:10.5px;font-weight:700;text-decoration:none;transition:color .16s,background .16s}
+#fit-nav a svg.ic{font-size:21px}
+#fit-nav a.on{color:var(--fit-accent);background:rgba(255,122,26,.14);
+  box-shadow:inset 0 0 0 1px rgba(255,122,26,.22),0 0 18px rgba(255,122,26,.14)}
+@media(max-width:360px){#fit-nav a{font-size:9.5px}#fit-nav a svg.ic{font-size:19px}}
 </style>
 </head>
 <body>
+<svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+<symbol id="i-alert-triangle" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+<symbol id="i-dumbbell" viewBox="0 0 24 24"><rect x="2" y="9" width="3" height="6" rx="1"/><rect x="19" y="9" width="3" height="6" rx="1"/><rect x="6" y="7" width="2" height="10" rx="1"/><rect x="16" y="7" width="2" height="10" rx="1"/><line x1="8" y1="12" x2="16" y2="12"/></symbol>
+<symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
+<symbol id="i-zap" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+<symbol id="i-scale" viewBox="0 0 24 24"><rect x="4" y="13" width="16" height="7" rx="2"/><path d="M9 13a3 3 0 0 1 6 0"/><line x1="12" y1="4" x2="12" y2="7"/></symbol>
+<symbol id="i-file-text" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol>
+<symbol id="i-wifi" viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
+<symbol id="i-check-circle" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
+<symbol id="i-banknote" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><line x1="6" y1="12" x2="6.01" y2="12"/><line x1="18" y1="12" x2="18.01" y2="12"/></symbol>
+<symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+<symbol id="i-activity" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+<symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+<symbol id="i-bar-chart" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
+<symbol id="i-trending-up" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.9" y1="4.9" x2="7" y2="7"/><line x1="17" y1="17" x2="19.1" y2="19.1"/><line x1="4.9" y1="19.1" x2="7" y2="17"/><line x1="17" y1="7" x2="19.1" y2="4.9"/></symbol>
+<symbol id="i-snowflake" viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22"/><line x1="4.5" y1="6" x2="19.5" y2="18"/><line x1="19.5" y1="6" x2="4.5" y2="18"/></symbol>
+<symbol id="i-package" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol>
+<symbol id="i-hourglass" viewBox="0 0 24 24"><polygon points="6 2 18 2 13 12 18 22 6 22 11 12"/></symbol>
+<symbol id="i-slash" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></symbol>
+<symbol id="i-ghost" viewBox="0 0 24 24"><path d="M5 21V11a7 7 0 0 1 14 0v10l-2-2-2 2-2-2-2 2-2-2-2 2z"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-play-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></symbol>
+<symbol id="i-save" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></symbol>
+<symbol id="i-archive" viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+<symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+<symbol id="i-disc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-flame" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+<symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="18" rx="2"/><rect x="9" y="2" width="6" height="4" rx="1"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="15" y2="15"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></symbol>
+<symbol id="i-trending-down" viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+<symbol id="i-message" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></symbol>
+<symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
+<symbol id="i-rotate-ccw" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></symbol>
+<symbol id="i-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+<symbol id="i-chevron-down" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></symbol>
+<symbol id="i-chevron-up" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+<symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
+<symbol id="i-layers" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-chevron-right" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="i-arrow-left" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></symbol>
+<symbol id="i-heart-pulse" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21.2l7.7-7.7 1.1-1.1a5.5 5.5 0 0 0 0-7.8z"/><polyline points="3.5 12.5 8 12.5 10 9.5 13 15.5 15 12.5 20 12.5"/></symbol>
+<symbol id="i-download" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="8 12 12 16 16 12"/><line x1="12" y1="8" x2="12" y2="16"/></symbol>
+</svg>
 <div id="app" style="display:none">
   <nav id="sidebar">
     <div class="logo">Coach<b>OS</b></div>
-    <a href="#/dash" data-nav="dash"><span>📊</span> الرئيسية</a>
-    <a href="#/clients" data-nav="clients"><span>🧑‍🤝‍🧑</span> المتدربين</a>
-    <a href="#/sessions" data-nav="sessions"><span>🏋️</span> الجلسات</a>
-    <a href="#/calendar" data-nav="calendar"><span>📅</span> التقويم</a>
-    <a href="#/money" data-nav="money"><span>💰</span> الفلوس والباقات</a>
-    <a href="#/reports" data-nav="reports"><span>📈</span> التقارير</a>
-    <a href="#/atlas" data-nav="atlas"><span>🧬</span> موسوعة العضلات</a>
-    <a href="#/alerts" data-nav="alerts"><span>🔔</span> التنبيهات</a>
+    <a href="#/dash" data-nav="dash"><span><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"/></svg></span> الرئيسية</a>
+    <a href="#/clients" data-nav="clients"><span><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></span> المتدربين</a>
+    <a href="#/sessions" data-nav="sessions"><span><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg></span> الجلسات</a>
+    <a href="#/calendar" data-nav="calendar"><span><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg></span> التقويم</a>
+    <a href="#/money" data-nav="money"><span><svg class="ic" aria-hidden="true"><use href="#i-banknote"/></svg></span> الفلوس والباقات</a>
+    <a href="#/reports" data-nav="reports"><span><svg class="ic" aria-hidden="true"><use href="#i-trending-up"/></svg></span> التقارير</a>
+    <a href="#/atlas" data-nav="atlas"><span><svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg></span> موسوعة العضلات</a>
+    <a href="#/fitness" data-nav="fitness"><span><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg></span> التمارين والبرامج</a>
+    <a href="#/alerts" data-nav="alerts"><span><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg></span> التنبيهات</a>
     <div class="grow"></div>
-    <a href="#/settings" data-nav="settings"><span>⚙️</span> الإعدادات</a>
-    <button class="side-quick" onclick="quickSession()">⚡ تسجيل جلسة سريع</button>
+    <a href="#/settings" data-nav="settings"><span><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg></span> الإعدادات</a>
+    <button class="side-quick" onclick="quickSession()"><svg class="ic" aria-hidden="true"><use href="#i-zap"/></svg> تسجيل جلسة سريع</button>
   </nav>
   <main id="main"></main>
 </div>
 
 <nav id="bnav" style="display:none">
-  <a href="#/dash" data-nav="dash"><span class="ic">📊</span>الرئيسية</a>
-  <a href="#/clients" data-nav="clients"><span class="ic">🧑‍🤝‍🧑</span>المتدربين</a>
-  <a href="#/sessions" data-nav="sessions"><span class="ic">🏋️</span>الجلسات</a>
-  <a href="#/calendar" data-nav="calendar"><span class="ic">📅</span>التقويم</a>
-  <a href="#/more" data-nav="more"><span class="ic">☰</span>المزيد</a>
+  <a href="#/dash" data-nav="dash"><span class="ic"><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"/></svg></span>الرئيسية</a>
+  <a href="#/clients" data-nav="clients"><span class="ic"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></span>المتدربين</a>
+  <a href="#/sessions" data-nav="sessions"><span class="ic"><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg></span>الجلسات</a>
+  <a href="#/calendar" data-nav="calendar"><span class="ic"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg></span>التقويم</a>
+  <a href="#/more" data-nav="more"><span class="ic"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></span>المزيد</a>
 </nav>
-<button id="fab" style="display:none" onclick="quickSession()" aria-label="تسجيل جلسة سريع">⚡</button>
+<button id="fab" style="display:none" onclick="quickSession()" aria-label="تسجيل جلسة سريع"><svg class="ic" aria-hidden="true"><use href="#i-zap"/></svg></button>
 
 <div id="modal-bk" onclick="closeModal()"></div>
 <div id="modal" role="dialog" aria-modal="true"></div>
+<div id="fit-chrome"></div>
 <div id="toast"></div>
 <div id="login-screen"></div>
 <script>
@@ -529,8 +818,8 @@ const EQUIP_GRAD={
  'عجلة':'linear-gradient(135deg,var(--violet-bg),var(--s3))',
  'مكينة GHR':'linear-gradient(135deg,var(--blue-bg),var(--s3))'
 };
-const EQUIP_ICON={'باربل':'🏋️','دمبل':'🔩','كابل':'🔗','مكينة':'⚙️','وزن الجسم':'🤸','بار عقلة':'🧗','بار متوازي':'🤾','عجلة':'🛞'};
-const equipIcon=eq=>{for(const k in EQUIP_ICON){if(eq.includes(k))return EQUIP_ICON[k]}return '🏋️'};
+const EQUIP_ICON={'باربل':'<svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg>','دمبل':'','كابل':'<svg class="ic" aria-hidden="true"><use href="#i-link"/></svg>','مكينة':'<svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg>','وزن الجسم':'<svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg>','بار عقلة':'<svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg>','بار متوازي':'<svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg>','عجلة':'<svg class="ic" aria-hidden="true"><use href="#i-disc"/></svg>'};
+const equipIcon=eq=>{for(const k in EQUIP_ICON){if(eq.includes(k))return EQUIP_ICON[k]}return '<svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg>'};
 const equipGrad=eq=>EQUIP_GRAD[eq]||'linear-gradient(135deg,var(--s2),var(--s3))';
 const setsRepsOf=e=>e.type==='compound'?'4×8-12':'3×12-15';
 function exerciseCard(e,onClick){
@@ -643,21 +932,21 @@ function computeAlerts(){
  db.clients.filter(c=>!c.archived).forEach(c=>{
   const s=activeSub(c.id);
   if(s){const left=dayDiff(t,s.end);
-   if(left>=0&&left<=7)A.push({icon:'⏳',cls:'warn',cid:c.id,t:`اشتراك ${c.name} ينتهي ${left===0?'النهاردة':'خلال '+left+' يوم'}`});
+   if(left>=0&&left<=7)A.push({icon:'<svg class="ic" aria-hidden="true"><use href="#i-hourglass"/></svg>',cls:'warn',cid:c.id,t:`اشتراك ${c.name} ينتهي ${left===0?'النهاردة':'خلال '+left+' يوم'}`});
    const rem=s.total-s.used;
-   if(rem===1)A.push({icon:'🎫',cls:'warn',cid:c.id,t:`${c.name} فاضل له جلسة واحدة بس`});
-   if(rem===0)A.push({icon:'🚫',cls:'bad',cid:c.id,t:`${c.name} خلّص جلساته — محتاج تجديد`});
-   if(balance(c.id)>0)A.push({icon:'💸',cls:'bad',cid:c.id,t:`${c.name} عليه ${fM(balance(c.id))} متأخرات`});
+   if(rem===1)A.push({icon:'<svg class="ic" aria-hidden="true"><use href="#i-package"/></svg>',cls:'warn',cid:c.id,t:`${c.name} فاضل له جلسة واحدة بس`});
+   if(rem===0)A.push({icon:'<svg class="ic" aria-hidden="true"><use href="#i-slash"/></svg>',cls:'bad',cid:c.id,t:`${c.name} خلّص جلساته — محتاج تجديد`});
+   if(balance(c.id)>0)A.push({icon:'<svg class="ic" aria-hidden="true"><use href="#i-banknote"/></svg>',cls:'bad',cid:c.id,t:`${c.name} عليه ${fM(balance(c.id))} متأخرات`});
   }
   const ld=lastDone(c.id);
-  if(s&&ld&&dayDiff(ld.date,t)>10)A.push({icon:'👻',cls:'warn',cid:c.id,t:`${c.name} مش باين من ${dayDiff(ld.date,t)} يوم`});
+  if(s&&ld&&dayDiff(ld.date,t)>10)A.push({icon:'<svg class="ic" aria-hidden="true"><use href="#i-ghost"/></svg>',cls:'warn',cid:c.id,t:`${c.name} مش باين من ${dayDiff(ld.date,t)} يوم`});
   const lm=lastMeas(c.id);
-  if(s&&(!lm||dayDiff(lm.date,t)>30))A.push({icon:'⚖️',cls:'info',cid:c.id,t:`وزن ${c.name} مش متسجّل من ${lm?dayDiff(lm.date,t)+' يوم':'البداية'}`});
+  if(s&&(!lm||dayDiff(lm.date,t)>30))A.push({icon:'<svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg>',cls:'info',cid:c.id,t:`وزن ${c.name} مش متسجّل من ${lm?dayDiff(lm.date,t)+' يوم':'البداية'}`});
   // Positive progress: weight moving toward goal direction
   const ms=db.meas.filter(m=>m.clientId===c.id&&m.weight).sort((a,b)=>a.date.localeCompare(b.date));
   if(ms.length>=3){const diff=ms.at(-1).weight-ms[0].weight;
-   if(c.goal==='تخسيس'&&diff<=-2)A.push({icon:'🔥',cls:'ok',cid:c.id,t:`${c.name} نزل ${Math.abs(diff).toFixed(1)} كجم — Progress ممتاز!`});
-   if(c.goal==='زيادة عضل'&&diff>=2)A.push({icon:'💪',cls:'ok',cid:c.id,t:`${c.name} زاد ${diff.toFixed(1)} كجم — شغل عالي!`});}
+   if(c.goal==='تخسيس'&&diff<=-2)A.push({icon:'<svg class="ic" aria-hidden="true"><use href="#i-flame"/></svg>',cls:'ok',cid:c.id,t:`${c.name} نزل ${Math.abs(diff).toFixed(1)} كجم — Progress ممتاز!`});
+   if(c.goal==='زيادة عضل'&&diff>=2)A.push({icon:'<svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg>',cls:'ok',cid:c.id,t:`${c.name} زاد ${diff.toFixed(1)} كجم — شغل عالي!`});}
  });
  return A;
 }
@@ -671,7 +960,10 @@ function route(){
  if(!db.settings.setup){renderSetup();return}
  $('#login-screen').innerHTML='';$('#app').style.display='flex';$('#bnav').style.display='flex';$('#fab').style.display='flex';
  const h=location.hash||'#/dash';const p=h.slice(2).split('/');
+ // The fitness section renders its own floating chrome; every other route clears it.
+ if(p[0]!=='fitness'){$('#fit-chrome').innerHTML='';fitStopTimer();fit3dDispose()}
  const map={dash:vDash,clients:vClients,sessions:vSessions,calendar:vCalendar,money:vMoney,reports:vReports,alerts:vAlerts,settings:vSettings,more:vMore,audit:vAudit,atlas:vAtlas};
+ if(p[0]==='fitness'){setNav('fitness');renderFitnessShell(p[1]||'home',p[2]);return}
  if(p[0]==='client'&&p[1]){setNav('clients');vClient(p[1],p[2]||'overview');return}
  if(p[0]==='atlas'){setNav('atlas');vAtlas(p[1]||null);return}
  setNav(p[0]);(map[p[0]]||vDash)();
@@ -681,20 +973,20 @@ window.addEventListener('hashchange',route);
 function header(t,sub,extra=''){
  const n=computeAlerts().length;
  return`<header class="top"><div class="grow"><h1>${t}${sub?`<span class="sub">${sub}</span>`:''}</h1></div>
- ${extra}<button class="icon-btn badge-dot" data-n="${n}" onclick="location.hash='#/alerts'" aria-label="التنبيهات">🔔</button></header>`;
+ ${extra}<button class="icon-btn badge-dot" data-n="${n}" onclick="location.hash='#/alerts'" aria-label="التنبيهات"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg></button></header>`;
 }
 
 /* ---------- Auth (Google Sheet backend) ---------- */
 function renderAuth(){
  $('#app').style.display='none';$('#bnav').style.display='none';$('#fab').style.display='none';
  $('#login-screen').innerHTML=`<div class="login-wrap"><div class="bg-mark">${bodyMapSvg('front')}</div><div class="login-card">
-  <div class="seal">🏋️</div>
+  <div class="seal"><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg></div>
   <div class="eyebrow">Personal Training System</div>
   <div class="logo">Coach<b>OS</b></div>
   <div class="rule"></div>
   <div class="card">
    <div class="f-row"><label>كلمة المرور</label><input id="au-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
-   <button class="btn btn-p btn-block" onclick="doLogin()">🔐 دخول</button>
+   <button class="btn btn-p btn-block" onclick="doLogin()"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg> دخول</button>
    <p id="au-err" class="tiny" style="color:var(--red);margin-top:8px"></p>
   </div>
   <p class="tiny mt2" style="text-align:center">أول تسجيل دخول محتاج نت — بعد كده هيشتغل Offline عادي</p>
@@ -712,10 +1004,10 @@ async function doLogin(){
    await afterFirstLogin();
    route();
   }else{
-   $('#au-err').textContent='⚠️ كلمة المرور غلط';
+   $('#au-err').textContent='<svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> كلمة المرور غلط';
   }
  }catch(e){
-  $('#au-err').textContent='⚠️ تعذر الاتصال بالسيرفر — تأكد من النت وحاول تاني';
+  $('#au-err').textContent='<svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> تعذر الاتصال بالسيرفر — تأكد من النت وحاول تاني';
  }
  if(btn)btn.disabled=false;
 }
@@ -728,7 +1020,7 @@ function logout(){
 function renderSetup(){
  $('#app').style.display='none';$('#bnav').style.display='none';$('#fab').style.display='none';
  $('#login-screen').innerHTML=`<div class="login-wrap"><div class="bg-mark">${bodyMapSvg('front')}</div><div class="login-card">
-  <div class="seal">🏋️</div>
+  <div class="seal"><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg></div>
   <div class="eyebrow">Personal Training System</div>
   <div class="logo">Coach<b>OS</b></div>
   <div class="rule"></div>
@@ -736,8 +1028,8 @@ function renderSetup(){
   <div class="card">
    <div class="f-row"><label>اسمك (الكابتن)</label><input id="st-name" placeholder="مثال: كابتن أحمد"></div>
    <div class="f-row"><label>العملة</label><select id="st-cur"><option>ج.م</option><option>ر.س</option><option>د.إ</option><option>€</option><option>$</option></select></div>
-   <button class="btn btn-p btn-block" onclick="doSetup(false)">🚀 ابدأ من الصفر</button>
-   <button class="btn btn-s btn-block mt" onclick="doSetup(true)">🎬 جرّب ببيانات تجريبية</button>
+   <button class="btn btn-p btn-block" onclick="doSetup(false)"><svg class="ic" aria-hidden="true"><use href="#i-zap"/></svg> ابدأ من الصفر</button>
+   <button class="btn btn-s btn-block mt" onclick="doSetup(true)"><svg class="ic" aria-hidden="true"><use href="#i-play-circle"/></svg> جرّب ببيانات تجريبية</button>
   </div></div></div>`;
 }
 function doSetup(demo){
@@ -884,49 +1176,49 @@ function vDash(){
  const ranked=Object.entries(cnt).map(([id,n])=>({c:client(id),n})).filter(x=>x.c&&!x.c.archived).sort((a,b)=>b.n-a.n);
  const weekDone=db.sessions.filter(s=>s.status==='done'&&dayDiff(s.date,t)<=7).length;
 
- $('#main').innerHTML=header(`أهلًا يا ${esc(db.settings.coachName)} 👊`,fDT(t))+`
+ $('#main').innerHTML=header(`أهلًا يا ${esc(db.settings.coachName)} `,fDT(t))+`
  <div class="grid g4">
-  <div class="kpi hot"><span class="ic">🧑‍🤝‍🧑</span><div class="v num">${act.length}</div><div class="l">متدرب نشط</div></div>
-  <div class="kpi"><span class="ic">📅</span><div class="v num">${todaySch.length}<span style="font-size:15px;color:var(--tx3)"> / ${todayDone.length}✓</span></div><div class="l">جلسات اليوم / تمّت</div></div>
-  <div class="kpi"><span class="ic">🎫</span><div class="v num">${totalRem}</div><div class="l">إجمالي السيشنات المتبقية</div></div>
-  <div class="kpi"><span class="ic">💰</span><div class="v num" style="font-size:21px">${fM(rev)}</div><div class="l">إيراد الشهر</div></div>
+  <div class="kpi hot"><span class="ic"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></span><div class="v num">${act.length}</div><div class="l">متدرب نشط</div></div>
+  <div class="kpi"><span class="ic"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg></span><div class="v num">${todaySch.length}<span style="font-size:15px;color:var(--tx3)"> / ${todayDone.length}✓</span></div><div class="l">جلسات اليوم / تمّت</div></div>
+  <div class="kpi"><span class="ic"><svg class="ic" aria-hidden="true"><use href="#i-package"/></svg></span><div class="v num">${totalRem}</div><div class="l">إجمالي السيشنات المتبقية</div></div>
+  <div class="kpi"><span class="ic"><svg class="ic" aria-hidden="true"><use href="#i-banknote"/></svg></span><div class="v num" style="font-size:21px">${fM(rev)}</div><div class="l">إيراد الشهر</div></div>
  </div>
 
- <div class="sec-h"><h2>⚡ إجراءات سريعة</h2></div>
+ <div class="sec-h"><h2><svg class="ic" aria-hidden="true"><use href="#i-zap"/></svg> إجراءات سريعة</h2></div>
  <div class="chips" style="padding-bottom:2px">
-  <button class="chip on" onclick="quickSession()">⚡ جلسة سريعة</button>
-  <button class="chip" onclick="formClient()">➕ متدرب جديد</button>
-  <button class="chip" onclick="formMeas()">⚖️ تسجيل وزن</button>
-  <button class="chip" onclick="formSub()">🔄 تجديد اشتراك</button>
-  <button class="chip" onclick="formPayment()">💵 تسجيل دفعة</button>
-  <button class="chip" onclick="formNote()">📝 ملاحظة</button>
+  <button class="chip on" onclick="quickSession()"><svg class="ic" aria-hidden="true"><use href="#i-zap"/></svg> جلسة سريعة</button>
+  <button class="chip" onclick="formClient()"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg> متدرب جديد</button>
+  <button class="chip" onclick="formMeas()"><svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg> تسجيل وزن</button>
+  <button class="chip" onclick="formSub()"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg> تجديد اشتراك</button>
+  <button class="chip" onclick="formPayment()"><svg class="ic" aria-hidden="true"><use href="#i-banknote"/></svg> تسجيل دفعة</button>
+  <button class="chip" onclick="formNote()"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg> ملاحظة</button>
  </div>
 
- <div class="sec-h"><h2>📋 جلسات اليوم</h2><a class="more" href="#/sessions">الكل</a></div>
+ <div class="sec-h"><h2><svg class="ic" aria-hidden="true"><use href="#i-clipboard"/></svg> جلسات اليوم</h2><a class="more" href="#/sessions">الكل</a></div>
  <div class="card" style="padding:6px 16px">
   ${todayAll.length?todayAll.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).map(s=>{
-   const c=client(s.clientId);const st={scheduled:['vio','⏱ '+(s.time||'')],done:['ok','✓ تمّت'],missed:['bad','لم يحضر'],cancelled:['dim','ملغية']}[s.status];
+   const c=client(s.clientId);const st={scheduled:['vio','<svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg> '+(s.time||'')],done:['ok','✓ تمّت'],missed:['bad','لم يحضر'],cancelled:['dim','ملغية']}[s.status];
    return`<div class="tl-item"><div class="tl-time num">${s.time||'—'}</div><div class="grow">
     <div style="font-weight:700;font-size:14px">${esc(c?.name||'?')}</div>
     <div class="tiny">${s.muscles.join(' · ')||'—'} ${s.kind!=='paid'?'· '+S_KIND[s.kind]:''}</div></div>
     <span class="tag ${st[0]}">${st[1]}</span>
     ${s.status==='scheduled'?`<button class="btn btn-p btn-sm" onclick="markDone('${s.id}')">تمّت ✓</button>`:''}</div>`}).join('')
-  :`<div class="empty" style="padding:26px"><p>مفيش جلسات متسجلة النهاردة</p><button class="btn btn-s btn-sm" onclick="formSession()">📅 جدولة جلسة</button></div>`}
+  :`<div class="empty" style="padding:26px"><p>مفيش جلسات متسجلة النهاردة</p><button class="btn btn-s btn-sm" onclick="formSession()"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg> جدولة جلسة</button></div>`}
  </div>
 
- ${alerts.length?`<div class="sec-h"><h2>🔔 محتاج انتباهك</h2><a class="more" href="#/alerts">الكل (${alerts.length})</a></div>
+ ${alerts.length?`<div class="sec-h"><h2><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg> محتاج انتباهك</h2><a class="more" href="#/alerts">الكل (${alerts.length})</a></div>
  <div class="list">${alerts.slice(0,4).map(a=>`<a class="li row" style="text-decoration:none;color:inherit" href="#/client/${a.cid}">
   <span style="font-size:19px">${a.icon}</span><div class="grow t" style="font-size:13.5px;font-weight:600">${a.t}</div><span class="tag ${a.cls}">›</span></a>`).join('')}</div>`:''}
 
- <div class="sec-h"><h2>📈 نظرة على الأداء</h2></div>
+ <div class="sec-h"><h2><svg class="ic" aria-hidden="true"><use href="#i-trending-up"/></svg> نظرة على الأداء</h2></div>
  <div class="grid g2">
-  <div class="card"><div class="muted" style="margin-bottom:8px">🏆 الأكثر التزامًا (30 يوم)</div>
-   ${ranked.slice(0,3).map((x,i)=>`<div class="row" style="padding:5px 0"><span>${['🥇','🥈','🥉'][i]}</span><div class="grow" style="font-weight:600;font-size:13.5px">${esc(x.c.name)}</div><b class="num" style="color:var(--lime)">${x.n}</b></div>`).join('')||'<div class="tiny">لسه مفيش بيانات</div>'}</div>
-  <div class="card"><div class="muted" style="margin-bottom:8px">📉 محتاجين متابعة</div>
-   ${db.clients.filter(c=>!c.archived&&statusOf(c).k==='follow').slice(0,3).map(c=>`<a class="row" style="padding:5px 0;text-decoration:none;color:inherit" href="#/client/${c.id}"><span>👻</span><div class="grow" style="font-weight:600;font-size:13.5px">${esc(c.name)}</div><span class="tiny">آخر حضور ${fD(lastDone(c.id)?.date)}</span></a>`).join('')||'<div class="tiny">✓ الكل ملتزم</div>'}
+  <div class="card"><div class="muted" style="margin-bottom:8px"><svg class="ic" aria-hidden="true"><use href="#i-award"/></svg> الأكثر التزامًا (30 يوم)</div>
+   ${ranked.slice(0,3).map((x,i)=>`<div class="row" style="padding:5px 0"><span>${['<svg class="ic" aria-hidden="true"><use href="#i-award"/></svg>','<svg class="ic" aria-hidden="true"><use href="#i-award"/></svg>','<svg class="ic" aria-hidden="true"><use href="#i-award"/></svg>'][i]}</span><div class="grow" style="font-weight:600;font-size:13.5px">${esc(x.c.name)}</div><b class="num" style="color:var(--lime)">${x.n}</b></div>`).join('')||'<div class="tiny">لسه مفيش بيانات</div>'}</div>
+  <div class="card"><div class="muted" style="margin-bottom:8px"><svg class="ic" aria-hidden="true"><use href="#i-trending-down"/></svg> محتاجين متابعة</div>
+   ${db.clients.filter(c=>!c.archived&&statusOf(c).k==='follow').slice(0,3).map(c=>`<a class="row" style="padding:5px 0;text-decoration:none;color:inherit" href="#/client/${c.id}"><span><svg class="ic" aria-hidden="true"><use href="#i-ghost"/></svg></span><div class="grow" style="font-weight:600;font-size:13.5px">${esc(c.name)}</div><span class="tiny">آخر حضور ${fD(lastDone(c.id)?.date)}</span></a>`).join('')||'<div class="tiny">✓ الكل ملتزم</div>'}
    <div class="tiny mt">متوسط الجلسات الأسبوعي: <b class="num" style="color:var(--violet)">${weekDone}</b> جلسة</div></div>
  </div>
- ${exp.length?`<div class="mt card row" style="border-color:rgba(255,92,92,.35)"><span style="font-size:19px">⛔</span><div class="grow" style="font-size:13.5px"><b>${exp.length}</b> متدرب اشتراكهم منتهي — فرصة تجديد</div><a class="btn btn-s btn-sm" href="#/clients" onclick="cFilter='expired'">عرض</a></div>`:''}`;
+ ${exp.length?`<div class="mt card row" style="border-color:rgba(255,92,92,.35)"><span style="font-size:19px"><svg class="ic" aria-hidden="true"><use href="#i-slash"/></svg></span><div class="grow" style="font-size:13.5px"><b>${exp.length}</b> متدرب اشتراكهم منتهي — فرصة تجديد</div><a class="btn btn-s btn-sm" href="#/clients" onclick="cFilter='expired'">عرض</a></div>`:''}`;
 }
 function markDone(id){
  const s=db.sessions.find(x=>x.id===id);if(!s)return;
@@ -948,8 +1240,8 @@ function vClients(){
  if(cQuery)list=list.filter(c=>c.name.includes(cQuery)||String(c.phone||'').includes(cQuery));
  list.sort((a,b)=>a.name.localeCompare(b.name,'ar'));
  $('#main').innerHTML=header('المتدربين',`${db.clients.filter(c=>!c.archived).length} متدرب`,
-  `<button class="icon-btn" onclick="formClient()" aria-label="إضافة متدرب">➕</button>`)+`
- <div class="search"><span class="ic">🔍</span><input id="c-q" placeholder="ابحث بالاسم أو الرقم..." value="${esc(cQuery)}" oninput="cQuery=this.value;vClients();document.getElementById('c-q').focus();document.getElementById('c-q').setSelectionRange(999,999)"></div>
+  `<button class="icon-btn" onclick="formClient()" aria-label="إضافة متدرب"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></button>`)+`
+ <div class="search"><span class="ic"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></span><input id="c-q" placeholder="ابحث بالاسم أو الرقم..." value="${esc(cQuery)}" oninput="cQuery=this.value;vClients();document.getElementById('c-q').focus();document.getElementById('c-q').setSelectionRange(999,999)"></div>
  <div class="chips">${FL.map(([k,t])=>`<button class="chip ${cFilter===k?'on':''}" onclick="cFilter='${k}';vClients()">${t}</button>`).join('')}</div>
  <div class="list mt">
  ${list.length?list.map(c=>{
@@ -958,12 +1250,12 @@ function vClients(){
    <div class="avatar">${c.photo?`<img src="${c.photo}" alt="">`:esc(c.name[0]||'؟')}</div>
    <div class="grow"><div class="nm">${esc(c.name)} <span class="tag ${st.cls}">${st.t}</span></div>
     <div class="meta">
-     ${s?`<span>📅 حتى ${fD(s.end)}</span>`:''}
-     ${ld?`<span>🏋️ ${fD(ld.date)}</span>`:''}
-     ${lm?.weight?`<span>⚖️ ${lm.weight} كجم</span>`:''}
+     ${s?`<span><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg> حتى ${fD(s.end)}</span>`:''}
+     ${ld?`<span><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg> ${fD(ld.date)}</span>`:''}
+     ${lm?.weight?`<span><svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg> ${lm.weight} كجم</span>`:''}
     </div></div>
    ${ring(remaining(c.id),s?.total||0)}</a>`}).join('')
- :`<div class="empty"><div class="big">🧑‍🤝‍🧑</div><p>${cQuery||cFilter!=='all'?'مفيش نتائج بالفلتر ده':'ابدأ بإضافة أول متدرب عندك'}</p><button class="btn btn-p" onclick="formClient()">➕ إضافة متدرب</button></div>`}
+ :`<div class="empty"><div class="big"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></div><p>${cQuery||cFilter!=='all'?'مفيش نتائج بالفلتر ده':'ابدأ بإضافة أول متدرب عندك'}</p><button class="btn btn-p" onclick="formClient()"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg> إضافة متدرب</button></div>`}
  </div>`;
 }
 
@@ -980,10 +1272,10 @@ function formClient(id){
   <div class="f-row"><label>حالة صحية / إصابات</label><textarea id="f-health" rows="2">${esc(c.health||'')}</textarea></div>
   <div class="f-row"><label>ملاحظة مثبّتة (تظهر أعلى البروفايل)</label><input id="f-pin" value="${esc(c.pinned||'')}"></div>
   <div class="f-row"><label>تاريخ الانضمام</label><input id="f-join" type="date" value="${c.joinDate||todayS()}"></div>
-  <button class="btn btn-p btn-block" onclick="saveClient('${id||''}')">${id?'💾 حفظ التعديلات':'➕ إضافة المتدرب'}</button>`);
+  <button class="btn btn-p btn-block" onclick="saveClient('${id||''}')">${id?'<svg class="ic" aria-hidden="true"><use href="#i-save"/></svg> حفظ التعديلات':'<svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg> إضافة المتدرب'}</button>`);
 }
 function saveClient(id){
- const name=$('#f-name').value.trim();if(!name){toast('⚠️ الاسم مطلوب');return}
+ const name=$('#f-name').value.trim();if(!name){toast('<svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> الاسم مطلوب');return}
  const data={name,phone:$('#f-phone').value.trim(),age:+$('#f-age').value||null,gender:$('#f-gender').value,
   level:$('#f-level').value,goal:$('#f-goal').value,health:$('#f-health').value.trim(),pinned:$('#f-pin').value.trim(),joinDate:$('#f-join').value||todayS()};
  if(id){Object.assign(client(id),data);log('تعديل متدرب',name)}
@@ -1004,9 +1296,9 @@ function vClient(id,tab){
  $('#main').innerHTML=`<header class="top">
   <button class="icon-btn" onclick="history.back()" aria-label="رجوع">→</button>
   <div class="grow"><h1 style="font-size:18px">${esc(c.name)} <span class="tag ${st.cls}">${st.t}</span></h1></div>
-  ${c.phone?`<a class="icon-btn" href="https://wa.me/2${c.phone}" target="_blank" aria-label="واتساب">💬</a><a class="icon-btn" href="tel:${c.phone}" aria-label="اتصال">📞</a>`:''}
-  <button class="icon-btn" onclick="formClient('${id}')" aria-label="تعديل">✏️</button></header>
- ${c.pinned?`<div class="pin-note">📌 <b>${esc(c.pinned)}</b></div>`:''}
+  ${c.phone?`<a class="icon-btn" href="https://wa.me/2${c.phone}" target="_blank" aria-label="واتساب"><svg class="ic" aria-hidden="true"><use href="#i-message"/></svg></a><a class="icon-btn" href="tel:${c.phone}" aria-label="اتصال"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg></a>`:''}
+  <button class="icon-btn" onclick="formClient('${id}')" aria-label="تعديل"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg></button></header>
+ ${c.pinned?`<div class="pin-note"><svg class="ic" aria-hidden="true"><use href="#i-map-pin"/></svg> <b>${esc(c.pinned)}</b></div>`:''}
  <div class="tabs">${TABS.map(([k,t])=>`<button class="${tab===k?'on':''}" onclick="location.hash='#/client/${id}/${k}'">${t}</button>`).join('')}</div>
  <div id="ctab"></div>`;
  ({overview:tOverview,sub:tSub,sessions:tSessions,progress:tProgress,goals:tGoals,notes:tNotes}[tab]||tOverview)(c);
@@ -1037,23 +1329,23 @@ function tOverview(c){
   <div class="grow">
    <div style="font-weight:700">${s?esc(s.pkg):'مفيش اشتراك نشط'}</div>
    <div class="tiny">${s?`${s.used} مستخدم من ${s.total} · ينتهي ${fD(s.end)}`:'اعمل اشتراك جديد من تاب الاشتراك'}</div>
-   ${bal>0?`<span class="tag bad" style="margin-top:5px">💸 متبقي عليه ${fM(bal)}</span>`:''}
+   ${bal>0?`<span class="tag bad" style="margin-top:5px"><svg class="ic" aria-hidden="true"><use href="#i-banknote"/></svg> متبقي عليه ${fM(bal)}</span>`:''}
   </div>
-  <button class="btn btn-p btn-sm" onclick="quickSession('${c.id}')">⚡ جلسة</button></div>
+  <button class="btn btn-p btn-sm" onclick="quickSession('${c.id}')"><svg class="ic" aria-hidden="true"><use href="#i-zap"/></svg> جلسة</button></div>
  <div class="grid g2 mt">
   <div class="kpi"><div class="v num" style="font-size:19px">${lm?.weight?lm.weight+' كجم':'—'}</div><div class="l">آخر وزن (${fD(lm?.date)})</div></div>
   <div class="kpi"><div class="v num" style="font-size:19px">${ld?fD(ld.date):'—'}</div><div class="l">آخر حضور</div></div>
  </div>
  <div class="card mt">
   <div class="row" style="flex-wrap:wrap;gap:7px">
-   <span class="tag vio">🎯 ${esc(c.goal||'—')}</span><span class="tag info">📶 ${esc(c.level||'—')}</span>
-   ${c.age?`<span class="tag dim">🎂 ${c.age} سنة</span>`:''}<span class="tag dim">📆 انضم ${fD(c.joinDate)}</span>
+   <span class="tag vio"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg> ${esc(c.goal||'—')}</span><span class="tag info"><svg class="ic" aria-hidden="true"><use href="#i-wifi"/></svg> ${esc(c.level||'—')}</span>
+   ${c.age?`<span class="tag dim">${c.age} سنة</span>`:''}<span class="tag dim"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg> انضم ${fD(c.joinDate)}</span>
   </div>
-  ${c.health?`<div class="mt" style="font-size:13.5px">🏥 <b>الحالة الصحية:</b> ${esc(c.health)}</div>`:''}
-  ${c.phone?`<div class="mt tiny">📱 <span class="num" dir="ltr">${esc(c.phone)}</span></div>`:''}
+  ${c.health?`<div class="mt" style="font-size:13.5px"><b>الحالة الصحية:</b> ${esc(c.health)}</div>`:''}
+  ${c.phone?`<div class="mt tiny"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg> <span class="num" dir="ltr">${esc(c.phone)}</span></div>`:''}
  </div>
  <div class="card mt">
-  <div class="row"><h2 class="grow" style="font-size:15px">🧬 خريطة التعافي</h2>
+  <div class="row"><h2 class="grow" style="font-size:15px"><svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg> خريطة التعافي</h2>
    <div class="body-toggle">
     <button class="chip ${ovBodyView==='front'?'on':''}" onclick="ovBodyView='front';tOverview(client('${c.id}'))">وش</button>
     <button class="chip ${ovBodyView==='back'?'on':''}" onclick="ovBodyView='back';tOverview(client('${c.id}'))">ضهر</button>
@@ -1067,13 +1359,13 @@ function tOverview(c){
   </div>
  </div>
  <div class="row mt" style="gap:8px;flex-wrap:wrap">
-  <button class="chip" onclick="formMeas('${c.id}')">⚖️ تسجيل قياس</button>
-  <button class="chip" onclick="formSession('${c.id}')">📅 جدولة جلسة</button>
-  <button class="chip" onclick="formNote('${c.id}')">📝 ملاحظة</button>
-  <button class="chip" onclick="formGoal('${c.id}')">🎯 هدف</button>
+  <button class="chip" onclick="formMeas('${c.id}')"><svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg> تسجيل قياس</button>
+  <button class="chip" onclick="formSession('${c.id}')"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg> جدولة جلسة</button>
+  <button class="chip" onclick="formNote('${c.id}')"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg> ملاحظة</button>
+  <button class="chip" onclick="formGoal('${c.id}')"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg> هدف</button>
  </div>
- <div class="mt2">${c.archived?`<button class="btn btn-s btn-block" onclick="unarchive('${c.id}')">↩️ استرجاع من الأرشيف</button>`
-  :`<button class="btn btn-danger btn-block" onclick="archiveClient('${c.id}')">🗄️ أرشفة المتدرب (بدون حذف البيانات)</button>`}</div>`;
+ <div class="mt2">${c.archived?`<button class="btn btn-s btn-block" onclick="unarchive('${c.id}')"><svg class="ic" aria-hidden="true"><use href="#i-rotate-ccw"/></svg> استرجاع من الأرشيف</button>`
+  :`<button class="btn btn-danger btn-block" onclick="archiveClient('${c.id}')"><svg class="ic" aria-hidden="true"><use href="#i-archive"/></svg> أرشفة المتدرب (بدون حذف البيانات)</button>`}</div>`;
 }
 
 function tSub(c){
@@ -1088,15 +1380,15 @@ function tSub(c){
   <div class="mt row" style="justify-content:space-between;font-size:13px"><span>السعر: <b class="num">${fM(act.price)}</b></span><span>المدفوع: <b class="num" style="color:${act.paid>=act.price?'var(--lime)':'var(--orange)'}">${fM(act.paid)}</b></span></div>
   ${act.price-act.paid>0?`<div class="tag bad mt">متبقي ${fM(act.price-act.paid)}</div>`:''}
   <div class="row mt" style="gap:8px">
-   <button class="btn btn-s btn-sm grow" onclick="formPayment('${c.id}')">💵 دفعة</button>
-   <button class="btn btn-s btn-sm grow" onclick="freezeSub('${act.id}')">❄️ تجميد</button>
-   <button class="btn btn-s btn-sm grow" onclick="adjustSessions('${act.id}')">✏️ تعديل الرصيد</button>
+   <button class="btn btn-s btn-sm grow" onclick="formPayment('${c.id}')"><svg class="ic" aria-hidden="true"><use href="#i-banknote"/></svg> دفعة</button>
+   <button class="btn btn-s btn-sm grow" onclick="freezeSub('${act.id}')"><svg class="ic" aria-hidden="true"><use href="#i-snowflake"/></svg> تجميد</button>
+   <button class="btn btn-s btn-sm grow" onclick="adjustSessions('${act.id}')"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg> تعديل الرصيد</button>
   </div></div>`
- :frz?`<div class="card row"><div class="grow"><b>${esc(frz.pkg)}</b> <span class="tag info">❄️ مجمّد</span><div class="tiny">متبقي ${frz.total-frz.used} جلسة</div></div>
-  <button class="btn btn-p btn-sm" onclick="unfreezeSub('${frz.id}')">▶️ إلغاء التجميد</button></div>`
+ :frz?`<div class="card row"><div class="grow"><b>${esc(frz.pkg)}</b> <span class="tag info"><svg class="ic" aria-hidden="true"><use href="#i-snowflake"/></svg> مجمّد</span><div class="tiny">متبقي ${frz.total-frz.used} جلسة</div></div>
+  <button class="btn btn-p btn-sm" onclick="unfreezeSub('${frz.id}')"><svg class="ic" aria-hidden="true"><use href="#i-play-circle"/></svg> إلغاء التجميد</button></div>`
  :`<div class="empty" style="padding:24px"><p>مفيش اشتراك نشط دلوقتي</p></div>`}
- <button class="btn ${act?'btn-s':'btn-p'} btn-block mt" onclick="formSub('${c.id}')">🔄 ${act?'تجديد (اشتراك جديد)':'اشتراك جديد'}</button>
- <div class="sec-h"><h2>📜 سجل الاشتراكات</h2></div>
+ <button class="btn ${act?'btn-s':'btn-p'} btn-block mt" onclick="formSub('${c.id}')"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg> ${act?'تجديد (اشتراك جديد)':'اشتراك جديد'}</button>
+ <div class="sec-h"><h2>سجل الاشتراكات</h2></div>
  <div class="list">${subs.map(s=>`<div class="li row"><div class="grow"><div class="t">${esc(s.pkg)}</div>
   <div class="d">${fD(s.start)} → ${fD(s.end)} · ${s.used}/${s.total} جلسة · ${fM(s.price)}</div></div>
   <span class="tag ${{active:'ok',frozen:'info',expired:'dim'}[s.status]}">${{active:'نشط',frozen:'مجمّد',expired:'منتهي'}[s.status]}</span></div>`).join('')||'<div class="tiny">لا يوجد</div>'}</div>`;
@@ -1104,7 +1396,7 @@ function tSub(c){
 function formSub(cid){
  openModal(`<h3>اشتراك جديد / تجديد</h3>
   <div class="f-row"><label>المتدرب</label><select id="s-c">${clientOptions(cid)}</select></div>
-  <div class="f-row"><label>الباقة</label><select id="s-p" onchange="fillPkg()">${db.packages.filter(p=>p.active).map(p=>`<option value="${p.id}">${esc(p.name)} — ${p.sessions} جلسة — ${fM(p.price)}</option>`).join('')}<option value="custom">✏️ باقة مخصصة</option></select></div>
+  <div class="f-row"><label>الباقة</label><select id="s-p" onchange="fillPkg()">${db.packages.filter(p=>p.active).map(p=>`<option value="${p.id}">${esc(p.name)} — ${p.sessions} جلسة — ${fM(p.price)}</option>`).join('')}<option value="custom"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg> باقة مخصصة</option></select></div>
   <div class="f-3"><div class="f-row"><label>عدد الجلسات</label><input id="s-n" type="number" inputmode="numeric"></div>
   <div class="f-row"><label>السعر</label><input id="s-price" type="number" inputmode="numeric"></div>
   <div class="f-row"><label>الصلاحية (يوم)</label><input id="s-days" type="number" inputmode="numeric"></div></div>
@@ -1117,7 +1409,7 @@ function formSub(cid){
 function fillPkg(){const p=db.packages.find(x=>x.id===$('#s-p').value);if(p){$('#s-n').value=p.sessions;$('#s-price').value=p.price;$('#s-days').value=p.days}}
 function saveSub(){
  const cid=$('#s-c').value,n=+$('#s-n').value,price=+$('#s-price').value||0,days=+$('#s-days').value||30,start=$('#s-start').value,paid=+$('#s-paid').value||0;
- if(!cid||!n){toast('⚠️ اختار المتدرب وعدد الجلسات');return}
+ if(!cid||!n){toast('<svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> اختار المتدرب وعدد الجلسات');return}
  const old=activeSub(cid);if(old){old.status='expired'}
  const end=new Date(D(start).getTime()+days*864e5).toISOString().slice(0,10);
  const pkgName=$('#s-p').value==='custom'?`باقة مخصصة (${n})`:db.packages.find(x=>x.id===$('#s-p').value).name;
@@ -1126,8 +1418,8 @@ function saveSub(){
  log('اشتراك جديد',client(cid).name+' — '+pkgName+(old?' (تجديد)':''));
  closeModal();save('✓ الاشتراك اتفعّل');
 }
-function freezeSub(id){const s=db.subs.find(x=>x.id===id);if(!confirm('تجميد الاشتراك مؤقتًا؟'))return;s.status='frozen';log('تجميد اشتراك',client(s.clientId).name);save('❄️ اتجمّد')}
-function unfreezeSub(id){const s=db.subs.find(x=>x.id===id);const ext=prompt('كام يوم تضيف على تاريخ الانتهاء تعويضًا عن التجميد؟','7');s.status='active';if(ext&&+ext>0)s.end=new Date(D(s.end).getTime()+(+ext)*864e5).toISOString().slice(0,10);log('إلغاء تجميد',client(s.clientId).name+' +'+(ext||0)+' يوم');save('▶️ رجع نشط')}
+function freezeSub(id){const s=db.subs.find(x=>x.id===id);if(!confirm('تجميد الاشتراك مؤقتًا؟'))return;s.status='frozen';log('تجميد اشتراك',client(s.clientId).name);save('<svg class="ic" aria-hidden="true"><use href="#i-snowflake"/></svg> اتجمّد')}
+function unfreezeSub(id){const s=db.subs.find(x=>x.id===id);const ext=prompt('كام يوم تضيف على تاريخ الانتهاء تعويضًا عن التجميد؟','7');s.status='active';if(ext&&+ext>0)s.end=new Date(D(s.end).getTime()+(+ext)*864e5).toISOString().slice(0,10);log('إلغاء تجميد',client(s.clientId).name+' +'+(ext||0)+' يوم');save('<svg class="ic" aria-hidden="true"><use href="#i-play-circle"/></svg> رجع نشط')}
 function adjustSessions(id){
  const s=db.subs.find(x=>x.id===id);
  const v=prompt(`الرصيد الحالي: ${s.total} إجمالي / ${s.used} مستخدم.\nاكتب الإجمالي الجديد:`,s.total);
@@ -1145,13 +1437,13 @@ function sessionCard(s,showName){
   <div class="row"><div class="grow"><div class="t">${showName?esc(c?.name||'?')+' · ':''}<span class="num">${fD(s.date)} ${s.time||''}</span></div>
    <div class="d">${s.muscles.join(' · ')||'—'} ${s.dur?'· '+s.dur+' دقيقة':''} ${s.rpe?'· RPE '+s.rpe:''} ${s.kind!=='paid'?'· '+S_KIND[s.kind]:''}</div></div>
    <span class="tag ${st[0]}">${st[1]}</span></div>
-  ${s.exercises?.length?`<div class="mt" style="font-size:12px;color:var(--tx2)">${s.exercises.map(e=>`${esc(e.name)} — ${e.sets}×${e.reps}${e.weight?' × '+e.weight+'kg':''}${+e.pr?' <span class="tag ok" style="font-size:9px">PR 🏆</span>':''}`).join('<br>')}</div>`:''}
-  ${s.notes?`<div class="tiny mt">📝 ${esc(s.notes)}</div>`:''}
+  ${s.exercises?.length?`<div class="mt" style="font-size:12px;color:var(--tx2)">${s.exercises.map(e=>`${esc(e.name)} — ${e.sets}×${e.reps}${e.weight?' × '+e.weight+'kg':''}${+e.pr?' <span class="tag ok" style="font-size:9px">PR <svg class="ic" aria-hidden="true"><use href="#i-award"/></svg></span>':''}`).join('<br>')}</div>`:''}
+  ${s.notes?`<div class="tiny mt"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg> ${esc(s.notes)}</div>`:''}
   ${s.status==='scheduled'?`<div class="row mt" style="gap:6px">
    <button class="btn btn-p btn-sm" onclick="markDone('${s.id}')">تمّت ✓</button>
    <button class="btn btn-s btn-sm" onclick="setSessionStatus('${s.id}','missed')">لم يحضر</button>
    <button class="btn btn-ghost btn-sm" onclick="setSessionStatus('${s.id}','cancelled')">إلغاء</button></div>`
-  :s.status==='done'?`<div class="row mt"><button class="btn btn-s btn-sm" onclick="formSession(null,'${s.id}')">✏️ تفاصيل التمارين</button></div>`:''}
+  :s.status==='done'?`<div class="row mt"><button class="btn btn-s btn-sm" onclick="formSession(null,'${s.id}')"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg> تفاصيل التمارين</button></div>`:''}
  </div>`;
 }
 function setSessionStatus(id,st){
@@ -1165,9 +1457,9 @@ function setSessionStatus(id,st){
 function tSessions(c){
  const ss=db.sessions.filter(s=>s.clientId===c.id).sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
  $('#ctab').innerHTML=`<div class="row" style="gap:8px;margin-bottom:12px">
-  <button class="btn btn-p grow" onclick="quickSession('${c.id}')">⚡ جلسة سريعة</button>
-  <button class="btn btn-s grow" onclick="formSession('${c.id}')">📅 جدولة / تفصيلية</button></div>
- <div class="list">${ss.map(s=>sessionCard(s,false)).join('')||'<div class="empty"><div class="big">🏋️</div><p>لسه مفيش جلسات متسجلة</p></div>'}</div>`;
+  <button class="btn btn-p grow" onclick="quickSession('${c.id}')"><svg class="ic" aria-hidden="true"><use href="#i-zap"/></svg> جلسة سريعة</button>
+  <button class="btn btn-s grow" onclick="formSession('${c.id}')"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg> جدولة / تفصيلية</button></div>
+ <div class="list">${ss.map(s=>sessionCard(s,false)).join('')||'<div class="empty"><div class="big"><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg></div><p>لسه مفيش جلسات متسجلة</p></div>'}</div>`;
 }
 
 function tProgress(c){
@@ -1178,7 +1470,7 @@ function tProgress(c){
  let rate='';
  if(ms.length>=2&&first.weight&&last.weight){const days=Math.max(1,dayDiff(first.date,last.date));rate=((last.weight-first.weight)/days*7).toFixed(2)}
  $('#ctab').innerHTML=`
- <button class="btn btn-p btn-block" onclick="formMeas('${c.id}')">⚖️ تسجيل قياس جديد</button>
+ <button class="btn btn-p btn-block" onclick="formMeas('${c.id}')"><svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg> تسجيل قياس جديد</button>
  ${ms.length?`<div class="grid g3 mt">
   <div class="kpi"><div class="v num" style="font-size:18px">${last.weight??'—'}</div><div class="l">الوزن الحالي</div></div>
   <div class="kpi"><div class="v num" style="font-size:18px;color:${(last.weight-first.weight)<0?'var(--lime)':'var(--violet)'}">${first.weight&&last.weight?(last.weight-first.weight>0?'+':'')+(last.weight-first.weight).toFixed(1):'—'}</div><div class="l">التغير الكلي</div></div>
@@ -1186,7 +1478,7 @@ function tProgress(c){
  ${rate?`<div class="tiny mt" style="text-align:center">معدل التغير: <b class="num">${rate>0?'+':''}${rate}</b> كجم/أسبوع</div>`:''}
  <div class="chart-box mt"><canvas id="ch-w"></canvas></div>
  ${ms.some(m=>m.waist||m.chest||m.arms)?`<div class="chart-box mt"><canvas id="ch-m"></canvas></div>`:''}
- <div class="sec-h"><h2>📏 مقارنة أول وآخر قياس</h2></div>
+ <div class="sec-h"><h2>مقارنة أول وآخر قياس</h2></div>
  <div class="card" style="padding:8px 14px"><table class="tbl"><tr><th>القياس</th><th>${fD(first.date)}</th><th>${fD(last.date)}</th><th>الفرق</th></tr>
  ${[['weight','الوزن كجم'],['fat','دهون %'],['muscle','عضل كجم'],['waist','وسط'],['chest','صدر'],['arms','ذراع'],['hips','أرداف'],['thighs','فخذ']].map(([k,t])=>{
   if(first[k]==null&&last[k]==null)return'';const d=(last[k]??0)-(first[k]??0);
@@ -1195,7 +1487,7 @@ function tProgress(c){
  <div class="sec-h"><h2>سجل القياسات</h2></div>
  <div class="list">${[...ms].reverse().map(m=>`<div class="li"><div class="t num">${fD(m.date)} — ${m.weight??'—'} كجم</div>
   <div class="d">${['fat','waist','chest','arms','hips','thighs'].filter(k=>m[k]).map(k=>({fat:'دهون',waist:'وسط',chest:'صدر',arms:'ذراع',hips:'أرداف',thighs:'فخذ'}[k])+': '+m[k]).join(' · ')||''} ${m.notes?'· '+esc(m.notes):''}</div></div>`).join('')}</div>`
- :`<div class="empty mt"><div class="big">📊</div><p>سجّل أول قياس وهتشوف منحنى التقدم هنا</p></div>`}`;
+ :`<div class="empty mt"><div class="big"><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"/></svg></div><p>سجّل أول قياس وهتشوف منحنى التقدم هنا</p></div>`}`;
  if(ms.length){
   drawLine('ch-w','الوزن (كجم)',ms.map(m=>fD(m.date)),[{label:'الوزن',data:ms.map(m=>m.weight),color:'#C1483A'}]);
   if(ms.some(m=>m.waist||m.chest||m.arms))
@@ -1206,7 +1498,7 @@ function tProgress(c){
  }
 }
 function formMeas(cid){
- openModal(`<h3>⚖️ تسجيل قياس</h3>
+ openModal(`<h3><svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg> تسجيل قياس</h3>
  <div class="f-row"><label>المتدرب</label><select id="m-c">${clientOptions(cid)}</select></div>
  <div class="f-2"><div class="f-row"><label>التاريخ</label><input id="m-date" type="date" value="${todayS()}"></div>
  <div class="f-row"><label>الوزن (كجم) *</label><input id="m-w" type="number" step="0.1" inputmode="decimal"></div></div>
@@ -1225,7 +1517,7 @@ function formMeas(cid){
  <button class="btn btn-p btn-block" onclick="saveMeas()">✓ حفظ القياس</button>`);
 }
 function saveMeas(){
- const w=+$('#m-w').value;if(!w){toast('⚠️ الوزن مطلوب');return}
+ const w=+$('#m-w').value;if(!w){toast('<svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> الوزن مطلوب');return}
  const v=id=>+$(id).value||null;
  db.meas.push({id:uid(),clientId:$('#m-c').value,date:$('#m-date').value,weight:w,height:v('#m-h'),fat:v('#m-fat'),muscle:v('#m-mus'),waist:v('#m-waist'),chest:v('#m-chest'),arms:v('#m-arms'),hips:v('#m-hips'),thighs:v('#m-th'),notes:$('#m-notes').value.trim()});
  log('تسجيل قياس',client($('#m-c').value).name+' — '+w+' كجم');
@@ -1235,18 +1527,18 @@ function saveMeas(){
 function tGoals(c){
  const gs=db.goals.filter(g=>g.clientId===c.id);
  const GS={'ماشي كويس':'ok','محتاج انتباه':'warn','اتحقق':'vio','متأخر':'bad'};
- $('#ctab').innerHTML=`<button class="btn btn-p btn-block" onclick="formGoal('${c.id}')">🎯 هدف جديد</button>
+ $('#ctab').innerHTML=`<button class="btn btn-p btn-block" onclick="formGoal('${c.id}')"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg> هدف جديد</button>
  <div class="list mt">${gs.map(g=>`<div class="li">
   <div class="row"><div class="grow"><div class="t">${esc(g.target)}</div>
    <div class="d">${esc(g.type)} · مستهدف ${fD(g.targetDate)}</div></div><span class="tag ${GS[g.status]||'dim'}">${esc(g.status)}</span></div>
   <div class="row mt" style="gap:10px"><div class="pbar grow"><i style="width:${g.progress||0}%"></i></div><b class="num tiny">${g.progress||0}%</b></div>
   <div class="row mt" style="gap:6px"><button class="btn btn-s btn-sm" onclick="bumpGoal('${g.id}',10)">+10%</button>
   <button class="btn btn-s btn-sm" onclick="goalStatus('${g.id}')">تغيير الحالة</button>
-  <button class="del-x" onclick="delGoal('${g.id}')">✕</button></div>
-  ${g.notes?`<div class="tiny mt">📝 ${esc(g.notes)}</div>`:''}</div>`).join('')||'<div class="empty"><div class="big">🎯</div><p>حدد هدف واضح للمتدرب وتابع نسبة الإنجاز</p></div>'}</div>`;
+  <button class="del-x" onclick="delGoal('${g.id}')"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  ${g.notes?`<div class="tiny mt"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg> ${esc(g.notes)}</div>`:''}</div>`).join('')||'<div class="empty"><div class="big"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg></div><p>حدد هدف واضح للمتدرب وتابع نسبة الإنجاز</p></div>'}</div>`;
 }
 function formGoal(cid){
- openModal(`<h3>🎯 هدف جديد</h3>
+ openModal(`<h3><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg> هدف جديد</h3>
  <div class="f-row"><label>المتدرب</label><select id="g-c">${clientOptions(cid)}</select></div>
  <div class="f-row"><label>نوع الهدف</label><select id="g-type">${['وزن','قوة','التزام','قياسات','لياقة'].map(t=>`<option>${t}</option>`).join('')}</select></div>
  <div class="f-row"><label>الهدف (وصف واضح) *</label><input id="g-t" placeholder="مثال: النزول إلى 80 كجم"></div>
@@ -1255,7 +1547,7 @@ function formGoal(cid){
  <button class="btn btn-p btn-block" onclick="saveGoal()">✓ حفظ</button>`);
 }
 function saveGoal(){
- const t=$('#g-t').value.trim();if(!t){toast('⚠️ اكتب الهدف');return}
+ const t=$('#g-t').value.trim();if(!t){toast('<svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> اكتب الهدف');return}
  db.goals.push({id:uid(),clientId:$('#g-c').value,type:$('#g-type').value,target:t,targetDate:$('#g-d').value,progress:0,status:'ماشي كويس',notes:$('#g-n').value.trim()});
  closeModal();save('✓ اتضاف الهدف');
 }
@@ -1266,26 +1558,26 @@ function delGoal(id){if(confirm('حذف الهدف؟')){db.goals=db.goals.filter
 function tNotes(c){
  const ns=db.notes.filter(n=>n.clientId===c.id).sort((a,b)=>(b.pinned-a.pinned)||b.date.localeCompare(a.date));
  const NT={'عامة':'dim','طبية':'bad','تغذية':'ok','سلوكية':'info','التزام':'warn','تدريب':'vio'};
- $('#ctab').innerHTML=`<button class="btn btn-p btn-block" onclick="formNote('${c.id}')">📝 ملاحظة جديدة</button>
+ $('#ctab').innerHTML=`<button class="btn btn-p btn-block" onclick="formNote('${c.id}')"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg> ملاحظة جديدة</button>
  <div class="list mt">${ns.map(n=>`<div class="li">
   <div class="row"><span class="tag ${NT[n.type]||'dim'}">${esc(n.type)}</span><span class="tiny grow">${fD(n.date)}</span>
-  <button class="btn-ghost" style="font-size:15px" title="تثبيت" onclick="togglePin('${n.id}')">${n.pinned?'📌':'📍'}</button>
-  <button class="del-x" onclick="delNote('${n.id}')">✕</button></div>
-  <div class="mt" style="font-size:14px">${esc(n.text)}</div></div>`).join('')||'<div class="empty"><div class="big">📝</div><p>سجّل ملاحظاتك الطبية والتدريبية هنا</p></div>'}</div>`;
+  <button class="btn-ghost" style="font-size:15px" title="تثبيت" onclick="togglePin('${n.id}')">${n.pinned?'<svg class="ic" aria-hidden="true"><use href="#i-map-pin"/></svg>':'<svg class="ic" aria-hidden="true"><use href="#i-map-pin"/></svg>'}</button>
+  <button class="del-x" onclick="delNote('${n.id}')"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <div class="mt" style="font-size:14px">${esc(n.text)}</div></div>`).join('')||'<div class="empty"><div class="big"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg></div><p>سجّل ملاحظاتك الطبية والتدريبية هنا</p></div>'}</div>`;
 }
 function formNote(cid){
- openModal(`<h3>📝 ملاحظة</h3>
+ openModal(`<h3><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg> ملاحظة</h3>
  <div class="f-row"><label>المتدرب</label><select id="n-c">${clientOptions(cid)}</select></div>
  <div class="f-row"><label>النوع</label><select id="n-type">${['عامة','طبية','تغذية','سلوكية','التزام','تدريب'].map(t=>`<option>${t}</option>`).join('')}</select></div>
  <div class="f-row"><label>الملاحظة *</label><textarea id="n-t" rows="3"></textarea></div>
  <button class="btn btn-p btn-block" onclick="saveNote()">✓ حفظ</button>`);
 }
 function saveNote(){
- const t=$('#n-t').value.trim();if(!t){toast('⚠️ اكتب الملاحظة');return}
+ const t=$('#n-t').value.trim();if(!t){toast('<svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> اكتب الملاحظة');return}
  db.notes.push({id:uid(),clientId:$('#n-c').value,type:$('#n-type').value,text:t,pinned:0,date:todayS()});
  closeModal();save('✓ اتسجلت');
 }
-function togglePin(id){const n=db.notes.find(x=>x.id===id);n.pinned=n.pinned?0:1;save(n.pinned?'📌 اتثبتت':'اتفكّت')}
+function togglePin(id){const n=db.notes.find(x=>x.id===id);n.pinned=n.pinned?0:1;save(n.pinned?'<svg class="ic" aria-hidden="true"><use href="#i-map-pin"/></svg> اتثبتت':'اتفكّت')}
 function delNote(id){if(confirm('حذف الملاحظة؟')){db.notes=db.notes.filter(n=>n.id!==id);save('اتحذفت')}}
 
 /* ============ SESSIONS PAGE ============ */
@@ -1299,20 +1591,20 @@ function vSessions(){
  else if(sFilter!=='all')ss=ss.filter(s=>s.status===sFilter);
  ss.sort((a,b)=>(b.date+(b.time||'')).localeCompare(a.date+(a.time||'')));
  if(sFilter==='upcoming')ss.reverse();
- $('#main').innerHTML=header('الجلسات',null,`<button class="icon-btn" onclick="formSession()" aria-label="جلسة جديدة">➕</button>`)+`
+ $('#main').innerHTML=header('الجلسات',null,`<button class="icon-btn" onclick="formSession()" aria-label="جلسة جديدة"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></button>`)+`
  <div class="chips">${F.map(([k,v])=>`<button class="chip ${sFilter===k?'on':''}" onclick="sFilter='${k}';vSessions()">${v}</button>`).join('')}</div>
  <div class="row mt" style="gap:8px">
-  <button class="btn btn-p grow" onclick="quickSession()">⚡ جلسة سريعة (٢٠ ثانية)</button>
-  <button class="btn btn-s grow" onclick="formSession()">📅 جدولة</button></div>
- <div class="list mt">${ss.map(s=>sessionCard(s,true)).join('')||`<div class="empty"><div class="big">🏋️</div><p>مفيش جلسات هنا</p></div>`}</div>`;
+  <button class="btn btn-p grow" onclick="quickSession()"><svg class="ic" aria-hidden="true"><use href="#i-zap"/></svg> جلسة سريعة (٢٠ ثانية)</button>
+  <button class="btn btn-s grow" onclick="formSession()"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg> جدولة</button></div>
+ <div class="list mt">${ss.map(s=>sessionCard(s,true)).join('')||`<div class="empty"><div class="big"><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg></div><p>مفيش جلسات هنا</p></div>`}</div>`;
 }
 
 /* ---------- Quick session (<20s flow) ---------- */
 let qMuscles=[];
 function quickSession(cid){
  qMuscles=[];
- if(!db.clients.filter(c=>!c.archived).length){toast('⚠️ ضيف متدرب الأول');formClient();return}
- openModal(`<h3>⚡ جلسة سريعة</h3>
+ if(!db.clients.filter(c=>!c.archived).length){toast('<svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> ضيف متدرب الأول');formClient();return}
+ openModal(`<h3><svg class="ic" aria-hidden="true"><use href="#i-zap"/></svg> جلسة سريعة</h3>
  <div class="f-row"><label>المتدرب</label><select id="q-c" onchange="qHint()">${clientOptions(cid)}</select></div>
  <div id="q-hint"></div>
  <div class="f-row"><label>العضلات (اختار بلمسة)</label>
@@ -1323,27 +1615,27 @@ function quickSession(cid){
   <div class="f-row"><label>النوع</label><select id="q-kind">${Object.entries(S_KIND).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div></div>
  <div class="f-row"><label>ملاحظة سريعة</label><input id="q-notes" placeholder="اختياري"></div>
  <button class="btn btn-p btn-block" onclick="saveQuick()">✓ تسجيل وخصم جلسة</button>
- <button class="btn btn-ghost btn-block" onclick="closeModal();formSession(document.getElementById('q-c').value)" style="margin-top:6px">➕ محتاج أسجل التمارين بالتفصيل؟</button>`);
+ <button class="btn btn-ghost btn-block" onclick="closeModal();formSession(document.getElementById('q-c').value)" style="margin-top:6px"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg> محتاج أسجل التمارين بالتفصيل؟</button>`);
  qHint();
 }
 function qTog(el,m){el.classList.toggle('on');qMuscles.includes(m)?qMuscles=qMuscles.filter(x=>x!==m):qMuscles.push(m)}
 function qHint(){
  const cid=$('#q-c')?.value;if(!cid)return;
  const rem=remaining(cid),c=client(cid);
- $('#q-hint').innerHTML=rem===0?`<div class="pin-note" style="margin-bottom:12px">🚫 <b>${esc(c.name)} مفيش عنده رصيد!</b> التسجيل هيحتاج تأكيد خاص.</div>`
-  :rem<=2?`<div class="pin-note" style="margin-bottom:12px">⚠️ فاضل <b>${rem}</b> جلسة بس — ذكّره بالتجديد.</div>`:'';
- if(c?.pinned)$('#q-hint').innerHTML+=`<div class="pin-note" style="margin-bottom:12px">📌 ${esc(c.pinned)}</div>`;
+ $('#q-hint').innerHTML=rem===0?`<div class="pin-note" style="margin-bottom:12px"><svg class="ic" aria-hidden="true"><use href="#i-slash"/></svg> <b>${esc(c.name)} مفيش عنده رصيد!</b> التسجيل هيحتاج تأكيد خاص.</div>`
+  :rem<=2?`<div class="pin-note" style="margin-bottom:12px"><svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> فاضل <b>${rem}</b> جلسة بس — ذكّره بالتجديد.</div>`:'';
+ if(c?.pinned)$('#q-hint').innerHTML+=`<div class="pin-note" style="margin-bottom:12px"><svg class="ic" aria-hidden="true"><use href="#i-map-pin"/></svg> ${esc(c.pinned)}</div>`;
 }
 function saveQuick(){
  const cid=$('#q-c').value,kind=$('#q-kind').value,sub=activeSub(cid);
  if(kind==='paid'){
   if(!sub){if(!confirm('المتدرب مفيش عنده اشتراك نشط. تسجّل الجلسة بدون خصم؟'))return}
-  else if(sub.total-sub.used<=0){if(!confirm('⚠️ الرصيد صفر! تأكيد التسجيل والخصم بالسالب؟'))return;sub.used++;log('خصم بدون رصيد (تأكيد خاص)',client(cid).name)}
+  else if(sub.total-sub.used<=0){if(!confirm('<svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> الرصيد صفر! تأكيد التسجيل والخصم بالسالب؟'))return;sub.used++;log('خصم بدون رصيد (تأكيد خاص)',client(cid).name)}
   else{sub.used++;log('خصم جلسة',client(cid).name)}
  }
  db.sessions.push({id:uid(),clientId:cid,date:todayS(),time:nowT(),dur:+$('#q-dur').value||60,muscles:[...qMuscles],
   rpe:+$('#q-rpe').value||null,attended:1,deduct:kind==='paid'&&sub?1:0,kind,status:'done',notes:$('#q-notes').value.trim(),exercises:[]});
- closeModal();save('⚡ اتسجلت! المتبقي: '+remaining(cid));
+ closeModal();save('<svg class="ic" aria-hidden="true"><use href="#i-zap"/></svg> اتسجلت! المتبقي: '+remaining(cid));
 }
 
 /* ---------- Full session form (schedule / edit exercises) ---------- */
@@ -1351,7 +1643,7 @@ let exRows=[];
 function formSession(cid,editId){
  const s=editId?db.sessions.find(x=>x.id===editId):null;
  exRows=s?JSON.parse(JSON.stringify(s.exercises||[])):[];
- openModal(`<h3>${s?'✏️ تفاصيل الجلسة':'📅 جدولة جلسة'}</h3>
+ openModal(`<h3>${s?'<svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg> تفاصيل الجلسة':'<svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg> جدولة جلسة'}</h3>
  <div class="f-row"><label>المتدرب</label><select id="fs-c" ${s?'disabled':''}>${clientOptions(s?s.clientId:cid)}</select></div>
  <div class="f-3">
   <div class="f-row"><label>التاريخ</label><input id="fs-date" type="date" value="${s?s.date:todayS()}"></div>
@@ -1360,9 +1652,9 @@ function formSession(cid,editId){
  <div class="f-row"><label>العضلات</label><div class="chips" style="flex-wrap:wrap">${MUSCLES.map(m=>`<button class="chip ${s?.muscles?.includes(m)?'on':''}" data-m="${m}" onclick="this.classList.toggle('on')">${m}</button>`).join('')}</div></div>
  <div class="f-2"><div class="f-row"><label>RPE / الشدة</label><input id="fs-rpe" type="number" min="1" max="10" inputmode="numeric" value="${s?.rpe||''}"></div>
  <div class="f-row"><label>النوع</label><select id="fs-kind">${Object.entries(S_KIND).map(([k,v])=>`<option value="${k}" ${s?.kind===k?'selected':''}>${v}</option>`).join('')}</select></div></div>
- <div class="f-row"><label>💪 التمارين (Workout Log)</label><div id="ex-list"></div>
+ <div class="f-row"><label><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg> التمارين (Workout Log)</label><div id="ex-list"></div>
  <datalist id="ex-datalist">${EXERCISES.map(e=>`<option value="${esc(e.ar)}">`).join('')}</datalist>
- <button class="btn btn-s btn-sm" onclick="exRows.push({name:'',sets:'',reps:'',weight:'',pr:0,exId:null});drawEx()">➕ تمرين</button></div>
+ <button class="btn btn-s btn-sm" onclick="exRows.push({name:'',sets:'',reps:'',weight:'',pr:0,exId:null});drawEx()"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg> تمرين</button></div>
  <div class="f-row"><label>ملاحظات المدرب / تحذير ألم أو إصابة</label><textarea id="fs-notes" rows="2">${esc(s?.notes||'')}</textarea></div>
  <button class="btn btn-p btn-block" onclick="saveFull('${editId||''}')">✓ حفظ</button>`);
  drawEx();
@@ -1373,8 +1665,8 @@ function drawEx(){
   <input placeholder="Sets" inputmode="numeric" value="${esc(e.sets)}" oninput="exRows[${i}].sets=this.value">
   <input placeholder="Reps" inputmode="numeric" value="${esc(e.reps)}" oninput="exRows[${i}].reps=this.value">
   <input placeholder="kg" inputmode="decimal" value="${esc(e.weight)}" oninput="exRows[${i}].weight=this.value">
-  <div class="row" style="gap:2px"><button title="PR" class="btn-ghost" style="font-size:15px" onclick="exRows[${i}].pr=exRows[${i}].pr?0:1;drawEx()">${+e.pr?'🏆':'▫️'}</button>
-  <button class="del-x" onclick="exRows.splice(${i},1);drawEx()">✕</button></div></div>`).join('')||'<div class="tiny" style="padding:4px 0">مفيش تمارين متسجلة</div>';
+  <div class="row" style="gap:2px"><button title="PR" class="btn-ghost" style="font-size:15px" onclick="exRows[${i}].pr=exRows[${i}].pr?0:1;drawEx()">${+e.pr?'<svg class="ic" aria-hidden="true"><use href="#i-award"/></svg>':''}</button>
+  <button class="del-x" onclick="exRows.splice(${i},1);drawEx()"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div></div>`).join('')||'<div class="tiny" style="padding:4px 0">مفيش تمارين متسجلة</div>';
 }
 function saveFull(editId){
  const muscles=[...document.querySelectorAll('#modal [data-m].on')].map(b=>b.dataset.m);
@@ -1382,12 +1674,12 @@ function saveFull(editId){
  if(editId){
   const s=db.sessions.find(x=>x.id===editId);
   Object.assign(s,{date:$('#fs-date').value,time:$('#fs-time').value,dur:+$('#fs-dur').value||60,muscles,rpe:+$('#fs-rpe').value||null,kind:$('#fs-kind').value,notes:$('#fs-notes').value.trim(),exercises});
-  if(exercises.some(e=>+e.pr))log('PR جديد 🏆',client(s.clientId).name);
+  if(exercises.some(e=>+e.pr))log('PR جديد <svg class="ic" aria-hidden="true"><use href="#i-award"/></svg>',client(s.clientId).name);
   closeModal();save('✓ اتحدثت');return;
  }
  const cid=$('#fs-c').value,date=$('#fs-date').value,time=$('#fs-time').value;
  // Conflict check: same date+time already scheduled
- if(db.sessions.some(x=>x.date===date&&x.time===time&&x.status==='scheduled')&&!confirm('⚠️ في جلسة تانية متجدولة في نفس الميعاد! متأكد؟'))return;
+ if(db.sessions.some(x=>x.date===date&&x.time===time&&x.status==='scheduled')&&!confirm('<svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> في جلسة تانية متجدولة في نفس الميعاد! متأكد؟'))return;
  db.sessions.push({id:uid(),clientId:cid,date,time,dur:+$('#fs-dur').value||60,muscles,rpe:+$('#fs-rpe').value||null,
   attended:0,deduct:0,kind:$('#fs-kind').value,status:date<=todayS()&&confirm('الجلسة تمّت بالفعل؟ (إلغاء = مجدولة)')?'done':'scheduled',notes:$('#fs-notes').value.trim(),exercises});
  const ns=db.sessions.at(-1);
@@ -1402,7 +1694,7 @@ function vCalendar(){
  const base=D(calBase);const start=new Date(base);start.setDate(base.getDate()-base.getDay());// week starts Sunday
  const days=[...Array(7)].map((_,i)=>{const d=new Date(start);d.setDate(start.getDate()+i);return d.toISOString().slice(0,10)});
  const t=todayS();
- $('#main').innerHTML=header('التقويم',null,`<button class="icon-btn" onclick="formSession()" aria-label="جدولة">➕</button>`)+`
+ $('#main').innerHTML=header('التقويم',null,`<button class="icon-btn" onclick="formSession()" aria-label="جدولة"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></button>`)+`
  <div class="cal-head">
   <button class="icon-btn" onclick="calShift(7)">‹</button>
   <h3>${fD(days[0])} — ${fD(days[6])}</h3>
@@ -1423,7 +1715,7 @@ function calShift(n){calBase=new Date(D(calBase).getTime()-n*864e5).toISOString(
 function calDay(d){
  const ss=db.sessions.filter(s=>s.date===d).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
  $('#cal-detail').innerHTML=`<div class="sec-h"><h2>${fDT(d)}</h2>
-  <button class="more" style="background:none" onclick="formSessionAt('${d}')">➕ جدولة هنا</button></div>
+  <button class="more" style="background:none" onclick="formSessionAt('${d}')"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg> جدولة هنا</button></div>
  <div class="list">${ss.map(s=>sessionCard(s,true)).join('')||'<div class="empty" style="padding:22px"><p>مفيش جلسات في اليوم ده</p></div>'}</div>`;
 }
 function formSessionAt(d){formSession();setTimeout(()=>{$('#fs-date').value=d},50)}
@@ -1443,18 +1735,18 @@ function vMoney(){
   <div class="kpi"><div class="v num" style="font-size:20px;color:${out.length?'var(--orange)':'var(--tx)'}">${fM(out.reduce((a,x)=>a+x.b,0))}</div><div class="l">متأخرات (${out.length} متدرب)</div></div>
  </div>
  <div class="row mt" style="gap:8px">
-  <button class="btn btn-p grow" onclick="formPayment()">💵 تسجيل دفعة</button>
-  <button class="btn btn-s grow" onclick="formPackage()">📦 باقة جديدة</button></div>
+  <button class="btn btn-p grow" onclick="formPayment()"><svg class="ic" aria-hidden="true"><use href="#i-banknote"/></svg> تسجيل دفعة</button>
+  <button class="btn btn-s grow" onclick="formPackage()"><svg class="ic" aria-hidden="true"><use href="#i-package"/></svg> باقة جديدة</button></div>
  <div class="chart-box mt"><canvas id="ch-rev"></canvas></div>
- ${out.length?`<div class="sec-h"><h2>💸 متأخرات الدفع</h2></div>
+ ${out.length?`<div class="sec-h"><h2><svg class="ic" aria-hidden="true"><use href="#i-banknote"/></svg> متأخرات الدفع</h2></div>
  <div class="list">${out.map(x=>`<a class="li row" style="text-decoration:none;color:inherit" href="#/client/${x.c.id}/sub">
   <div class="grow t">${esc(x.c.name)}</div><b class="num" style="color:var(--orange)">${fM(x.b)}</b></a>`).join('')}</div>`:''}
- <div class="sec-h"><h2>📦 الباقات</h2></div>
+ <div class="sec-h"><h2><svg class="ic" aria-hidden="true"><use href="#i-package"/></svg> الباقات</h2></div>
  <div class="list">${db.packages.map(p=>`<div class="li row"><div class="grow"><div class="t">${esc(p.name)} ${p.active?'':'<span class="tag dim">موقوفة</span>'}</div>
   <div class="d num">${p.sessions} جلسة · ${fM(p.price)} · صلاحية ${p.days} يوم</div></div>
-  <button class="btn btn-s btn-sm" onclick="formPackage('${p.id}')">✏️</button>
+  <button class="btn btn-s btn-sm" onclick="formPackage('${p.id}')"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg></button>
   <button class="btn btn-ghost btn-sm" onclick="togglePkg('${p.id}')">${p.active?'إيقاف':'تفعيل'}</button></div>`).join('')}</div>
- <div class="sec-h"><h2>🧾 سجل المدفوعات</h2></div>
+ <div class="sec-h"><h2><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg> سجل المدفوعات</h2></div>
  <div class="list">${pays.slice(0,30).map(p=>`<div class="li row"><div class="grow"><div class="t">${esc(client(p.clientId)?.name||'?')}</div>
   <div class="d">${fD(p.date)} · ${esc(p.method)} ${p.notes?'· '+esc(p.notes):''}</div></div>
   <b class="num" style="color:var(--lime)">${fM(p.amount)}</b></div>`).join('')||'<div class="tiny">لا يوجد</div>'}</div>`;
@@ -1462,7 +1754,7 @@ function vMoney(){
 }
 function formPackage(id){
  const p=id?db.packages.find(x=>x.id===id):{};
- openModal(`<h3>📦 ${id?'تعديل باقة':'باقة جديدة'}</h3>
+ openModal(`<h3><svg class="ic" aria-hidden="true"><use href="#i-package"/></svg> ${id?'تعديل باقة':'باقة جديدة'}</h3>
  <div class="f-row"><label>اسم الباقة *</label><input id="p-name" value="${esc(p.name||'')}" placeholder="مثال: 12 جلسة"></div>
  <div class="f-3"><div class="f-row"><label>عدد الجلسات</label><input id="p-n" type="number" inputmode="numeric" value="${p.sessions||''}"></div>
  <div class="f-row"><label>السعر</label><input id="p-price" type="number" inputmode="numeric" value="${p.price||''}"></div>
@@ -1471,14 +1763,14 @@ function formPackage(id){
 }
 function savePkg(id){
  const name=$('#p-name').value.trim(),n=+$('#p-n').value,price=+$('#p-price').value||0,days=+$('#p-days').value||30;
- if(!name||!n){toast('⚠️ الاسم وعدد الجلسات مطلوبين');return}
+ if(!name||!n){toast('<svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> الاسم وعدد الجلسات مطلوبين');return}
  if(id)Object.assign(db.packages.find(x=>x.id===id),{name,sessions:n,price,days});
  else db.packages.push({id:uid(),name,sessions:n,price,days,active:1});
  log('باقة',name);closeModal();save('✓ اتحفظت');
 }
 function togglePkg(id){const p=db.packages.find(x=>x.id===id);p.active=p.active?0:1;save(p.active?'اتفعّلت':'اتوقفت')}
 function formPayment(cid){
- openModal(`<h3>💵 تسجيل دفعة</h3>
+ openModal(`<h3><svg class="ic" aria-hidden="true"><use href="#i-banknote"/></svg> تسجيل دفعة</h3>
  <div class="f-row"><label>المتدرب</label><select id="pay-c" onchange="payHint()">${clientOptions(cid)}</select></div>
  <div id="pay-hint"></div>
  <div class="f-2"><div class="f-row"><label>المبلغ *</label><input id="pay-a" type="number" inputmode="numeric"></div>
@@ -1488,9 +1780,9 @@ function formPayment(cid){
  <button class="btn btn-p btn-block" onclick="savePayment()">✓ تسجيل</button>`);
  payHint();
 }
-function payHint(){const b=balance($('#pay-c').value);$('#pay-hint').innerHTML=b>0?`<div class="pin-note" style="margin-bottom:12px">💸 متبقي عليه <b>${fM(b)}</b></div>`:''}
+function payHint(){const b=balance($('#pay-c').value);$('#pay-hint').innerHTML=b>0?`<div class="pin-note" style="margin-bottom:12px"><svg class="ic" aria-hidden="true"><use href="#i-banknote"/></svg> متبقي عليه <b>${fM(b)}</b></div>`:''}
 function savePayment(){
- const a=+$('#pay-a').value;if(!a){toast('⚠️ المبلغ مطلوب');return}
+ const a=+$('#pay-a').value;if(!a){toast('<svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> المبلغ مطلوب');return}
  const cid=$('#pay-c').value;
  db.payments.push({id:uid(),clientId:cid,amount:a,date:$('#pay-d').value,method:$('#pay-m').value,notes:$('#pay-n').value.trim()});
  const s=activeSub(cid);if(s)s.paid=(s.paid||0)+a;
@@ -1521,15 +1813,15 @@ function vReports(){
   <div class="kpi"><div class="v num" style="color:var(--orange)">${missed30}</div><div class="l">غياب آخر ٣٠ يوم</div></div>
  </div>
  <div class="chart-box mt"><canvas id="ch-att"></canvas></div>
- <div class="sec-h"><h2>🏆 الالتزام (آخر ٣٠ يوم)</h2></div>
+ <div class="sec-h"><h2><svg class="ic" aria-hidden="true"><use href="#i-award"/></svg> الالتزام (آخر ٣٠ يوم)</h2></div>
  <div class="card" style="padding:8px 14px"><table class="tbl"><tr><th>المتدرب</th><th>جلسات</th><th>معدل أسبوعي</th></tr>
   ${ranked.map(x=>`<tr><td>${esc(x.c.name)}</td><td class="num">${x.n}</td><td class="num">${(x.n/4.3).toFixed(1)}</td></tr>`).join('')||'<tr><td colspan="3" class="tiny">لا يوجد</td></tr>'}</table></div>
- <div class="sec-h"><h2>📤 تصدير CSV</h2></div>
+ <div class="sec-h"><h2>تصدير CSV</h2></div>
  <div class="row" style="gap:8px;flex-wrap:wrap">
-  <button class="chip" onclick="csv('clients')">🧑‍🤝‍🧑 المتدربين</button>
-  <button class="chip" onclick="csv('sessions')">🏋️ الجلسات</button>
-  <button class="chip" onclick="csv('payments')">💵 المدفوعات</button>
-  <button class="chip" onclick="csv('meas')">⚖️ القياسات</button>
+  <button class="chip" onclick="csv('clients')"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg> المتدربين</button>
+  <button class="chip" onclick="csv('sessions')"><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg> الجلسات</button>
+  <button class="chip" onclick="csv('payments')"><svg class="ic" aria-hidden="true"><use href="#i-banknote"/></svg> المدفوعات</button>
+  <button class="chip" onclick="csv('meas')"><svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg> القياسات</button>
  </div>`;
  drawBar('ch-att','الجلسات المكتملة أسبوعيًا',wkLabels,wkData,'#C9A227');
 }
@@ -1554,7 +1846,7 @@ function vAlerts(){
  $('#main').innerHTML=header('التنبيهات',`${A.length} تنبيه`)+`
  <div class="list mt">${A.map(a=>`<a class="li row" style="text-decoration:none;color:inherit" href="#/client/${a.cid}">
   <span style="font-size:21px">${a.icon}</span><div class="grow" style="font-weight:600;font-size:13.5px">${a.t}</div><span class="tag ${a.cls}">›</span></a>`).join('')
- ||'<div class="empty"><div class="big">✅</div><p>كله تمام! مفيش حاجة محتاجة انتباهك دلوقتي</p></div>'}</div>`;
+ ||'<div class="empty"><div class="big"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg></div><p>كله تمام! مفيش حاجة محتاجة انتباهك دلوقتي</p></div>'}</div>`;
 }
 
 /* ============ MUSCLE ATLAS ============ */
@@ -1571,7 +1863,7 @@ function vAtlas(sel){
    <p class="tiny">دوس على أي عضلة في الرسم</p>
   </div>
   <div class="atlas-backdrop ${sel?'open':''}" onclick="location.hash='#/atlas'"></div>
-  <div id="atlas-detail" class="atlas-detail ${sel?'open':''}">${sel?muscleDetailPanel(sel):'<div class="empty"><div class="big">🧬</div><p>اختار عضلة من الرسم عشان تشوف تفاصيلها وتمارينها</p></div>'}</div>
+  <div id="atlas-detail" class="atlas-detail ${sel?'open':''}">${sel?muscleDetailPanel(sel):'<div class="empty"><div class="big"><svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg></div><p>اختار عضلة من الرسم عشان تشوف تفاصيلها وتمارينها</p></div>'}</div>
  </div>`;
 }
 function pickMuscle(id){atlasTab='overview';location.hash='#/atlas/'+id}
@@ -1596,18 +1888,18 @@ function muscleDetailPanel(id){
    <div class="kpi"><div class="l">وقت التعافي</div><div class="v" style="font-size:15px">${m.recovery} ساعة</div></div>
    <div class="kpi"><div class="l">المفاصل المعنية</div><div class="v" style="font-size:13px">${(m.joints&&m.joints.length)?m.joints.join('، '):'—'}</div></div>
   </div>
-  <div class="sec-h"><h2>🧘 الإطالة الموصى بها</h2></div>
+  <div class="sec-h"><h2>الإطالة الموصى بها</h2></div>
   <div class="card">${esc(m.stretch)}</div>
-  <div class="sec-h"><h2>⚠️ إصابات شائعة</h2></div>
+  <div class="sec-h"><h2><svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> إصابات شائعة</h2></div>
   <div class="list">${m.injuries.map(i=>`<div class="li"><div class="t" style="font-size:13px">${esc(i)}</div></div>`).join('')}</div>`;
  }else if(atlasTab==='tips'){
-  body=`<div class="list mt">${(m.tips||[]).map(t=>`<div class="li row"><span style="font-size:16px">💡</span><div class="grow" style="font-size:13.5px">${esc(t)}</div></div>`).join('')||'<div class="tiny">لا يوجد</div>'}</div>`;
+  body=`<div class="list mt">${(m.tips||[]).map(t=>`<div class="li row"><span style="font-size:16px"></span><div class="grow" style="font-size:13.5px">${esc(t)}</div></div>`).join('')||'<div class="tiny">لا يوجد</div>'}</div>`;
  }else{
   const byEquip={};
   allEx.forEach(e=>{(byEquip[e.equip]=byEquip[e.equip]||[]).push(e)});
   const equipHtml=Object.entries(byEquip).map(([eq,exs])=>`
    <div class="li">
-    <div class="t" style="margin-bottom:7px">🛠️ ${esc(eq)}</div>
+    <div class="t" style="margin-bottom:7px"><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg> ${esc(eq)}</div>
     <div class="row" style="gap:6px;flex-wrap:wrap">${exs.map(e=>`<span class="tag ${e.type==='compound'?'vio':'info'}">${esc(e.ar)}</span>`).join('')}</div>
    </div>`).join('')||'<div class="tiny">لا يوجد</div>';
   body=`<p class="muted mt">${esc(m.fn)}</p>
@@ -1615,7 +1907,7 @@ function muscleDetailPanel(id){
    <div class="kpi"><div class="l">عدد التمارين</div><div class="v">${allEx.length}</div></div>
    <div class="kpi"><div class="l">وقت التعافي</div><div class="v" style="font-size:15px">${m.recovery} ساعة</div></div>
   </div>
-  <div class="sec-h"><h2>🛠️ التدريب حسب الجهاز</h2></div>
+  <div class="sec-h"><h2><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg> التدريب حسب الجهاز</h2></div>
   <div class="list">${equipHtml}</div>`;
  }
  return `<div class="atlas-sheet-handle"></div>
@@ -1624,7 +1916,7 @@ function muscleDetailPanel(id){
     <h2 style="font-size:19px">${esc(m.ar)}</h2>
     <div class="tiny" style="color:var(--lime);font-weight:700">${esc(m.nameEn||'')}</div>
    </div>
-   <button class="icon-btn" onclick="location.hash='#/atlas'" aria-label="إغلاق">✕</button>
+   <button class="icon-btn" onclick="location.hash='#/atlas'" aria-label="إغلاق"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
   </div>
   ${tabBar}
   ${body}`;
@@ -1634,12 +1926,13 @@ function muscleDetailPanel(id){
 function vMore(){
  $('#main').innerHTML=header('المزيد')+`
  <div class="list mt">
-  <a class="li row" href="#/money" style="text-decoration:none;color:inherit"><span style="font-size:20px">💰</span><div class="grow t">الفلوس والباقات</div>›</a>
-  <a class="li row" href="#/reports" style="text-decoration:none;color:inherit"><span style="font-size:20px">📈</span><div class="grow t">التقارير والتحليلات</div>›</a>
-  <a class="li row" href="#/atlas" style="text-decoration:none;color:inherit"><span style="font-size:20px">🧬</span><div class="grow t">موسوعة العضلات والتمارين</div>›</a>
-  <a class="li row" href="#/alerts" style="text-decoration:none;color:inherit"><span style="font-size:20px">🔔</span><div class="grow t">التنبيهات</div>›</a>
-  <a class="li row" href="#/audit" style="text-decoration:none;color:inherit"><span style="font-size:20px">🧾</span><div class="grow t">سجل العمليات (Audit)</div>›</a>
-  <a class="li row" href="#/settings" style="text-decoration:none;color:inherit"><span style="font-size:20px">⚙️</span><div class="grow t">الإعدادات والنسخ الاحتياطي</div>›</a>
+  <a class="li row" href="#/money" style="text-decoration:none;color:inherit"><span style="font-size:20px"><svg class="ic" aria-hidden="true"><use href="#i-banknote"/></svg></span><div class="grow t">الفلوس والباقات</div>›</a>
+  <a class="li row" href="#/reports" style="text-decoration:none;color:inherit"><span style="font-size:20px"><svg class="ic" aria-hidden="true"><use href="#i-trending-up"/></svg></span><div class="grow t">التقارير والتحليلات</div>›</a>
+  <a class="li row" href="#/atlas" style="text-decoration:none;color:inherit"><span style="font-size:20px"><svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg></span><div class="grow t">موسوعة العضلات والتمارين</div>›</a>
+  <a class="li row" href="#/fitness" style="text-decoration:none;color:inherit"><span style="font-size:20px"><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg></span><div class="grow t">التمارين والبرامج (Fitness)</div>›</a>
+  <a class="li row" href="#/alerts" style="text-decoration:none;color:inherit"><span style="font-size:20px"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg></span><div class="grow t">التنبيهات</div>›</a>
+  <a class="li row" href="#/audit" style="text-decoration:none;color:inherit"><span style="font-size:20px"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg></span><div class="grow t">سجل العمليات (Audit)</div>›</a>
+  <a class="li row" href="#/settings" style="text-decoration:none;color:inherit"><span style="font-size:20px"><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg></span><div class="grow t">الإعدادات والنسخ الاحتياطي</div>›</a>
  </div>`;
 }
 function vAudit(){
@@ -1654,31 +1947,31 @@ function vSettings(){
   <div class="f-row"><label>اسم الكابتن</label><input id="set-name" value="${esc(db.settings.coachName)}"></div>
   <div class="f-row"><label>العملة</label><select id="set-cur">${['ج.م','ر.س','د.إ','€','$'].map(c=>`<option ${db.settings.currency===c?'selected':''}>${c}</option>`).join('')}</select></div>
   <div class="f-row"><label>المظهر</label><select id="set-theme"><option value="dark" ${db.settings.theme!=='light'?'selected':''}>داكن (Dark)</option><option value="light" ${db.settings.theme==='light'?'selected':''}>فاتح (Light)</option></select></div>
-  <button class="btn btn-p btn-block" onclick="saveSettings()">💾 حفظ</button></div>
- <div class="sec-h"><h2>☁️ المزامنة السحابية</h2></div>
+  <button class="btn btn-p btn-block" onclick="saveSettings()"><svg class="ic" aria-hidden="true"><use href="#i-save"/></svg> حفظ</button></div>
+ <div class="sec-h"><h2><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg> المزامنة السحابية</h2></div>
  <div class="card">
   ${SYNC_ENABLED?`
   <div class="row"><div class="grow">
-   <div class="t" style="font-weight:700">${appPassword?'متصل ✅':'مش مسجّل دخول'}</div>
-   <div class="tiny">${outbox.length?`⏳ ${outbox.length} تحديث لسه مبعتش`:'✅ كل حاجة متزامنة'}${lastSync?' · آخر مزامنة '+fDT(lastSync.slice(0,10)):''}</div>
+   <div class="t" style="font-weight:700">${appPassword?'متصل <svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg>':'مش مسجّل دخول'}</div>
+   <div class="tiny">${outbox.length?`<svg class="ic" aria-hidden="true"><use href="#i-hourglass"/></svg> ${outbox.length} تحديث لسه مبعتش`:'<svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg> كل حاجة متزامنة'}${lastSync?' · آخر مزامنة '+fDT(lastSync.slice(0,10)):''}</div>
   </div></div>
   <div class="row mt" style="gap:8px">
-   <button class="btn btn-s grow" onclick="flushQueue();pullChanges();toast('🔄 جاري التزامن')">🔄 مزامنة دلوقتي</button>
-   ${appPassword?`<button class="btn btn-danger grow" onclick="logout()">🚪 خروج</button>`:''}
+   <button class="btn btn-s grow" onclick="flushQueue();pullChanges();toast('<svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg> جاري التزامن')"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg> مزامنة دلوقتي</button>
+   ${appPassword?`<button class="btn btn-danger grow" onclick="logout()"><svg class="ic" aria-hidden="true"><use href="#i-log-out"/></svg> خروج</button>`:''}
   </div>`:`<p class="muted">مفيش ربط بالشيت لسه — محتاج تحط رابط الـ Apps Script جوه الكود (SHEET_API_URL).</p>`}
  </div>
- <div class="sec-h"><h2>🗄️ النسخ الاحتياطي</h2></div>
+ <div class="sec-h"><h2><svg class="ic" aria-hidden="true"><use href="#i-archive"/></svg> النسخ الاحتياطي</h2></div>
  <div class="card">
   <p class="muted" style="margin-bottom:12px">${SYNC_ENABLED?'بياناتك بتتزامن مع الشيت السحابي تلقائيًا، لكن برضه اعمل نسخة احتياطية بانتظام.':'بياناتك متخزنة على الجهاز ده بس. اعمل نسخة احتياطية بانتظام — خصوصًا قبل مسح بيانات المتصفح.'}</p>
   <div class="row" style="gap:8px">
-   <button class="btn btn-s grow" onclick="backup()">⬇️ تصدير نسخة</button>
-   <button class="btn btn-s grow" onclick="document.getElementById('imp').click()">⬆️ استيراد نسخة</button>
+   <button class="btn btn-s grow" onclick="backup()"><svg class="ic" aria-hidden="true"><use href="#i-chevron-down"/></svg> تصدير نسخة</button>
+   <button class="btn btn-s grow" onclick="document.getElementById('imp').click()"><svg class="ic" aria-hidden="true"><use href="#i-chevron-up"/></svg> استيراد نسخة</button>
    <input type="file" id="imp" accept=".json" style="display:none" onchange="restore(this)">
   </div></div>
- <div class="sec-h"><h2>⚠️ منطقة الخطر</h2></div>
+ <div class="sec-h"><h2><svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> منطقة الخطر</h2></div>
  <div class="card">
-  <button class="btn btn-s btn-block" onclick="if(confirm('تحميل البيانات التجريبية هيمسح بياناتك الحالية! متأكد؟')){db=seedDemo();persist();route();toast('✓ اتحملت')}">🎬 تحميل بيانات تجريبية</button>
-  <button class="btn btn-danger btn-block mt" onclick="wipe()">🗑️ مسح كل البيانات</button></div>
+  <button class="btn btn-s btn-block" onclick="if(confirm('تحميل البيانات التجريبية هيمسح بياناتك الحالية! متأكد؟')){db=seedDemo();persist();route();toast('✓ اتحملت')}"><svg class="ic" aria-hidden="true"><use href="#i-play-circle"/></svg> تحميل بيانات تجريبية</button>
+  <button class="btn btn-danger btn-block mt" onclick="wipe()"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg> مسح كل البيانات</button></div>
  <p class="tiny mt2" style="text-align:center">Coach OS v1.0 · يعمل Offline · PWA</p>`;
 }
 function saveSettings(){
@@ -1694,7 +1987,7 @@ function restore(inp){
  const r=new FileReader();
  r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.settings||!Array.isArray(d.clients))throw 0;
   db=d;log('استيراد نسخة احتياطية','');persist();diffAndEnqueue();flushQueue();route();toast('✓ اتسترجعت البيانات')}
-  catch(e){toast('⚠️ الملف مش نسخة صحيحة')}};
+  catch(e){toast('<svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> الملف مش نسخة صحيحة')}};
  r.readAsText(f);
 }
 function wipe(){
@@ -1811,6 +2104,630 @@ async function afterFirstLogin(){
  if(outbox.length===0)localStorage.setItem(BACKFILL_KEY,'1');
  dbSnapshot=snapshotDb();
 }
+/* ============================================================
+   FITNESS SECTION — Exercises / Programs / Stats
+   Self-contained UI layer. Reads only from the built-in atlas
+   reference data (EXERCISES); never writes to `db`, the outbox,
+   or localStorage, so sync + the coach screens are untouched.
+   ============================================================ */
+
+/* ---------- Data ---------- */
+const EX_IMG_BASE='public/assets/exercises/';
+/* Highlight ids below are BODY_SHAPES `m` keys, so the mini figures
+   stay in sync with the anatomical atlas without duplicating paths. */
+const FITNESS_MUSCLE_GROUPS=[
+ {key:'cardio',   name:'Cardio',    count:292,  color:'#ef4444', cardio:true},
+ {key:'chest',    name:'Chest',     count:1416, color:'#ef4444', view:'front', hi:['chest']},
+ {key:'back',     name:'Back',      count:2713, color:'#3b82f6', view:'back',  hi:['lats','traps','lowerback']},
+ {key:'shoulders',name:'Shoulders', count:2673, color:'#8b5cf6', view:'front', hi:['shoulders']},
+ {key:'biceps',   name:'Biceps',    count:1503, color:'#f97316', view:'front', hi:['biceps']},
+ {key:'triceps',  name:'Triceps',   count:1387, color:'#f59e0b', view:'back',  hi:['triceps']},
+ {key:'abs',      name:'Abs',       count:1189, color:'#10b981', view:'front', hi:['abs','obliques']},
+ {key:'legs',     name:'Legs',      count:2841, color:'#06b6d4', view:'front', hi:['quads','calves']}
+];
+const GROUP_ATLAS_IDS={chest:['chest'],back:['lats','traps','lowerback'],shoulders:['shoulders'],
+ biceps:['biceps'],triceps:['triceps'],abs:['abs','obliques'],legs:['quads','hamstrings','glutes','calves'],cardio:[]};
+
+/* Chest is authored explicitly so its slugs match the shipped image filenames. */
+const CHEST_EXERCISES=[
+ {slug:'bench-press',         name:'Bench Press',         equip:'Barbell',    diff:2},
+ {slug:'lever-seated-fly',    name:'Lever Seated Fly',    equip:'Machine',    diff:2},
+ {slug:'incline-bench-press', name:'Incline Bench Press', equip:'Dumbbell',   diff:2},
+ {slug:'dumbbell-fly',        name:'Dumbbell Fly',        equip:'Dumbbell',   diff:2},
+ {slug:'cable-fly',           name:'Cable Fly',           equip:'Cable',      diff:1},
+ {slug:'push-up',             name:'Push-up',             equip:'Bodyweight', diff:1},
+ {slug:'dips',                name:'Dips',                equip:'Bodyweight', diff:3},
+ {slug:'pec-deck',            name:'Pec Deck',            equip:'Machine',    diff:1},
+ {slug:'chest-press-machine', name:'Chest Press Machine', equip:'Machine',    diff:1}
+];
+
+const PROGRAM_SECTIONS=[
+ {title:'Popular Programs',cards:[
+  {id:'full-body',   title:'Full Body Workout',    tag:'Full Body',  rating:4.4,dl:'151.3K',g:['#7c2d12','#1c1917'],art:'body'},
+  {id:'bb-4day',     title:'4-Day Bodybuilding',   tag:'Build Muscle',rating:4.4,dl:'130.8K',g:['#7f1d1d','#171717'],art:'bars'}]},
+ {title:'Recommended For You',cards:[
+  {id:'upper-lower', title:'4-Day Upper/Lower',    tag:'4 Day Split',rating:4.4,dl:'67K',   g:['#1e3a5f','#0f172a'],art:'bars'},
+  {id:'ppl-4day',    title:'Build Muscle in 4 Days',tag:'Push · Pull',rating:4.9,dl:'14.1K',g:['#78350f','#1c1917'],art:'body'}]},
+ {title:'Trending Programs',cards:[
+  {id:'ppl-arnold',  title:'PPL x Arnold',         tag:'6 Day Split',rating:4.5,dl:'18.2K',g:['#3f3f46','#18181b'],art:'rings'},
+  {id:'back-attack', title:'Back Attack',          tag:'Back Focus', rating:5.0,dl:'537',   g:['#365314','#14532d'],art:'bars'}]}
+];
+
+/* Body metrics mirror the Stats reference. BMR/maintenance are derived,
+   not hardcoded, so editing the metrics keeps the numbers honest. */
+const STATS_MOCK={weight:58,height:186,age:33,gender:'Male',burnedToday:11,workoutKcal:0,activity:1.55};
+/* Keep BMR unrounded internally: rounding before the activity multiply
+   drifts maintenance by a kcal (1583*1.55 = 2454, but 1582.5*1.55 = 2453). */
+const fitBmrRaw=m=>10*m.weight+6.25*m.height-5*m.age+(m.gender==='Male'?5:-161);
+const fitBmr=m=>Math.round(fitBmrRaw(m));
+const fitMaintenance=m=>Math.round(fitBmrRaw(m)*m.activity);
+
+const EQUIP_EN=[['باربل','Barbell'],['دمبل','Dumbbell'],['كابل','Cable'],['مكينة','Machine'],
+ ['وزن الجسم','Bodyweight'],['بار عقلة','Bodyweight'],['بار متوازي','Bodyweight'],['عجلة','Bodyweight'],
+ ['بنش خاص','Machine'],['كيتلبل','Dumbbell']];
+const equipEn=eq=>{for(const [ar,en] of EQUIP_EN){if(eq.includes(ar))return en}return 'Other'};
+const DIFF_OF={'مبتدئ':1,'متوسط':2,'متقدم':3};
+
+/* Chest uses the authored list; every other group is derived from the
+   existing EXERCISES atlas so all 8 cards open to real content. */
+function exercisesForGroup(key){
+ if(key==='chest')return CHEST_EXERCISES;
+ const ids=GROUP_ATLAS_IDS[key]||[];
+ if(!ids.length)return [];
+ return EXERCISES.filter(e=>e.primary.some(p=>ids.includes(p)))
+  .map(e=>({slug:e.id,name:e.ar,equip:equipEn(e.equip),diff:DIFF_OF[e.level]||2}));
+}
+
+/* ---------- Runtime state (in-memory only) ---------- */
+let fitWorkout={active:true,startedAt:Date.now(),collapsed:false};
+let fitTimerId=null, fitSaved=new Set(), fitChestTab='exercises';
+
+/* ---------- Small view helpers ---------- */
+const fitIc=(n,cls='')=>`<svg class="ic ${cls}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+const groupOf=k=>FITNESS_MUSCLE_GROUPS.find(g=>g.key===k);
+
+/* ---------- Muscle-group figures ----------
+   Purpose-built flat anatomy icons for the group cards: a light mannequin on
+   the dark glass card with only the target muscle in orange-red. Nothing here
+   reuses the atlas silhouette (BODY_SHAPES / bodyMapSvg) — that one carries
+   click handlers and <defs> gradient ids that would collide across the eight
+   copies on this screen, and it reads far too heavy at 104px tall.
+
+   Each figure draws one half of the body and mirrors it about x=90, so the
+   mannequin is symmetric by construction rather than by hand-matched paths. */
+const MG_BODY='#eef1f4';                 // light mannequin
+const MG_HL='#e8452c';                   // target muscle — same on every card,
+const MG_SEAM='rgba(15,23,42,.20)';      // matching the reference screens
+const mgF=(m,hi)=>hi.includes(m)?MG_HL:MG_BODY;
+const mgMirror=h=>`${h}<g transform="translate(180,0) scale(-1,1)">${h}</g>`;
+
+/* Shared head / neck / torso / hips shell, identical front and back. */
+const MG_SHELL=`
+ <circle cx="90" cy="27" r="18" fill="${MG_BODY}"/>
+ <rect x="81" y="41" width="18" height="18" rx="6" fill="${MG_BODY}"/>
+ <path d="M58,70 C58,63 64,58 72,57 L108,57 C116,58 122,63 122,70
+   C122,88 120,106 116,124 C113,138 112,152 114,168
+   C115,175 110,179 102,179 L78,179 C70,179 65,175 66,168
+   C68,152 67,138 64,124 C60,106 58,88 58,70 Z" fill="${MG_BODY}"/>
+ <rect x="66" y="164" width="48" height="32" rx="15" fill="${MG_BODY}"/>`;
+
+/* Left limbs, shared geometry; only the muscle overlay differs per view. */
+/* Arms are carried a little away from the torso: it reads as a lifter's
+   stance, and it stops the biceps/triceps overlay from merging into the lats. */
+const mgArm=(muscleFill)=>`
+ <g transform="translate(46,90) rotate(13)">
+  <rect x="-9.5" y="-4" width="19" height="62" rx="9.5" fill="${MG_BODY}"/>
+  <ellipse cx="0" cy="22" rx="7.5" ry="15" fill="${muscleFill}"/>
+ </g>
+ <g transform="translate(33,150) rotate(9)">
+  <rect x="-8" y="0" width="16" height="52" rx="8" fill="${MG_BODY}"/>
+ </g>
+ <ellipse cx="25" cy="208" rx="8.5" ry="10.5" fill="${MG_BODY}"/>`;
+const mgLeg=(thighFill,hi)=>`
+ <g transform="translate(74,178) rotate(2)">
+  <rect x="-15" y="-4" width="30" height="84" rx="15" fill="${MG_BODY}"/>
+  <ellipse cx="0" cy="32" rx="12" ry="30" fill="${thighFill}"/>
+ </g>
+ <g transform="translate(71,258) rotate(-2)">
+  <rect x="-11" y="0" width="22" height="74" rx="11" fill="${MG_BODY}"/>
+  <ellipse cx="0" cy="22" rx="8.5" ry="19" fill="${mgF('calves',hi)}"/>
+ </g>
+ <ellipse cx="70" cy="338" rx="10.5" ry="7" fill="${MG_BODY}"/>`;
+
+function mgFront(hi){
+ const half=`
+  <ellipse cx="54" cy="76" rx="14" ry="16" fill="${mgF('shoulders',hi)}"/>
+  <ellipse cx="76" cy="85" rx="16" ry="12.5" fill="${mgF('chest',hi)}" transform="rotate(-8 76 85)"/>
+  <path d="M65,105 C61,117 61,134 65,149 C67,157 72,159 74,155 L74,107 C72,103 67,101 65,105 Z" fill="${mgF('obliques',hi)}"/>
+  ${mgArm(mgF('biceps',hi))}
+  ${mgLeg(mgF('quads',hi),hi)}`;
+ return `${MG_SHELL}${mgMirror(half)}
+  <rect x="79" y="99" width="22" height="58" rx="8" fill="${mgF('abs',hi)}"/>
+  <g stroke="${MG_SEAM}" stroke-width="1.2" stroke-linecap="round">
+   <path d="M90,102 V154 M80,118 H100 M80,136 H100"/>
+  </g>`;
+}
+function mgBack(hi){
+ const half=`
+  <ellipse cx="54" cy="76" rx="14" ry="16" fill="${mgF('shoulders',hi)}"/>
+  <path d="M67,93 C59,105 56,124 60,145 C63,157 70,162 78,158 C80,137 79,113 77,96 C74,90 70,89 67,93 Z" fill="${mgF('lats',hi)}"/>
+  ${mgArm(mgF('triceps',hi))}
+  <ellipse cx="78" cy="184" rx="15" ry="14" fill="${mgF('glutes',hi)}"/>
+  ${mgLeg(mgF('hamstrings',hi),hi)}`;
+ return `${MG_SHELL}
+  <path d="M90,50 C76,52 66,60 60,70 C72,76 80,79 90,79 C100,79 108,76 120,70 C114,60 104,52 90,50 Z" fill="${mgF('traps',hi)}"/>
+  ${mgMirror(half)}
+  <rect x="80" y="146" width="20" height="30" rx="8" fill="${mgF('lowerback',hi)}"/>`;
+}
+/* viewBox is cropped to the drawn bounds (hands at x≈16, head top y≈9,
+   feet y≈345) so the figure fills the card instead of floating in padding. */
+function mgFigureSvg(view,hi){
+ return `<svg viewBox="12 4 156 348" class="fit-mini" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  ${view==='back'?mgBack(hi):mgFront(hi)}</svg>`;
+}
+/* Cardio has no muscle to shade: a light heart with a red ECG trace. */
+function mgCardioSvg(){
+ return `<svg viewBox="0 0 120 108" class="fit-mini fit-mini-cardio" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <path d="M60,98 C18,70 6,50 6,34 C6,17 19,6 34,6 C44,6 53,11 60,20 C67,11 76,6 86,6 C101,6 114,17 114,34 C114,50 102,70 60,98 Z" fill="${MG_BODY}"/>
+  <path d="M14,52 H40 L48,34 L60,72 L70,46 L78,52 H106" fill="none" stroke="${MG_HL}"
+   stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+ </svg>`;
+}
+
+/* Designed fallback for a missing exercise photo — never an emoji.
+   Light plate + faint grid + large equipment glyph, matching the
+   white media area of the reference cards. */
+function exerciseFallbackSvg(ex){
+ const glyph={
+  Barbell:'<rect x="10" y="40" width="9" height="20" rx="3"/><rect x="81" y="40" width="9" height="20" rx="3"/><rect x="24" y="33" width="7" height="34" rx="3"/><rect x="69" y="33" width="7" height="34" rx="3"/><rect x="31" y="47" width="38" height="6" rx="3"/>',
+  Dumbbell:'<rect x="20" y="36" width="11" height="28" rx="4"/><rect x="69" y="36" width="11" height="28" rx="4"/><rect x="31" y="46" width="38" height="8" rx="4"/>',
+  Cable:'<rect x="16" y="20" width="10" height="60" rx="3"/><path d="M26 30 H62 a8 8 0 0 1 8 8 v10" fill="none" stroke="currentColor" stroke-width="4"/><rect x="60" y="48" width="20" height="9" rx="4"/>',
+  Machine:'<rect x="18" y="24" width="10" height="54" rx="3"/><rect x="72" y="24" width="10" height="54" rx="3"/><rect x="28" y="38" width="44" height="10" rx="5"/><rect x="34" y="58" width="32" height="8" rx="4"/>',
+  Bodyweight:'<circle cx="50" cy="26" r="9"/><rect x="45" y="37" width="10" height="26" rx="5"/><rect x="26" y="41" width="20" height="7" rx="3.5"/><rect x="54" y="41" width="20" height="7" rx="3.5"/><rect x="38" y="62" width="8" height="22" rx="4"/><rect x="54" y="62" width="8" height="22" rx="4"/>'
+ }[ex.equip]||'<circle cx="50" cy="50" r="20"/>';
+ return `<svg class="fit-ex-fb" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <rect width="100" height="100" fill="#f4f6f8"/>
+  <g stroke="#dfe4ea" stroke-width=".6">
+   <path d="M0 25H100M0 50H100M0 75H100M25 0V100M50 0V100M75 0V100"/></g>
+  <g fill="#9aa4b0" transform="translate(0,4)">${glyph}</g>
+  <rect x="34" y="88" width="32" height="3" rx="1.5" fill="#ff7a1a"/>
+ </svg>`;
+}
+
+/* Designed fallback underneath, real photo layered on top but transparent
+   until it decodes (see .fit-ex-media>img). A missing/blocked/slow file
+   therefore degrades to the illustration instead of a blank white card.
+   Dropping PNGs into public/assets/exercises/<group>/ needs no code change. */
+function exerciseImageOrFallback(ex,group){
+ const src=`${EX_IMG_BASE}${group}/${ex.slug}.png`;
+ return exerciseFallbackSvg(ex)+
+  `<img src="${src}" alt="${esc(ex.name)}" decoding="async"
+    onload="this.classList.add('is-loaded')" onerror="this.remove()">`;
+}
+
+function fitProgArt(kind,color){
+ if(kind==='bars')return `<svg class="fit-prog-art" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+  <g fill="${color}" opacity=".22">${[8,22,36,50,64,78,92].map((x,i)=>`<rect x="${x}" y="${28+(i%3)*14}" width="7" height="${70-(i%3)*14}" rx="3"/>`).join('')}</g></svg>`;
+ if(kind==='rings')return `<svg class="fit-prog-art" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+  <g fill="none" stroke="${color}" opacity=".26">${[16,28,40].map(r=>`<circle cx="72" cy="34" r="${r}" stroke-width="2.5"/>`).join('')}</g></svg>`;
+ return `<svg class="fit-prog-art" viewBox="0 0 240 460" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <g opacity=".30">${BODY_OUTLINE.map(d=>`<path d="${d}" fill="${color}" opacity=".28"/>`).join('')}
+  ${(BODY_SHAPES.front).map(s=>`<path d="${s.d}" fill="${color}" opacity=".5"/>`).join('')}</g></svg>`;
+}
+
+/* ---------- Floating chrome ---------- */
+const FIT_NAV=[['home','Exercises','dumbbell'],['programs','Programs','layers'],['stats','Stats','bar-chart'],
+ ['saved','Saved','bookmark'],['settings','Settings','settings']];
+function renderFitnessBottomNav(view){
+ return `<nav id="fit-nav">${FIT_NAV.map(([k,label,icon])=>
+  `<a href="#/fitness/${k==='home'?'':k}" class="${view===k?'on':''}">${fitIc(icon)}${label}</a>`).join('')}</nav>`;
+}
+const fitElapsed=()=>{
+ const s=Math.max(0,Math.floor((Date.now()-fitWorkout.startedAt)/1000));
+ return `${Math.floor(s/3600)}:${String(Math.floor(s%3600/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+};
+function renderWorkoutBar(){
+ if(!fitWorkout.active)return '';
+ return `<div id="fit-workout" class="${fitWorkout.collapsed?'is-collapsed':''}">
+  <div class="fit-orb">${fitIc('dumbbell')}</div>
+  <div class="fit-wt"><b>Workout in progress</b><span id="fit-timer">${fitElapsed()}</span></div>
+  <button onclick="fitToggleCollapse()" aria-label="Collapse">${fitIc(fitWorkout.collapsed?'chevron-up':'chevron-down')}</button>
+  <button class="fit-wclose" onclick="fitEndWorkout()" aria-label="End workout">${fitIc('x')}</button>
+ </div>`;
+}
+/* One interval for the whole section; it self-cancels when the bar leaves the DOM. */
+function fitStartTimer(){
+ if(fitTimerId)return;
+ fitTimerId=setInterval(()=>{
+  const el=document.getElementById('fit-timer');
+  if(!el){clearInterval(fitTimerId);fitTimerId=null;return}
+  el.textContent=fitElapsed();
+ },1000);
+}
+function fitStopTimer(){if(fitTimerId){clearInterval(fitTimerId);fitTimerId=null}}
+function fitToggleCollapse(){fitWorkout.collapsed=!fitWorkout.collapsed;fitRenderChrome()}
+function fitEndWorkout(){fitWorkout.active=false;fitStopTimer();fitRenderChrome()}
+function fitStartWorkout(){fitWorkout={active:true,startedAt:Date.now(),collapsed:false};fitRenderChrome();toast('Workout started')}
+function fitToggleSave(id,el,ev){
+ if(ev)ev.stopPropagation();
+ fitSaved.has(id)?fitSaved.delete(id):fitSaved.add(id);
+ el.classList.toggle('on',fitSaved.has(id));
+}
+function fitRenderChrome(){
+ const view=fitCurrentView();
+ $('#fit-chrome').innerHTML=renderWorkoutBar()+renderFitnessBottomNav(view);
+ if(fitWorkout.active)fitStartTimer();else fitStopTimer();
+}
+function fitCurrentView(){
+ const p=(location.hash||'').slice(2).split('/');
+ if(p[0]!=='fitness')return '';
+ if(!p[1]||p[1]==='m')return 'home';
+ return p[1];
+}
+
+/* ---------- 3D muscle atlas ----------
+   Renders public/assets/models/muscles.glb: 14 pickable muscle meshes whose
+   names match MUSCLE_ATLAS ids exactly, plus a `context` mesh holding every
+   other muscle so the figure has no holes. The mesh is Draco-compressed, so
+   a DRACOLoader must be registered or nothing loads.
+
+   Three.js arrives by dynamic import() from a CDN. That makes the atlas the
+   one part of this app that needs the network on first use, so every failure
+   path (no WebGL, CDN down, missing model) falls back to the 2D SVG figure
+   rather than leaving a dead canvas. */
+const GLB_URL='public/assets/models/muscles.glb';
+const DRACO_URL='https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/gltf/';
+const MUSCLE_COL=0xeef1f4, MUSCLE_HOT=0xe8452c, CONTEXT_COL=0xb9c2cc;
+let fit3d=null, fit3dView='explore', fit3dSel=null;
+
+const hasWebGL=()=>{try{const c=document.createElement('canvas');
+ return !!(window.WebGLRenderingContext&&(c.getContext('webgl2')||c.getContext('webgl')))}catch(e){return false}};
+
+/* Days since any client last trained this muscle; null when never trained. */
+function daysSinceTrained(muscleId){
+ const done=db.sessions.filter(s=>s.status==='done').sort((a,b)=>b.date.localeCompare(a.date));
+ for(const s of done){
+  const fromEx=(s.exercises||[]).some(e=>{const ex=e.exId&&exerciseOf(e.exId);return ex&&ex.primary.includes(muscleId)});
+  const fromCoarse=(s.muscles||[]).some(m=>(COARSE_MUSCLE_MAP[m]||[]).includes(muscleId));
+  if(fromEx||fromCoarse)return Math.max(0,Math.floor((Date.now()-D(s.date).getTime())/864e5));
+ }
+ return null;
+}
+/* 0 days = hot orange, 5+ days (or never) = neutral grey. */
+function recoveryColor(THREE,days){
+ if(days===null)return new THREE.Color(CONTEXT_COL);
+ const t=Math.min(1,days/5);
+ return new THREE.Color(0xff7a1a).lerp(new THREE.Color(0x9aa4b0),t);
+}
+
+function fit3dDispose(){
+ if(!fit3d)return;
+ cancelAnimationFrame(fit3d.raf);
+ fit3d.controls?.dispose();
+ fit3d.renderer?.dispose();
+ fit3d.scene?.traverse(o=>{if(o.isMesh){o.geometry.dispose();o.material.dispose()}});
+ fit3d.draco?.dispose();
+ fit3d.renderer?.domElement?.remove();
+ fit3d=null;fit3dSel=null;
+}
+
+function fit3dFail(msg){
+ const stage=document.getElementById('fit3d-stage');
+ if(!stage)return;
+ stage.innerHTML=`<div class="fit-3d-msg">${mgFigureSvg('front',[])}
+   <p>${esc(msg)}<br>Showing the 2D figure instead.</p></div>`;
+}
+
+async function fit3dInit(){
+ const stage=document.getElementById('fit3d-stage');
+ if(!stage)return;
+ if(!hasWebGL()){fit3dFail('3D is not supported on this device.');return}
+ let THREE,GLTFLoader,DRACOLoader,OrbitControls;
+ try{
+  [THREE,{GLTFLoader},{DRACOLoader},{OrbitControls}]=await Promise.all([
+   import('three'),
+   import('three/addons/loaders/GLTFLoader.js'),
+   import('three/addons/loaders/DRACOLoader.js'),
+   import('three/addons/controls/OrbitControls.js')]);
+ }catch(e){fit3dFail('Could not load the 3D engine.');return}
+ if(!document.getElementById('fit3d-stage'))return;   // user navigated away mid-load
+
+ const w=stage.clientWidth,h=stage.clientHeight;
+ const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+ renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+ renderer.setSize(w,h);
+ const scene=new THREE.Scene();
+ const camera=new THREE.PerspectiveCamera(34,w/h,0.1,50);
+ camera.position.set(0,1.0,3.6);
+
+ scene.add(new THREE.HemisphereLight(0xffffff,0x2a2016,1.5));
+ const key=new THREE.DirectionalLight(0xffffff,2.1);key.position.set(-2,3,4);scene.add(key);
+ const rim=new THREE.DirectionalLight(0xffb27a,1.1);rim.position.set(3,1,-4);scene.add(rim);
+
+ const controls=new OrbitControls(camera,renderer.domElement);
+ controls.enablePan=false;controls.enableDamping=true;controls.dampingFactor=.08;
+ controls.minDistance=1.6;controls.maxDistance=6;controls.target.set(0,0.95,0);
+ controls.minPolarAngle=.6;controls.maxPolarAngle=Math.PI-.6;
+
+ const draco=new DRACOLoader().setDecoderPath(DRACO_URL);
+ const loader=new GLTFLoader().setDRACOLoader(draco);
+
+ let gltf;
+ try{gltf=await loader.loadAsync(GLB_URL)}
+ catch(e){draco.dispose();fit3dFail('Could not load the anatomy model.');return}
+ if(!document.getElementById('fit3d-stage')){draco.dispose();renderer.dispose();return}
+
+ stage.innerHTML='';stage.appendChild(renderer.domElement);
+
+ const pickable=[];
+ gltf.scene.traverse(o=>{
+  if(!o.isMesh)return;
+  const isCtx=o.name==='context';
+  o.material=new THREE.MeshStandardMaterial({
+   color:isCtx?CONTEXT_COL:MUSCLE_COL,roughness:.85,metalness:0,
+   transparent:isCtx,opacity:isCtx?.55:1});
+  if(!isCtx)pickable.push(o);
+ });
+ scene.add(gltf.scene);
+
+ fit3d={THREE,renderer,scene,camera,controls,draco,pickable,raf:0};
+ fit3dApplyMode();
+
+ const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();
+ let downAt=null;
+ const pos=e=>{const r=renderer.domElement.getBoundingClientRect();
+  const t=e.changedTouches?e.changedTouches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top,w:r.width,h:r.height}};
+ const onDown=e=>{downAt=pos(e)};
+ const onUp=e=>{
+  if(!downAt)return;
+  const p=pos(e);
+  if(Math.hypot(p.x-downAt.x,p.y-downAt.y)>6){downAt=null;return}  // a drag, not a tap
+  downAt=null;
+  ndc.x=(p.x/p.w)*2-1;ndc.y=-(p.y/p.h)*2+1;
+  ray.setFromCamera(ndc,camera);
+  const hit=ray.intersectObjects(pickable,false)[0];
+  fit3dSelect(hit?hit.object.name:null);
+ };
+ renderer.domElement.addEventListener('pointerdown',onDown);
+ renderer.domElement.addEventListener('pointerup',onUp);
+
+ const onResize=()=>{
+  if(!fit3d)return;
+  const s=document.getElementById('fit3d-stage');if(!s)return;
+  camera.aspect=s.clientWidth/s.clientHeight;camera.updateProjectionMatrix();
+  renderer.setSize(s.clientWidth,s.clientHeight);
+ };
+ window.addEventListener('resize',onResize);
+ fit3d.onResize=onResize;
+
+ (function loop(){
+  if(!fit3d)return;
+  fit3d.raf=requestAnimationFrame(loop);
+  controls.update();renderer.render(scene,camera);
+ })();
+}
+
+/* Recolour every pickable mesh for the current mode + selection. */
+function fit3dApplyMode(){
+ if(!fit3d)return;
+ const {THREE}=fit3d;
+ fit3d.pickable.forEach(m=>{
+  if(fit3dView==='recovery'){m.material.color.copy(recoveryColor(THREE,daysSinceTrained(m.name)))}
+  else{m.material.color.setHex(m.name===fit3dSel?MUSCLE_HOT:MUSCLE_COL)}
+  m.material.emissive.setHex(m.name===fit3dSel&&fit3dView==='explore'?0x3a0f06:0x000000);
+ });
+}
+function fit3dSelect(name){
+ fit3dSel=(name===fit3dSel)?null:name;
+ fit3dApplyMode();
+ const sheet=document.getElementById('fit3d-sheet');
+ if(sheet)sheet.innerHTML=fit3dSheet(fit3dSel);
+}
+function fit3dMode(mode){
+ fit3dView=mode;
+ document.querySelectorAll('#fit3d-tabs button').forEach(b=>b.classList.toggle('on',b.dataset.m===mode));
+ const lg=document.getElementById('fit3d-legend');
+ if(lg)lg.style.display=mode==='recovery'?'flex':'none';
+ fit3dApplyMode();
+ const sheet=document.getElementById('fit3d-sheet');
+ if(sheet)sheet.innerHTML=fit3dSheet(fit3dSel);
+}
+function fit3dFace(dir){
+ if(!fit3d)return;
+ const {controls,camera}=fit3d,r=camera.position.distanceTo(controls.target);
+ camera.position.set(0,controls.target.y+.05,dir==='back'?-r:r);
+ controls.update();
+}
+
+function fit3dSheet(id){
+ if(!id)return `<p class="fit-note">Tap a muscle on the figure to see how to train it.</p>`;
+ const m=muscleOf(id);
+ if(!m)return '';
+ const days=daysSinceTrained(id);
+ const ex=[...(m.compound||[]),...(m.isolation||[])].slice(0,3)
+   .map(eid=>exerciseOf(eid)).filter(Boolean);
+ const rec=days===null
+   ? 'Never logged'
+   : `Trained <b>${days===0?'today':days+' day'+(days===1?'':'s')+' ago'}</b> · needs ${m.recovery}h`;
+ return `<h3>${esc(m.nameEn)}</h3>
+  <div class="ar" dir="rtl">${esc(m.ar)}</div>
+  <p class="fn" dir="rtl">${esc(m.fn)}</p>
+  ${ex.length?`<div class="fit-chips">${ex.map(e=>`<span class="fit-pill">${fitIc('dumbbell')}<span dir="rtl">${esc(e.ar)}</span></span>`).join('')}</div>`:''}
+  <div class="rec">${fitIc('clock')}<span>${rec}</span></div>`;
+}
+
+function renderAtlas3D(){
+ return `<div class="fit-head">
+   <button class="fit-back" onclick="location.hash='#/fitness'" aria-label="Back">${fitIc('arrow-left')}</button>
+   <h1 class="fit-h1" style="margin-top:16px">Muscle Atlas</h1>
+   <p class="fit-sub">Tap a muscle to explore</p>
+  </div>
+  <div class="fit-tabs" id="fit3d-tabs">
+   <button data-m="explore" class="${fit3dView==='explore'?'on':''}" onclick="fit3dMode('explore')">Explore</button>
+   <button data-m="recovery" class="${fit3dView==='recovery'?'on':''}" onclick="fit3dMode('recovery')">Recovery</button>
+  </div>
+  <div class="fit-3d-stage" id="fit3d-stage">
+   <div class="fit-3d-msg"><span class="fit-spin"></span><p>Loading anatomy…</p></div>
+  </div>
+  <div class="fit-legend" id="fit3d-legend" style="display:${fit3dView==='recovery'?'flex':'none'}">
+   <span><i style="background:#ff7a1a"></i>Trained today</span>
+   <span><i style="background:#9aa4b0"></i>Recovered</span>
+  </div>
+  <div class="fit-3d-ctrl">
+   <button onclick="fit3dFace('front')">${fitIc('user')}Front</button>
+   <button onclick="fit3dFace('back')">${fitIc('rotate-ccw')}Back</button>
+  </div>
+  <div class="fit-3d-sheet" id="fit3d-sheet">${fit3dSheet(fit3dSel)}</div>
+  <p class="fit-credit">3D anatomy derived from BodyParts3D — The Database Center for Life Science — CC BY-SA 2.1 Japan,
+   and Z-Anatomy — The libre 3D atlas of anatomy — CC BY-SA 4.0.</p>`;
+}
+
+/* ---------- Screens ---------- */
+function renderExercisesHome(){
+ return `<div class="fit-head">
+   <h1 class="fit-h1">Exercises</h1>
+   <p class="fit-sub">Choose a muscle group</p>
+  </div>
+  <button class="fit-glass fit-summary" onclick="location.hash='#/fitness/stats'">
+   <span class="fit-orb">${fitIc('flame')}</span>
+   <span><span class="v">954<span>kcal</span></span><span class="l">Burned today</span></span>
+   <span class="chev">${fitIc('chevron-right')}</span>
+  </button>
+  <button class="fit-glass fit-summary" style="margin-top:12px" onclick="location.hash='#/fitness/atlas'">
+   <span class="fit-orb" style="background:linear-gradient(145deg,#5B8DEF,#3b62b8);box-shadow:0 6px 18px rgba(91,141,239,.35)">${fitIc('activity')}</span>
+   <span><span class="v" style="font-size:19px">3D Muscle Atlas</span><span class="l">Rotate, tap a muscle, see recovery</span></span>
+   <span class="chev">${fitIc('chevron-right')}</span>
+  </button>
+  <div class="fit-mgrid" style="margin-top:20px">
+   ${FITNESS_MUSCLE_GROUPS.map(g=>`
+    <button class="fit-mcell" onclick="location.hash='#/fitness/m/${g.key}'">
+     <span class="fit-mcard" style="--g:${g.color}">
+      ${g.cardio?mgCardioSvg():mgFigureSvg(g.view,g.hi)}
+      <span class="fit-badge">${g.count.toLocaleString('en-US')}</span>
+     </span>
+     <span class="fit-mname">${g.name}</span>
+    </button>`).join('')}
+  </div>`;
+}
+
+function renderMuscleExercises(key){
+ const g=groupOf(key);
+ if(!g){location.hash='#/fitness';return ''}
+ const list=exercisesForGroup(key);
+ const body=fitChestTab==='custom'
+  ? `<div class="fit-empty">${fitIc('plus')}<p>No custom exercises yet</p></div>`
+  : (list.length
+    ? `<div class="fit-exgrid">${list.map(ex=>`
+       <div class="fit-ex">
+        <div class="fit-ex-media">
+         ${exerciseImageOrFallback(ex,key)}
+         <button class="fit-ex-bm ${fitSaved.has(ex.slug)?'on':''}" onclick="fitToggleSave('${ex.slug}',this,event)" aria-label="Save">${fitIc('bookmark')}</button>
+         <span class="fit-ex-play">${fitIc('play')}</span>
+        </div>
+        <div class="fit-ex-body">
+         <div class="fit-ex-name" dir="auto">${esc(ex.name)}</div>
+         <div class="fit-ex-foot">
+          <span class="fit-pill">${fitIc('dumbbell')}${esc(ex.equip)}</span>
+          <span class="fit-diff">${[1,2,3].map(i=>`<i class="${i<=ex.diff?'on':''}"></i>`).join('')}</span>
+         </div>
+        </div>
+       </div>`).join('')}</div>`
+    : `<div class="fit-empty">${fitIc('heart-pulse')}<p>Cardio sessions are tracked from the coach dashboard</p></div>`);
+ return `<div class="fit-head">
+   <button class="fit-back" onclick="location.hash='#/fitness'" aria-label="Back">${fitIc('arrow-left')}</button>
+   <h1 class="fit-h1" style="margin-top:16px">${g.name}</h1>
+  </div>
+  <div class="fit-tabs">
+   <button class="${fitChestTab==='exercises'?'on':''}" onclick="fitChestTab='exercises';route()">Exercises</button>
+   <button class="${fitChestTab==='custom'?'on':''}" onclick="fitChestTab='custom';route()">Custom</button>
+  </div>
+  ${body}`;
+}
+
+function renderPrograms(){
+ return `<div class="fit-head"><h1 class="fit-h1">Programs</h1></div>
+  ${PROGRAM_SECTIONS.map(sec=>`
+   <h2 class="fit-sec-t">${sec.title}</h2>
+   <div class="fit-hscroll">
+    ${sec.cards.map(c=>`
+     <article class="fit-prog">
+      <div class="fit-prog-cover" style="background:linear-gradient(150deg,${c.g[0]},${c.g[1]})">
+       ${fitProgArt(c.art,'#ff7a1a')}
+       <span class="fit-prog-tag">${esc(c.tag)}</span>
+       <button class="fit-prog-bm ${fitSaved.has(c.id)?'on':''}" onclick="fitToggleSave('${c.id}',this,event)" aria-label="Save">${fitIc('bookmark')}</button>
+       <span class="fit-prog-rate">
+        <span class="st">${fitIc('star')}${c.rating.toFixed(1)}</span>
+        <span class="dl">${fitIc('download')}${c.dl}</span>
+       </span>
+      </div>
+      <div class="fit-prog-t">${esc(c.title)}</div>
+     </article>`).join('')}
+   </div>`).join('')}`;
+}
+
+function renderStats(){
+ const m=STATS_MOCK, bmr=fitBmr(m), maint=fitMaintenance(m);
+ const R=100, C=2*Math.PI*R, goal=Math.max(maint,1);
+ const pct=Math.min(1,m.burnedToday/goal);
+ return `<div class="fit-head"><h1 class="fit-h1">Stats</h1></div>
+  <div class="fit-ring-wrap"><div class="fit-ring">
+   <svg viewBox="0 0 230 230" aria-hidden="true">
+    <circle cx="115" cy="115" r="${R}" fill="none" stroke="rgba(255,255,255,.09)" stroke-width="12"/>
+    <circle cx="115" cy="115" r="${R}" fill="none" stroke="#ff7a1a" stroke-width="12" stroke-linecap="round"
+     stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct)}"/>
+   </svg>
+   <div class="fit-ring-c"><b>${m.burnedToday}</b><span class="u">kcal</span><span class="l">Burned today</span></div>
+  </div></div>
+  <div class="fit-2">
+   <div class="fit-glass fit-stat"><div class="h">${fitIc('user')}Living</div>
+    <div class="v">${m.burnedToday}<span>kcal</span></div><div class="l">Just being alive</div></div>
+   <div class="fit-glass fit-stat"><div class="h">${fitIc('flame')}Workouts</div>
+    <div class="v">${m.workoutKcal}<span>kcal</span></div></div>
+  </div>
+  <div class="fit-glass fit-card">
+   <div class="fit-card-h"><h3>Today's workouts</h3></div>
+   <p class="fit-note">No workouts logged today yet</p>
+  </div>
+  <div class="fit-glass fit-card">
+   <div class="fit-card-h"><h3>Body metrics</h3><button class="fit-edit" onclick="toast('Editing body metrics is coming next')">Edit</button></div>
+   <div class="fit-chips">
+    <span class="fit-pill">${fitIc('scale')}${m.weight} kg</span>
+    <span class="fit-pill">${fitIc('activity')}${m.height} cm</span>
+    <span class="fit-pill">${fitIc('clock')}${m.age}</span>
+    <span class="fit-pill">${fitIc('user')}${m.gender}</span>
+   </div>
+   <div class="fit-metrics">
+    <div class="fit-metric"><b>${bmr}</b><span>Resting (BMR) · kcal/day</span></div>
+    <div class="fit-metric"><b>${maint}</b><span>Daily maintenance · kcal/day</span></div>
+   </div>
+  </div>
+  <button class="fit-start" onclick="fitStartWorkout()">${fitIc('dumbbell')}Start Workout</button>`;
+}
+
+function renderFitnessPlaceholder(title,icon,note){
+ return `<div class="fit-head"><h1 class="fit-h1">${title}</h1></div>
+  <div class="fit-empty">${fitIc(icon)}<p>${note}</p></div>`;
+}
+
+/* ---------- Shell + routing entry ---------- */
+function renderFitnessShell(view,arg){
+ // The fitness section owns the whole viewport: hide the coach chrome.
+ $('#bnav').style.display='none';$('#fab').style.display='none';
+ fit3dDispose();   // any previous WebGL context must go before we replace #main
+ let inner;
+ if(view==='m')            inner=renderMuscleExercises(arg);
+ else if(view==='programs')inner=renderPrograms();
+ else if(view==='stats')   inner=renderStats();
+ else if(view==='atlas')   inner=renderAtlas3D();
+ else if(view==='saved')   inner=renderFitnessPlaceholder('Saved','bookmark','Nothing saved yet — tap the bookmark on any exercise');
+ else if(view==='settings')inner=renderFitnessPlaceholder('Settings','settings','Fitness preferences are coming next');
+ else                      inner=renderExercisesHome();
+ $('#main').innerHTML=`<div class="fit">${inner}</div>`;
+ fitRenderChrome();
+ window.scrollTo(0,0);
+ if(view==='atlas')fit3dInit();
+}
+
 function initAuth(){
  if(!SYNC_ENABLED){route();return}
  appPassword=localStorage.getItem(PW_KEY);
