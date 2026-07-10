@@ -3,7 +3,7 @@
 // muscles.glb and the three.js CDN modules are deliberately NOT precached —
 // they are ~1 MB and only the 3D atlas needs them, so the cache-first fetch
 // handler below picks them up on first use instead of delaying install.
-const CACHE = 'coachos-v3';
+const CACHE = 'coachos-v4';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
