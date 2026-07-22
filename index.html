@@ -420,23 +420,6 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}
 .fit-diff i.on{background:var(--fit-accent)}
 
 /* Programs — horizontal scrollers */
-.fit-hscroll{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x proximity;padding:2px 18px 10px;
-  margin:0 -18px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
-.fit-hscroll::-webkit-scrollbar{display:none}
-.fit-prog{flex:0 0 72%;max-width:280px;scroll-snap-align:start;border-radius:28px;overflow:hidden;
-  border:1px solid var(--fit-brd);background:var(--fit-glass);display:flex;flex-direction:column}
-.fit-prog-cover{position:relative;height:170px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.fit-prog-cover .fit-prog-art{position:absolute;inset:0;width:100%;height:100%}
-.fit-prog-cover::after{content:'';position:absolute;inset:0;
-  background:linear-gradient(to top,rgba(0,0,0,.82) 0%,rgba(0,0,0,.15) 45%,rgba(0,0,0,.05) 100%)}
-.fit-prog-tag{position:absolute;top:12px;left:12px;z-index:2;font-size:10.5px;font-weight:800;letter-spacing:.06em;
-  text-transform:uppercase;padding:5px 10px;border-radius:8px;background:rgba(0,0,0,.45);color:#fff;
-  border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.fit-prog-rate{position:absolute;left:12px;bottom:11px;z-index:2;display:flex;align-items:center;gap:9px;
-  font-size:12.5px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
-.fit-prog-rate .st{color:#fbbf24;display:flex;align-items:center;gap:4px}
-.fit-prog-rate .dl{color:rgba(255,255,255,.82);display:flex;align-items:center;gap:4px}
-.fit-prog-t{padding:14px 15px 16px;font-size:15px;font-weight:700;color:#fff}
 
 /* Stats */
 .fit-ring-wrap{display:flex;flex-direction:column;align-items:center;padding:14px 0 6px}
@@ -526,6 +509,18 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}
   font-size:11.5px;color:var(--fit-tx2)}
 .fit-legend i{width:12px;height:12px;border-radius:4px;display:inline-block;margin-right:5px;vertical-align:-2px}
 .fit-credit{margin-top:22px;font-size:10.5px;line-height:1.7;color:var(--fit-tx3);text-align:center}
+
+/* Programs */
+.fit-proglist{display:flex;flex-direction:column;gap:12px}
+.fit-progcard{background:var(--fit-glass);border:1px solid var(--fit-brd);border-radius:24px;padding:16px;
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);display:block}
+.fit-progcard-h{display:flex;align-items:flex-start;gap:8px;margin-bottom:12px}
+.fit-progcard .n{font-size:16.5px;font-weight:800;color:#fff}
+.fit-progcard .d{font-size:12.5px;color:var(--fit-tx2);margin-top:3px}
+.fit-progdays{display:flex;flex-direction:column;gap:9px}
+.fit-progday{background:rgba(255,255,255,.05);border:1px solid var(--fit-brd);border-radius:16px;padding:11px 13px}
+.fit-progday b{display:block;font-size:13px;color:#fff;margin-bottom:7px}
+.fit-progusers{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;padding-top:11px;border-top:1px solid var(--fit-brd)}
 
 /* Empty state */
 .fit-empty{text-align:center;padding:60px 20px;color:var(--fit-tx2)}
@@ -665,9 +660,12 @@ const DB_KEY='coachos_db_v1';
 /* ---------- Cloud sync config (Google Sheet via Apps Script) ---------- */
 const SHEET_API_URL='https://script.google.com/macros/s/AKfycbw4ubWUBvJvH870QrBsXJlZZNJS6jstVdiYYh6h6IS9-zhDQtdAU3rz0DTddcQ8GJpx0w/exec';
 const SYNC_ENABLED=SHEET_API_URL.indexOf('https://')===0;
+/* Bump on every deploy. Shown in Settings so a stale install is obvious
+   instead of looking like a broken app. */
+const APP_VERSION='v1.4';
 const PW_KEY='coachos_pw_v1', OUTBOX_KEY='coachos_outbox_v1', CURSOR_KEY='coachos_cursor_v1',
       BACKFILL_KEY='coachos_backfilled_v1', LAST_SYNC_KEY='coachos_last_sync_v1';
-const ENTITIES=['clients','packages','subs','sessions','meas','payments','goals','notes','audit','settings'];
+const ENTITIES=['clients','packages','subs','sessions','meas','payments','goals','notes','audit','settings','programs'];
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const todayS=()=>new Date().toISOString().slice(0,10);
 const nowT=()=>new Date().toTimeString().slice(0,5);
@@ -1223,22 +1221,25 @@ function logTrainedToday(cid,muscles){
 function formQuickLog(cid){
  const c=client(cid); if(!c)return;
  const rows=suggestNextMuscles(cid);
+ const np=nextProgramDay(cid);
+ // A client on a program should be pre-ticked with that day's muscles; only
+ // fall back to the recovery ranking when there is no program.
+ const preset=np?np.day.muscles:[rows[0].muscle];
  const top=rows[0];
  const rem=remaining(cid);
  openModal(`<h3><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg> ${esc(c.name)} — تمرين النهاردة</h3>
   <div class="card" style="margin-bottom:12px">
    <div class="row" style="align-items:center;gap:10px">
     <div class="grow"><div class="tiny">المقترح النهاردة</div>
-     <div style="font-size:17px;font-weight:800;color:var(--lime)">${esc(top.muscle)}</div>
-     <div class="tiny">${esc(suggestReason(top))}</div></div>
+     <div style="font-size:17px;font-weight:800;color:var(--lime)">${np?esc(np.day.muscles.join(' · ')||'راحة'):esc(top.muscle)}</div>
+     <div class="tiny">${np?esc(np.program.name+' · '+np.day.name):esc(suggestReason(top))}</div></div>
     <div style="text-align:center"><div style="font-size:22px;font-weight:800">${rem}</div><div class="tiny">جلسة متبقية</div></div>
    </div>
   </div>
   <div class="f-row"><label>العضلات اللي اتدرّبت النهاردة</label>
    <div class="chips" id="ql-chips" style="flex-wrap:wrap">${MUSCLES.map(m=>{
      const r=rows.find(x=>x.muscle===m);
-     const cls=m===top.muscle?'on':'';
-     const dot=r?(r.ready?'ok':'warn'):'';
+     const cls=preset.includes(m)?'on':'';
      return `<button class="chip ${cls}" data-m="${esc(m)}" onclick="this.classList.toggle('on')">${esc(m)}${r&&r.lastDate===null?' •':''}</button>`;
    }).join('')}</div></div>
   <p class="tiny" style="margin-bottom:10px">${rows.filter(r=>r.ready).length} عضلة متعافية · ${rows.filter(r=>!r.ready).length} لسه بتتعافى</p>
@@ -1253,7 +1254,7 @@ let db=null, chartRefs=[];
 let appPassword=null, outbox=[], dbSnapshot=null, syncing=false;
 
 function blank(){return{settings:{coachName:'',currency:'ج.م',theme:'dark',setup:false},
- clients:[],packages:[],subs:[],sessions:[],meas:[],payments:[],goals:[],notes:[],audit:[]}}
+ clients:[],packages:[],subs:[],sessions:[],meas:[],payments:[],goals:[],notes:[],audit:[],programs:[]}}
 function load(){try{const r=localStorage.getItem(DB_KEY);return r?JSON.parse(r):null}catch(e){return null}}
 function persist(){localStorage.setItem(DB_KEY,JSON.stringify(db))}
 function save(msg){persist();diffAndEnqueue();route();if(msg)toast(msg);flushQueue()}
@@ -1436,6 +1437,52 @@ async function doLogin(){
 function logout(){
  if(!confirm('تسجيل الخروج من الجهاز ده؟ بياناتك هتفضل محفوظة محليًا وهتترفع تاني لما تسجّل دخول.'))return;
  appPassword=null;localStorage.removeItem(PW_KEY);route();
+}
+
+/* Drop every cached build and re-register the worker. The escape hatch for an
+   install that is still showing an old version. */
+async function forceUpdate(){
+ try{
+  const regs=await navigator.serviceWorker.getRegistrations();
+  await Promise.all(regs.map(r=>r.unregister()));
+  const keys=await caches.keys();
+  await Promise.all(keys.map(k=>caches.delete(k)));
+ }catch(e){}
+ location.reload();
+}
+
+function formPassword(){
+ if(!SYNC_ENABLED){toast('<svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> المزامنة مقفولة — مفيش باسورد');return}
+ openModal(`<h3><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg> تغيير كلمة المرور</h3>
+  <div class="f-row"><label>كلمة المرور الحالية</label><input id="pw-old" type="password" placeholder="••••••••"></div>
+  <div class="f-row"><label>كلمة المرور الجديدة</label><input id="pw-new" type="password" placeholder="6 حروف على الأقل"></div>
+  <div class="f-row"><label>تأكيد الجديدة</label><input id="pw-new2" type="password" placeholder="اكتبها تاني"
+    onkeydown="if(event.key==='Enter')savePassword()"></div>
+  <div id="pw-err" class="tiny" style="color:var(--red);min-height:18px;margin-bottom:8px"></div>
+  <p class="tiny" style="margin-bottom:12px">هتتغير على السيرفر فورًا، وكل جهاز تاني مسجّل دخول هيحتاج الباسورد الجديد.</p>
+  <button class="btn btn-p btn-block" onclick="savePassword()"><svg class="ic" aria-hidden="true"><use href="#i-save"/></svg> حفظ</button>`);
+}
+async function savePassword(){
+ const err=$('#pw-err'), oldPw=$('#pw-old').value, a=$('#pw-new').value, b=$('#pw-new2').value;
+ if(oldPw!==appPassword){err.textContent='كلمة المرور الحالية غلط';return}
+ if(a.length<6){err.textContent='الجديدة لازم 6 حروف على الأقل';return}
+ if(a!==b){err.textContent='التأكيد مش مطابق';return}
+ if(a===oldPw){err.textContent='الجديدة زي القديمة';return}
+ err.textContent='بيتغيّر…';
+ try{
+  const r=await apiCall('changePassword',{newPassword:a});
+  if(!r.ok){
+   err.textContent=r.error==='too_short'?'قصيرة أوي'
+     :r.error==='same_password'?'الجديدة زي القديمة'
+     :r.error==='locked'?'محاولات كتير — استنى 15 دقيقة'
+     :'الباسورد الحالي غلط';
+   return;
+  }
+  // Only swap the local copy after the server confirms, so a failed change
+  // can never leave this device holding a password the backend rejects.
+  appPassword=a;localStorage.setItem(PW_KEY,a);
+  closeModal();toast('✓ اتغيّرت كلمة المرور');
+ }catch(e){err.textContent='مفيش اتصال بالسيرفر'}
 }
 
 /* ---------- Setup / first run ---------- */
@@ -2049,15 +2096,27 @@ function tOverview(c){
    ${bal>0?`<span class="tag bad" style="margin-top:5px"><svg class="ic" aria-hidden="true"><use href="#i-banknote"/></svg> متبقي عليه ${fM(bal)}</span>`:''}
   </div>
   <button class="btn btn-p btn-sm" onclick="quickSession('${c.id}')"><svg class="ic" aria-hidden="true"><use href="#i-zap"/></svg> جلسة</button></div>
- ${(()=>{const sg=suggestNextMuscles(c.id),t=sg[0],ready=sg.filter(r=>r.ready).length;
+ ${(()=>{
+  // If the client is on a program, the split decides the next day; otherwise
+  // fall back to ranking muscles by recovery debt.
+  const np=nextProgramDay(c.id);
+  const sg=suggestNextMuscles(c.id),t=sg[0],ready=sg.filter(r=>r.ready).length;
+  const title=np?np.day.muscles.join(' · ')||'راحة':esc(t.muscle);
+  const why=np?`${esc(np.program.name)} · ${esc(np.day.name)}`
+             :`${esc(suggestReason(t))} · ${ready} من ${sg.length} عضلات متعافية`;
   return `<div class="card mt row" style="gap:14px;align-items:center">
    <div class="grow">
     <div class="tiny">تمرين النهاردة المقترح</div>
-    <div style="font-size:19px;font-weight:800;color:var(--lime)">${esc(t.muscle)}</div>
-    <div class="tiny">${esc(suggestReason(t))} · ${ready} من ${sg.length} عضلات متعافية</div>
+    <div style="font-size:19px;font-weight:800;color:var(--lime)">${title}</div>
+    <div class="tiny">${why}</div>
    </div>
    <button class="btn btn-p btn-sm" onclick="formQuickLog('${c.id}')"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"/></svg> سجّل</button>
-  </div>`})()}
+  </div>
+  <button class="card mt row" style="width:100%;text-align:right;gap:14px;align-items:center" onclick="assignProgram('${c.id}')">
+   <div class="grow"><div class="tiny">البرنامج</div>
+    <div style="font-weight:700">${np?esc(np.program.name):'مفيش برنامج مربوط'}</div></div>
+   <span style="color:var(--tx2)">›</span>
+  </button>`})()}
  <div class="grid g2 mt">
   <div class="kpi"><div class="v num" style="font-size:19px">${lm?.weight?lm.weight+' كجم':'—'}</div><div class="l">آخر وزن (${fD(lm?.date)})</div></div>
   <div class="kpi"><div class="v num" style="font-size:19px">${ld?fD(ld.date):'—'}</div><div class="l">آخر حضور</div></div>
@@ -2623,7 +2682,8 @@ function vSettings(){
   <div class="row mt" style="gap:8px">
    <button class="btn btn-s grow" onclick="flushQueue();pullChanges();toast('<svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg> جاري التزامن')"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg> مزامنة دلوقتي</button>
    ${appPassword?`<button class="btn btn-danger grow" onclick="logout()"><svg class="ic" aria-hidden="true"><use href="#i-log-out"/></svg> خروج</button>`:''}
-  </div>`:`<p class="muted">مفيش ربط بالشيت لسه — محتاج تحط رابط الـ Apps Script جوه الكود (SHEET_API_URL).</p>`}
+  </div>
+  ${appPassword?`<button class="btn btn-s btn-block mt" onclick="formPassword()"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg> تغيير كلمة المرور</button>`:''}`:`<p class="muted">مفيش ربط بالشيت لسه — محتاج تحط رابط الـ Apps Script جوه الكود (SHEET_API_URL).</p>`}
  </div>
  <div class="sec-h"><h2><svg class="ic" aria-hidden="true"><use href="#i-archive"/></svg> النسخ الاحتياطي</h2></div>
  <div class="card">
@@ -2637,7 +2697,8 @@ function vSettings(){
  <div class="card">
   <button class="btn btn-s btn-block" onclick="if(confirm('تحميل البيانات التجريبية هيمسح بياناتك الحالية! متأكد؟')){db=seedDemo();persist();route();toast('✓ اتحملت')}"><svg class="ic" aria-hidden="true"><use href="#i-play-circle"/></svg> تحميل بيانات تجريبية</button>
   <button class="btn btn-danger btn-block mt" onclick="wipe()"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg> مسح كل البيانات</button></div>
- <p class="tiny mt2" style="text-align:center">Coach OS v1.0 · يعمل Offline · PWA</p>`;
+ <p class="tiny mt2" style="text-align:center">Coach OS ${APP_VERSION} · يعمل Offline · PWA
+  <br><button class="chip mt" onclick="forceUpdate()"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg> تحديث التطبيق للنسخة الأحدث</button></p>`;
 }
 function saveSettings(){
  db.settings.coachName=$('#set-name').value.trim()||'الكابتن';
@@ -2810,17 +2871,130 @@ const CHEST_EXERCISES=[
  {slug:'chest-press-machine', name:'Chest Press Machine', equip:'Machine',    diff:1}
 ];
 
-const PROGRAM_SECTIONS=[
- {title:'Popular Programs',cards:[
-  {id:'full-body',   title:'Full Body Workout',    tag:'Full Body',  rating:4.4,dl:'151.3K',g:['#7c2d12','#1c1917'],art:'body'},
-  {id:'bb-4day',     title:'4-Day Bodybuilding',   tag:'Build Muscle',rating:4.4,dl:'130.8K',g:['#7f1d1d','#171717'],art:'bars'}]},
- {title:'Recommended For You',cards:[
-  {id:'upper-lower', title:'4-Day Upper/Lower',    tag:'4 Day Split',rating:4.4,dl:'67K',   g:['#1e3a5f','#0f172a'],art:'bars'},
-  {id:'ppl-4day',    title:'Build Muscle in 4 Days',tag:'Push · Pull',rating:4.9,dl:'14.1K',g:['#78350f','#1c1917'],art:'body'}]},
- {title:'Trending Programs',cards:[
-  {id:'ppl-arnold',  title:'PPL x Arnold',         tag:'6 Day Split',rating:4.5,dl:'18.2K',g:['#3f3f46','#18181b'],art:'rings'},
-  {id:'back-attack', title:'Back Attack',          tag:'Back Focus', rating:5.0,dl:'537',   g:['#365314','#14532d'],art:'bars'}]}
+/* ---------- Training programs ----------
+   A program is a weekly split: named days, each hitting some muscle groups.
+   Real data the coach owns and assigns, replacing the old mock cards that
+   advertised fake ratings and download counts. */
+const PROGRAM_TEMPLATES=[
+ {name:'فُل بودي 3 أيام', tag:'مبتدئ', days:[
+   {name:'يوم 1',muscles:['صدر','ظهر','رجل']},
+   {name:'يوم 2',muscles:['كتف','ذراع','بطن']},
+   {name:'يوم 3',muscles:['صدر','ظهر','رجل']}]},
+ {name:'أبر / لوَر 4 أيام', tag:'متوسط', days:[
+   {name:'أبر A',muscles:['صدر','ظهر','كتف']},
+   {name:'لوَر A',muscles:['رجل','بطن']},
+   {name:'أبر B',muscles:['كتف','ذراع','صدر']},
+   {name:'لوَر B',muscles:['رجل','بطن']}]},
+ {name:'بوش / بُل / ليجز', tag:'متقدم', days:[
+   {name:'بوش',muscles:['صدر','كتف','ذراع']},
+   {name:'بُل',muscles:['ظهر','ذراع']},
+   {name:'ليجز',muscles:['رجل','بطن']},
+   {name:'بوش 2',muscles:['صدر','كتف']},
+   {name:'بُل 2',muscles:['ظهر','ذراع']},
+   {name:'ليجز 2',muscles:['رجل','بطن']}]},
+ {name:'تقسيمة 5 أيام', tag:'متقدم', days:[
+   {name:'صدر',muscles:['صدر']},
+   {name:'ظهر',muscles:['ظهر']},
+   {name:'كتف',muscles:['كتف']},
+   {name:'ذراع',muscles:['ذراع']},
+   {name:'رجل',muscles:['رجل','بطن']}]}
 ];
+
+const programOf=id=>db.programs.find(p=>p.id===id);
+const clientsOnProgram=pid=>db.clients.filter(c=>!c.archived&&c.programId===pid);
+
+function addProgramFromTemplate(i){
+ const t=PROGRAM_TEMPLATES[i]; if(!t)return;
+ const p={id:uid(),name:t.name,tag:t.tag,
+   days:JSON.parse(JSON.stringify(t.days)),createdAt:new Date().toISOString()};
+ db.programs.push(p);
+ log('إضافة برنامج',p.name);
+ save('✓ اتضاف '+p.name);
+}
+function deleteProgram(id){
+ const p=programOf(id); if(!p)return;
+ const used=clientsOnProgram(id);
+ if(!confirm(used.length?`${used.length} متدرب على البرنامج ده. تمسحه؟`:'تمسح البرنامج؟'))return;
+ db.clients.forEach(c=>{if(c.programId===id)delete c.programId});
+ db.programs=db.programs.filter(x=>x.id!==id);
+ log('حذف برنامج',p.name);
+ save('✓ اتمسح');
+}
+function formProgram(id){
+ const p=id?programOf(id):{name:'',tag:'',days:[{name:'يوم 1',muscles:[]}]};
+ if(!p)return;
+ progDraft=JSON.parse(JSON.stringify(p));
+ renderProgramForm();
+}
+let progDraft=null;
+function renderProgramForm(){
+ const p=progDraft;
+ openModal(`<h3><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg> ${p.id?'تعديل البرنامج':'برنامج جديد'}</h3>
+  <div class="f-row"><label>اسم البرنامج *</label><input id="pg-name" value="${esc(p.name||'')}" placeholder="مثلاً: أبر/لوَر 4 أيام"></div>
+  <div class="f-row"><label>وصف مختصر</label><input id="pg-tag" value="${esc(p.tag||'')}" placeholder="مبتدئ / متوسط / متقدم"></div>
+  <div class="sec-h"><h2>أيام البرنامج</h2></div>
+  ${p.days.map((d,i)=>`<div class="card" style="margin-bottom:9px">
+    <div class="row" style="margin-bottom:8px">
+     <input value="${esc(d.name)}" onchange="progDraft.days[${i}].name=this.value" style="font-weight:700">
+     ${p.days.length>1?`<button class="icon-btn" onclick="progDraft.days.splice(${i},1);renderProgramForm()" aria-label="حذف اليوم"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg></button>`:''}
+    </div>
+    <div class="chips" style="flex-wrap:wrap">${MUSCLES.filter(m=>m!=='Full Body').map(m=>
+      `<button class="chip ${d.muscles.includes(m)?'on':''}" onclick="progToggle(${i},'${m}')">${m}</button>`).join('')}</div>
+   </div>`).join('')}
+  <button class="btn btn-s btn-block" onclick="progDraft.days.push({name:'يوم '+(progDraft.days.length+1),muscles:[]});renderProgramForm()">
+   <svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg> إضافة يوم</button>
+  <button class="btn btn-p btn-block mt" onclick="saveProgram()"><svg class="ic" aria-hidden="true"><use href="#i-save"/></svg> حفظ البرنامج</button>`);
+}
+function progToggle(dayIdx,m){
+ const arr=progDraft.days[dayIdx].muscles, i=arr.indexOf(m);
+ if(i>=0)arr.splice(i,1); else arr.push(m);
+ renderProgramForm();
+}
+function saveProgram(){
+ const name=$('#pg-name').value.trim();
+ if(!name){toast('<svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg> الاسم مطلوب');return}
+ progDraft.name=name; progDraft.tag=$('#pg-tag').value.trim();
+ if(progDraft.id){Object.assign(programOf(progDraft.id),progDraft);log('تعديل برنامج',name)}
+ else{progDraft.id=uid();progDraft.createdAt=new Date().toISOString();db.programs.push(progDraft);log('إضافة برنامج',name)}
+ closeModal();save('✓ اتحفظ');
+}
+function assignProgram(cid){
+ const c=client(cid); if(!c)return;
+ if(!db.programs.length){
+  openModal(`<h3>مفيش برامج لسه</h3><p class="muted" style="margin-bottom:14px">اعمل برنامج الأول من قسم التمارين ← Programs.</p>
+   <button class="btn btn-p btn-block" onclick="closeModal();location.hash='#/fitness/programs'">روح للبرامج</button>`);
+  return;
+ }
+ openModal(`<h3>برنامج ${esc(c.name)}</h3>
+  <div class="list">
+   <button class="li row" style="width:100%;text-align:right" onclick="setClientProgram('${cid}','')">
+    <div class="grow t">من غير برنامج</div>${!c.programId?'<span class="tag ok">الحالي</span>':''}</button>
+   ${db.programs.map(p=>`<button class="li row" style="width:100%;text-align:right" onclick="setClientProgram('${cid}','${p.id}')">
+     <div class="grow"><div class="t">${esc(p.name)}</div><div class="d">${p.days.length} أيام · ${esc(p.tag||'')}</div></div>
+     ${c.programId===p.id?'<span class="tag ok">الحالي</span>':''}</button>`).join('')}
+  </div>`);
+}
+function setClientProgram(cid,pid){
+ const c=client(cid); if(!c)return;
+ if(pid)c.programId=pid; else delete c.programId;
+ closeModal();save('✓ اتحفظ');
+}
+
+/* Which program day comes next for this client: the day after whichever one
+   was trained most recently, so the split actually rotates. */
+function nextProgramDay(cid){
+ const c=client(cid); if(!c||!c.programId)return null;
+ const p=programOf(c.programId); if(!p||!p.days.length)return null;
+ const done=db.sessions.filter(s=>s.clientId===cid&&s.status==='done')
+   .sort((a,b)=>b.date.localeCompare(a.date));
+ for(const s of done){
+  const idx=p.days.findIndex(d=>d.muscles.length&&
+    d.muscles.every(m=>(s.muscles||[]).includes(m))&&
+    (s.muscles||[]).every(m=>d.muscles.includes(m)));
+  if(idx>=0)return{program:p,day:p.days[(idx+1)%p.days.length],index:(idx+1)%p.days.length};
+ }
+ return{program:p,day:p.days[0],index:0};
+}
 
 /* Body metrics mirror the Stats reference. BMR/maintenance are derived,
    not hardcoded, so editing the metrics keeps the numbers honest. */
@@ -2983,15 +3157,6 @@ function exerciseImageOrFallback(ex,group){
     onload="this.classList.add('is-loaded')" onerror="this.remove()">`;
 }
 
-function fitProgArt(kind,color){
- if(kind==='bars')return `<svg class="fit-prog-art" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-  <g fill="${color}" opacity=".22">${[8,22,36,50,64,78,92].map((x,i)=>`<rect x="${x}" y="${28+(i%3)*14}" width="7" height="${70-(i%3)*14}" rx="3"/>`).join('')}</g></svg>`;
- if(kind==='rings')return `<svg class="fit-prog-art" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-  <g fill="none" stroke="${color}" opacity=".26">${[16,28,40].map(r=>`<circle cx="72" cy="34" r="${r}" stroke-width="2.5"/>`).join('')}</g></svg>`;
- return `<svg class="fit-prog-art" viewBox="0 0 240 460" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-  <g opacity=".30">${BODY_OUTLINE.map(d=>`<path d="${d}" fill="${color}" opacity=".28"/>`).join('')}
-  ${(BODY_SHAPES.front).map(s=>`<path d="${s.d}" fill="${color}" opacity=".5"/>`).join('')}</g></svg>`;
-}
 
 /* ---------- Floating chrome ---------- */
 const FIT_NAV=[['home','Exercises','dumbbell'],['atlas','Atlas','activity'],
@@ -3383,23 +3548,47 @@ function renderMuscleExercises(key){
 }
 
 function renderPrograms(){
- return `<div class="fit-head"><h1 class="fit-h1">Programs</h1></div>
-  ${PROGRAM_SECTIONS.map(sec=>`
-   <h2 class="fit-sec-t">${sec.title}</h2>
-   <div class="fit-hscroll">
-    ${sec.cards.map(c=>`
-     <article class="fit-prog">
-      <div class="fit-prog-cover" style="background:linear-gradient(150deg,${c.g[0]},${c.g[1]})">
-       ${fitProgArt(c.art,'#ff7a1a')}
-       <span class="fit-prog-tag">${esc(c.tag)}</span>
-       <span class="fit-prog-rate">
-        <span class="st">${fitIc('star')}${c.rating.toFixed(1)}</span>
-        <span class="dl">${fitIc('download')}${c.dl}</span>
-       </span>
+ const progs=db.programs||[];
+ return `<div class="fit-head">
+   <h1 class="fit-h1">Programs</h1>
+   <p class="fit-sub">${progs.length?progs.length+' برنامج':'اعمل تقسيمة وارْبطها بمتدربينك'}</p>
+  </div>
+  <button class="fit-glass fit-summary" onclick="formProgram('')">
+   <span class="fit-orb">${fitIc('plus')}</span>
+   <span><span class="v" style="font-size:18px">برنامج جديد</span><span class="l">اختار الأيام والعضلات بنفسك</span></span>
+   <span class="chev">${fitIc('chevron-right')}</span>
+  </button>
+
+  ${progs.length?`<h2 class="fit-sec-t">برامجك</h2>
+   <div class="fit-proglist">${progs.map(p=>{
+     const used=clientsOnProgram(p.id);
+     return `<div class="fit-progcard">
+      <div class="fit-progcard-h">
+       <div class="grow">
+        <div class="n">${esc(p.name)}</div>
+        <div class="d">${p.days.length} أيام${p.tag?' · '+esc(p.tag):''} · ${used.length} متدرب</div>
+       </div>
+       <button class="fit-3d-x" onclick="formProgram('${p.id}')" aria-label="تعديل">${fitIc('edit')}</button>
+       <button class="fit-3d-x" onclick="deleteProgram('${p.id}')" aria-label="حذف">${fitIc('trash')}</button>
       </div>
-      <div class="fit-prog-t">${esc(c.title)}</div>
-     </article>`).join('')}
-   </div>`).join('')}`;
+      <div class="fit-progdays">${p.days.map(d=>`<div class="fit-progday">
+        <b>${esc(d.name)}</b>
+        <div class="fit-chips">${d.muscles.length?d.muscles.map(m=>`<span class="fit-pill">${esc(m)}</span>`).join(''):'<span class="fit-pill">راحة</span>'}</div>
+       </div>`).join('')}</div>
+      ${used.length?`<div class="fit-progusers">${used.map(c=>`<span class="fit-pill">${esc(c.name)}</span>`).join('')}</div>`:''}
+     </div>`}).join('')}</div>`:''}
+
+  <h2 class="fit-sec-t">تقسيمات جاهزة</h2>
+  <p class="fit-note" style="margin-bottom:12px">اختار واحدة تتضاف لبرامجك، وتقدر تعدّلها بعد كده.</p>
+  <div class="fit-proglist">${PROGRAM_TEMPLATES.map((t,i)=>`
+   <button class="fit-progcard" style="width:100%;text-align:right" onclick="addProgramFromTemplate(${i})">
+    <div class="fit-progcard-h">
+     <div class="grow"><div class="n">${esc(t.name)}</div>
+      <div class="d">${t.days.length} أيام · ${esc(t.tag)}</div></div>
+     <span class="fit-pill">${fitIc('plus')}إضافة</span>
+    </div>
+    <div class="fit-chips">${[...new Set(t.days.flatMap(d=>d.muscles))].map(m=>`<span class="fit-pill">${esc(m)}</span>`).join('')}</div>
+   </button>`).join('')}</div>`;
 }
 
 function renderStats(){
@@ -3476,7 +3665,21 @@ housekeeping();applyTheme();
 dbSnapshot=snapshotDb();
 persist();
 initAuth();
-if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+/* Keep the installed app from getting stuck on an old build.
+   The service worker calls skipWaiting(), but the OPEN page keeps running the
+   old bundle until it reloads — which is how a user ends up staring at a
+   months-old UI and reasonably concluding the app is broken. So: check for an
+   update on every launch, and reload once the new worker takes control. */
+if('serviceWorker' in navigator&&location.protocol==='https:'){
+ navigator.serviceWorker.register('sw.js').then(reg=>{
+  reg.update().catch(()=>{});
+  setInterval(()=>reg.update().catch(()=>{}),36e5);
+ }).catch(()=>{});
+ let reloading=false;
+ navigator.serviceWorker.addEventListener('controllerchange',()=>{
+  if(reloading)return;reloading=true;location.reload();
+ });
+}
 window.addEventListener('online',()=>{flushQueue();pullChanges()});
 setInterval(flushQueue,60000);
 setInterval(pullChanges,120000);

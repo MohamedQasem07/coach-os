@@ -5,7 +5,7 @@
    deploy as a Web App (see DEPLOY.md for exact steps).
    ============================================================ */
 
-const ENTITIES = ['clients','packages','subs','sessions','meas','payments','goals','notes','audit','settings'];
+const ENTITIES = ['clients','packages','subs','sessions','meas','payments','goals','notes','audit','settings','programs'];
 
 function doGet(e) {
   return ContentService.createTextOutput('Coach OS backend is running.');
@@ -25,11 +25,18 @@ function doPost(e) {
     try { return respond(handlePortal(body)); }
     catch (err) { return respond({ok:false, error:'server_error'}); }
   }
+  // Throttle coach-password guessing. Without this the only thing standing
+  // between a stranger and every client record is an unlimited guess loop.
+  var gate = loginGate();
+  if (gate.locked) return respond({ok:false, error:'locked'});
   if (!checkPassword(body.password)) {
+    gate.fail();
     return respond({ok:false, error:'unauthorized'});
   }
+  gate.reset();
   try {
     if (body.action === 'auth') return respond({ok:true});
+    if (body.action === 'changePassword') return respond(handleChangePassword(body));
     if (body.action === 'push') return respond(handlePush(body.ops || []));
     if (body.action === 'pull') return respond(handlePull(body.cursors || {}));
     return respond({ok:false, error:'unknown_action'});
@@ -133,6 +140,30 @@ function respond(obj) {
 function checkPassword(pw) {
   const secret = PropertiesService.getScriptProperties().getProperty('APP_PASSWORD');
   return !!secret && !!pw && pw === secret;
+}
+
+/* Ten wrong passwords locks sign-in for 15 minutes. Keyed globally rather than
+   per-IP because Apps Script does not expose the caller's address; that is
+   coarse, but a lock the owner can wait out beats an open guessing loop. */
+function loginGate() {
+  const cache = CacheService.getScriptCache();
+  const KEY = 'login_fails';
+  const fails = Number(cache.get(KEY) || 0);
+  return {
+    locked: fails >= 10,
+    fail: function(){ cache.put(KEY, String(fails + 1), 900); },
+    reset: function(){ if (fails) cache.remove(KEY); }
+  };
+}
+
+/* Rotate the coach password. doPost has already verified the caller knows the
+   current one, so this only has to validate and store the new value. */
+function handleChangePassword(body) {
+  const next = String(body.newPassword || '');
+  if (next.length < 6) return {ok:false, error:'too_short'};
+  if (next === String(body.password || '')) return {ok:false, error:'same_password'};
+  PropertiesService.getScriptProperties().setProperty('APP_PASSWORD', next);
+  return {ok:true};
 }
 
 function getSheet(entity) {
