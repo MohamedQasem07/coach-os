@@ -270,8 +270,61 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}
 .login-card .logo{font-family:var(--font-plate);font-weight:700;font-size:32px;text-align:center;letter-spacing:.03em}
 .login-card .logo b{color:var(--lime)}
 .login-card .rule{width:46px;height:2px;background:var(--lime-d);margin:14px auto 24px;border-radius:2px;opacity:.8}
-/* Trainee portal renders inside #login-screen, outside the coach shell. */
-.portal{max-width:560px;margin:0 auto;padding:20px 16px 40px}
+/* ---------- Trainee portal ----------
+   Renders inside #login-screen, outside the coach shell, so it needs its own
+   type scale and surfaces. Same dark-glass-orange language as the rest. */
+.portal{max-width:560px;margin:0 auto;padding:22px 16px 48px}
+.p-head{display:flex;align-items:center;gap:13px;margin-bottom:18px}
+.p-av{width:54px;height:54px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-d);font-weight:800;font-size:16px;color:#fff;
+  background:linear-gradient(145deg,var(--lime),#e2600d);box-shadow:0 6px 18px rgba(255,122,26,.35)}
+.p-head h1{font-family:var(--font-d);font-size:23px;font-weight:800;line-height:1.15}
+.p-head p{font-size:13px;color:var(--tx2);margin-top:3px}
+.p-card{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px;
+  backdrop-filter:blur(18px) saturate(1.2);-webkit-backdrop-filter:blur(18px) saturate(1.2);box-shadow:var(--shadow)}
+.p-row{display:flex;align-items:center;gap:8px}
+.p-muted{color:var(--tx2);font-size:12.5px}
+.p-h2{font-family:var(--font-d);font-size:18px;font-weight:800;margin:22px 0 11px;display:flex;align-items:center;gap:10px}
+/* Next session — the reason the trainee opens this at all, so it leads. */
+.p-next{border-radius:var(--r);padding:18px;margin-bottom:12px;
+  background:linear-gradient(150deg,rgba(255,122,26,.22),rgba(255,122,26,.05));
+  border:1px solid rgba(255,122,26,.34);box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.p-next-l{font-size:12.5px;color:var(--lime);font-weight:700}
+.p-next-d{font-family:var(--font-d);font-size:25px;font-weight:800;margin-top:4px;line-height:1.15}
+.p-chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+.p-chip{display:inline-flex;align-items:center;padding:6px 13px;border-radius:999px;font-size:12.5px;font-weight:700;
+  background:rgba(255,255,255,.07);border:1px solid var(--line);color:var(--tx2)}
+.p-chip.on{background:rgba(255,122,26,.18);border-color:rgba(255,122,26,.4);color:var(--lime)}
+.p-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.p-stat{text-align:center}
+.p-stat b{display:block;font-family:var(--font-d);font-size:29px;font-weight:800;line-height:1.1}
+.p-stat b i{font-style:normal;font-size:13px;color:var(--tx2);font-weight:600}
+.p-stat span{font-size:12px;color:var(--tx2)}
+.p-list{display:flex;flex-direction:column;gap:9px}
+.p-li{display:flex;align-items:center;gap:10px;background:var(--s1);border:1px solid var(--line);
+  border-radius:var(--r-sm);padding:13px 15px;font-size:13.5px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+/* Calorie hero */
+.p-cal{border-radius:var(--r);padding:20px 16px;margin:12px 0;text-align:center;
+  background:var(--s1);border:1px solid var(--line);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.p-cal-l{font-size:12.5px;color:var(--tx2)}
+.p-cal-v{font-family:var(--font-d);font-size:44px;font-weight:800;color:var(--lime);line-height:1.05;margin:2px 0}
+.p-cal-s{font-size:12px;color:var(--tx2)}
+.p-macros{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}
+.p-macros div{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;padding:11px 6px}
+.p-macros b{display:block;font-family:var(--font-d);font-size:19px;font-weight:800}
+.p-macros span{font-size:11px;color:var(--tx2)}
+.p-cui{display:flex;gap:6px;margin-right:auto}
+.food-row{border-radius:9px;transition:background .12s}
+.food-row:hover{background:rgba(255,255,255,.05)}
+.food-row:active{transform:scale(.995)}
+.p-meal .p-food{display:flex;gap:8px;font-size:13px;padding:5px 0}
+.p-meal .p-food b{font-variant-numeric:tabular-nums}
+.p-kcal{font-size:11.5px;font-weight:700;color:var(--lime);background:var(--lime-bg);padding:4px 10px;border-radius:999px}
+.p-spark{width:100%;height:64px;display:block;margin:10px 0 4px}
+.p-delta{font-size:12.5px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--s3);color:var(--tx2)}
+.p-delta.down{background:var(--lime-bg);color:var(--lime)}
+.p-delta.up{background:var(--blue-bg);color:var(--blue)}
+.p-foot{text-align:center;font-size:11px;color:var(--tx3);margin-top:26px}
 
 /* ============================================================
    FITNESS SECTION — Exercises / Programs / Stats
@@ -884,35 +937,85 @@ function nutritionFor(cid){
 /* ---------- Food database (per 100 g) ----------
    `role` drives portioning: p = protein source, c = carb source,
    f = fat source, v = vegetable (portion stays fixed). */
+/* ---------- Food database (per 100 g) ----------
+   `role` drives portioning: p = protein source, c = carb source,
+   f = fat source, v = vegetable (portion stays fixed).
+   `grp` is the swap group: a food can be replaced by another with the same
+   grp AND role, so a trainee who dislikes an item -- or is vegetarian --
+   still gets a plan that hits the same macros. */
 const FOOD={
- // Egyptian staples
- foul:      {ar:'فول مدمس',        kcal:110, p:7.6, c:19,  f:0.5,  role:'c'},
- baladi:    {ar:'عيش بلدي',        kcal:275, p:9,   c:55,  f:1.5,  role:'c'},
- egg:       {ar:'بيض',             kcal:143, p:13,  c:1,   f:10,   role:'p'},
- qarish:    {ar:'جبنة قريش',       kcal:98,  p:14,  c:3,   f:1,    role:'p'},
- chicken:   {ar:'صدور فراخ',       kcal:165, p:31,  c:0,   f:3.6,  role:'p'},
- rice:      {ar:'أرز أبيض مطبوخ',  kcal:130, p:2.7, c:28,  f:0.3,  role:'c'},
- lentils:   {ar:'عدس مطبوخ',       kcal:116, p:9,   c:20,  f:0.4,  role:'c'},
- tuna:      {ar:'تونة في الماء',   kcal:116, p:26,  c:0,   f:1,    role:'p'},
- tilapia:   {ar:'سمك بلطي',        kcal:96,  p:20,  c:0,   f:1.7,  role:'p'},
- salad:     {ar:'سلطة خضراء',      kcal:20,  p:1,   c:4,   f:0.2,  role:'v'},
- yogurt:    {ar:'زبادي',           kcal:61,  p:3.5, c:4.7, f:3.3,  role:'p'},
- banana:    {ar:'موز',             kcal:89,  p:1.1, c:23,  f:0.3,  role:'c'},
- almonds:   {ar:'لوز',             kcal:579, p:21,  c:22,  f:50,   role:'f'},
- oliveoil:  {ar:'زيت زيتون',       kcal:884, p:0,   c:0,   f:100,  role:'f'},
- // International
- oats:      {ar:'شوفان',           kcal:389, p:16.9,c:66,  f:6.9,  role:'c'},
- whey:      {ar:'واي بروتين',      kcal:400, p:80,  c:8,   f:6,    role:'p'},
- brownrice: {ar:'أرز بني مطبوخ',   kcal:111, p:2.6, c:23,  f:0.9,  role:'c'},
- sweetpot:  {ar:'بطاطا',           kcal:86,  p:1.6, c:20,  f:0.1,  role:'c'},
- salmon:    {ar:'سلمون',           kcal:208, p:20,  c:0,   f:13,   role:'p'},
- greekyog:  {ar:'زبادي يوناني',    kcal:59,  p:10,  c:3.6, f:0.4,  role:'p'},
- avocado:   {ar:'أفوكادو',         kcal:160, p:2,   c:9,   f:15,   role:'f'},
- peanut:    {ar:'زبدة فول سوداني', kcal:588, p:25,  c:20,  f:50,   role:'f'},
- broccoli:  {ar:'بروكلي',          kcal:34,  p:2.8, c:7,   f:0.4,  role:'v'}
+ // ---- Egyptian / Levantine ----
+ foul:      {ar:'فول مدمس',        kcal:110, p:7.6, c:19,  f:0.5,  role:'c', grp:'legume'},
+ baladi:    {ar:'عيش بلدي',        kcal:275, p:9,   c:55,  f:1.5,  role:'c', grp:'bread'},
+ egg:       {ar:'بيض',                 kcal:143, p:13,  c:1,   f:10,   role:'p', grp:'egg'},
+ eggwhite:  {ar:'بياض بيض',        kcal:52,  p:11,  c:0.7, f:0.2,  role:'p', grp:'egg'},
+ qarish:    {ar:'جبنة قريش',  kcal:98,  p:14,  c:3,   f:1,    role:'p', grp:'dairy'},
+ roumy:     {ar:'جبنة رومي',  kcal:390, p:26,  c:2,   f:31,   role:'f', grp:'oil'},
+ chicken:   {ar:'صدور فراخ',  kcal:165, p:31,  c:0,   f:3.6,  role:'p', grp:'meat'},
+ chickenleg:{ar:'ورك فراخ',        kcal:209, p:26,  c:0,   f:11,   role:'p', grp:'meat'},
+ beef:      {ar:'لحمة قليلة الدهن', kcal:187, p:26, c:0, f:9, role:'p', grp:'meat'},
+ kofta:     {ar:'كفتة مشوية', kcal:235, p:22, c:2, f:15, role:'p', grp:'meat'},
+ liver:     {ar:'كبدة',           kcal:165, p:26,  c:4,   f:4.4,  role:'p', grp:'meat'},
+ rice:      {ar:'أرز أبيض مطبوخ', kcal:130, p:2.7, c:28, f:0.3, role:'c', grp:'grain'},
+ macarona:  {ar:'مكرونة مسلوقة', kcal:131, p:5, c:25, f:1.1, role:'c', grp:'grain'},
+ lentils:   {ar:'عدس مطبوخ',  kcal:116, p:9,   c:20,  f:0.4,  role:'c', grp:'legume'},
+ hommos:    {ar:'حمص مسلوق',  kcal:164, p:8.9, c:27,  f:2.6,  role:'c', grp:'legume'},
+ fasolia:   {ar:'فاصوليا بيضا', kcal:127, p:8.7, c:23, f:0.5, role:'c', grp:'legume'},
+ potato:    {ar:'بطاطس مسلوقة', kcal:87, p:2, c:20, f:0.1, role:'c', grp:'starch'},
+ tuna:      {ar:'تونة في الماء', kcal:116, p:26, c:0, f:1, role:'p', grp:'fish'},
+ tilapia:   {ar:'سمك بلطي',        kcal:96,  p:20,  c:0,   f:1.7,  role:'p', grp:'fish'},
+ shrimp:    {ar:'جمبري',     kcal:99,  p:24,  c:0.2, f:0.3,  role:'p', grp:'fish'},
+ sardine:   {ar:'سردين',     kcal:208, p:25,  c:0,   f:11,   role:'p', grp:'fish'},
+ salad:     {ar:'سلطة خضراء', kcal:20, p:1, c:4, f:0.2, role:'v', grp:'veg'},
+ cucumber:  {ar:'خيار',           kcal:15,  p:0.7, c:3.6, f:0.1,  role:'v', grp:'veg'},
+ tomato:    {ar:'طماطم',     kcal:18,  p:0.9, c:3.9, f:0.2,  role:'v', grp:'veg'},
+ molokhia:  {ar:'ملوخية', kcal:58, p:4.6, c:8,  f:0.7,  role:'v', grp:'veg'},
+ bamia:     {ar:'بامية',     kcal:33,  p:1.9, c:7,   f:0.2,  role:'v', grp:'veg'},
+ yogurt:    {ar:'زبادي',     kcal:61,  p:3.5, c:4.7, f:3.3,  role:'p', grp:'dairy'},
+ milk:      {ar:'لبن',                 kcal:64,  p:3.4, c:4.8, f:3.6,  role:'p', grp:'dairy'},
+ banana:    {ar:'موز',                 kcal:89,  p:1.1, c:23,  f:0.3,  role:'c', grp:'fruit'},
+ dates:     {ar:'تمر',                 kcal:282, p:2.5, c:75,  f:0.4,  role:'c', grp:'fruit'},
+ apple:     {ar:'تفاح',           kcal:52,  p:0.3, c:14,  f:0.2,  role:'c', grp:'fruit'},
+ orange:    {ar:'برتقال', kcal:47, p:0.9, c:12,  f:0.1,  role:'c', grp:'fruit'},
+ almonds:   {ar:'لوز',                 kcal:579, p:21,  c:22,  f:50,   role:'f', grp:'nut'},
+ walnut:    {ar:'عين جمل', kcal:654, p:15, c:14, f:65,   role:'f', grp:'nut'},
+ tahina:    {ar:'طحينة',     kcal:595, p:17,  c:21,  f:54,   role:'f', grp:'nut'},
+ oliveoil:  {ar:'زيت زيتون', kcal:884, p:0, c:0, f:100, role:'f', grp:'oil'},
+ butter:    {ar:'زبدة',           kcal:717, p:0.9, c:0.1, f:81,   role:'f', grp:'oil'},
+ olives:    {ar:'زيتون',     kcal:115, p:0.8, c:6,   f:11,   role:'f', grp:'oil'},
+ // ---- International ----
+ oats:      {ar:'شوفان',     kcal:389, p:16.9,c:66,  f:6.9,  role:'c', grp:'grain'},
+ whey:      {ar:'واي بروتين', kcal:400, p:80, c:8, f:6, role:'p', grp:'supp'},
+ brownrice: {ar:'أرز بني مطبوخ', kcal:111, p:2.6, c:23, f:0.9, role:'c', grp:'grain'},
+ quinoa:    {ar:'كينوا مطبوخة', kcal:120, p:4.4, c:21, f:1.9, role:'c', grp:'grain'},
+ wholebread:{ar:'توست أسمر', kcal:247, p:13, c:41, f:3.4, role:'c', grp:'bread'},
+ sweetpot:  {ar:'بطاطا',     kcal:86,  p:1.6, c:20,  f:0.1,  role:'c', grp:'starch'},
+ salmon:    {ar:'سلمون',     kcal:208, p:20,  c:0,   f:13,   role:'p', grp:'fish'},
+ turkey:    {ar:'صدور تيركي', kcal:135, p:29, c:0, f:1, role:'p', grp:'meat'},
+ greekyog:  {ar:'زبادي يوناني', kcal:59, p:10, c:3.6, f:0.4, role:'p', grp:'dairy'},
+ cottage:   {ar:'جبنة كوتاج', kcal:98, p:11, c:3.4, f:4.3, role:'p', grp:'dairy'},
+ tofu:      {ar:'توفو',           kcal:76,  p:8,   c:1.9, f:4.8,  role:'p', grp:'dairy'},
+ beans:     {ar:'فاصوليا سودا', kcal:132, p:8.9, c:24, f:0.5, role:'c', grp:'legume'},
+ avocado:   {ar:'أفوكادو', kcal:160, p:2, c:9, f:15, role:'f', grp:'nut'},
+ peanut:    {ar:'زبدة فول سوداني', kcal:588, p:25, c:20, f:50, role:'f', grp:'nut'},
+ chia:      {ar:'شيا',                 kcal:486, p:17,  c:42,  f:31,   role:'f', grp:'nut'},
+ broccoli:  {ar:'بروكلي', kcal:34, p:2.8, c:7,  f:0.4,  role:'v', grp:'veg'},
+ spinach:   {ar:'سبانخ',     kcal:23,  p:2.9, c:3.6, f:0.4,  role:'v', grp:'veg'},
+ greenbean: {ar:'فاصوليا خضرا', kcal:31, p:1.8, c:7, f:0.1, role:'v', grp:'veg'},
+ pepper:    {ar:'فلفل ألوان', kcal:26, p:1, c:6, f:0.3, role:'v', grp:'veg'},
+ berries:   {ar:'توت',                 kcal:57,  p:0.7, c:14,  f:0.3,  role:'c', grp:'fruit'}
 };
+/* Swap candidates: same portioning ROLE, so the solver's macro maths stays
+   valid, with the same `grp` listed first as the closest match.
+   Role — not group — is the real constraint: a coach who wants "no chicken,
+   give fish" is making a perfectly good protein-for-protein swap, and the
+   solver re-portions for the new food's macros anyway. */
+const foodAlts=key=>{const f=FOOD[key];if(!f)return[];
+ return Object.keys(FOOD).filter(k=>k!==key&&FOOD[k].role===f.role)
+  .sort((a,b)=>(FOOD[b].grp===f.grp)-(FOOD[a].grp===f.grp)
+             ||FOOD[a].ar.localeCompare(FOOD[b].ar,'ar'))};
 
-/* Meal templates. Base grams only set the starting ratio between items —
+/* Meal templates. Base grams only set the starting ratio between items --
    the portions are solved for, not scaled blindly. */
 const MEAL_SHARE=[0.28,0.34,0.13,0.25];
 const MEAL_NAMES=['الفطار','الغدا','سناك','العشا'];
@@ -934,12 +1037,21 @@ const mealTotals=items=>items.reduce((t,[k,g])=>{
  t.kcal+=f.kcal*r;t.p+=f.p*r;t.c+=f.c*r;t.f+=f.f*r;return t;
 },{kcal:0,p:0,c:0,f:0});
 
-/* Nobody weighs out 660 g of yogurt. Sanity ceiling per serving, in grams.
-   Staples are generous because a 3400 kcal bulk genuinely eats that much rice. */
-const FOOD_MAX={oliveoil:25,almonds:60,peanut:45,avocado:150,whey:60,egg:200,
- baladi:200,yogurt:300,greekyog:300,qarish:200,chicken:300,salmon:250,tuna:200,
- tilapia:250,rice:450,brownrice:450,oats:180,foul:400,banana:200,sweetpot:450,
- salad:200,broccoli:250,lentils:400};
+const FOOD_MAX={
+ // fats: dense, keep small
+ oliveoil:25,butter:20,olives:80,almonds:60,walnut:50,peanut:45,tahina:50,
+ avocado:150,chia:40,roumy:60,
+ // protein sources
+ whey:60,egg:200,eggwhite:300,yogurt:300,greekyog:300,milk:400,qarish:200,
+ cottage:250,tofu:400,chicken:300,chickenleg:300,beef:250,kofta:250,liver:250,
+ turkey:300,salmon:250,tuna:200,tilapia:250,shrimp:250,sardine:150,
+ // carb sources
+ baladi:200,wholebread:150,rice:450,brownrice:450,macarona:400,quinoa:400,
+ oats:180,foul:400,lentils:400,hommos:350,fasolia:400,beans:400,
+ potato:450,sweetpot:450,banana:200,dates:80,apple:250,orange:300,berries:200,
+ // vegetables
+ salad:200,cucumber:250,tomato:250,broccoli:250,spinach:250,greenbean:250,
+ pepper:200,molokhia:300,bamia:300};
 
 /* Portion the whole day at once.
 
@@ -970,8 +1082,14 @@ function solve3(a,b){
  return [0,1,2].map(i=>d(col(a,i,b))/det);
 }
 
-function mealPlan(targetKcal,cuisine,targetProtein,targetFat){
- const tpl=(CUISINES[cuisine]||CUISINES.egy).meals;
+function mealPlan(targetKcal,cuisine,targetProtein,targetFat,swaps){
+ // `swaps` maps an original template key to its replacement (same grp+role),
+ // applied BEFORE the solver runs so portions are recomputed for the new
+ // food's macros rather than reusing the old grams.
+ const sw=swaps||{};
+ const swapOf=k=>(sw[k]&&FOOD[sw[k]])?sw[k]:k;
+ const tpl=(CUISINES[cuisine]||CUISINES.egy).meals
+   .map(items=>items.map(([k,g])=>[swapOf(k),g]));
  const all=tpl.flatMap((items,mi)=>items.map(([k,g])=>({k,g,mi})));
  const sum=(role,fn)=>all.filter(x=>FOOD[x.k].role===role)
                          .reduce((a,x)=>a+fn(FOOD[x.k])*x.g/100,0);
@@ -1031,7 +1149,16 @@ function mealPlan(targetKcal,cuisine,targetProtein,targetFat){
  const day=meals.reduce((t,m)=>{
   t.kcal+=m.totals.kcal;t.p+=m.totals.p;t.c+=m.totals.c;t.f+=m.totals.f;return t;
  },{kcal:0,p:0,c:0,f:0});
- return{meals,day};
+
+ /* Caps and swaps can make a target genuinely unreachable — a vegetarian on a
+    tight cut cannot hit 2 g/kg from tofu alone. Report the miss instead of
+    silently handing the coach a plan that misses by 20%. */
+ const warn=[];
+ const kOff=targetKcal?((day.kcal-targetKcal)/targetKcal)*100:0;
+ const pOff=targetProtein?((day.p-targetProtein)/targetProtein)*100:0;
+ if(Math.abs(kOff)>10)warn.push(`السعرات ${kOff>0?'أعلى':'أقل'} من الهدف بـ ${Math.abs(Math.round(kOff))}%`);
+ if(Math.abs(pOff)>12)warn.push(`البروتين ${pOff>0?'أعلى':'أقل'} من الهدف بـ ${Math.abs(Math.round(pOff))}% — جرّب بديل أغنى بالبروتين`);
+ return{meals,day,warn};
 }
 
 /* ============================================================
@@ -1658,35 +1785,114 @@ function renderPortal(token){
  }
  const d=portalData, c=d.client;
  const rem=d.sub?Math.max(0,d.sub.total-d.sub.used):0;
- const w=d.meas[0]?d.meas[0].weight:null;
- // Recompute the calorie target locally from the fields the server returned.
- let nut=null;
+ const meas=(d.meas||[]).filter(m=>m.weight);
+ const w=meas[0]?meas[0].weight:null;
+
+ /* The server sends only raw fields; the calorie maths runs here so the
+    trainee sees exactly what the coach sees, from the same functions. */
+ let nut=null, plan=null;
  if(w&&c.height&&c.age){
-  const bmr=mifflin(w,c.height,c.age,isMale(c));
-  const tdee=bmr*(c.activity||1.55);
-  const plan=GOAL_PLAN[c.goal]||GOAL_PLAN['لياقة'];
-  nut={bmr:Math.round(bmr),tdee:Math.round(tdee),target:Math.round(tdee*(1+plan.pct)),
-       protein:Math.round(plan.protein*w)};
+  const bmrRaw=mifflin(w,c.height,c.age,isMale(c));
+  const tdeeRaw=bmrRaw*(c.activity||1.55);
+  const gp=GOAL_PLAN[c.goal]||GOAL_PLAN['لياقة'];
+  const target=Math.round(tdeeRaw*(1+gp.pct));
+  let protein=Math.round(gp.protein*w);
+  protein=Math.min(protein,Math.round(target*0.40/4));
+  const fat=Math.round(0.8*w);
+  const carbs=Math.max(0,Math.round((target-protein*4-fat*9)/4));
+  nut={bmr:Math.round(bmrRaw),tdee:Math.round(tdeeRaw),target,protein,carbs,fat,note:gp.note};
+  // The coach's food substitutions travel with the client record, so the
+  // trainee sees the same plan the coach built — not the raw template.
+  plan=mealPlan(target,portalCuisine,protein,fat,c.foodSwaps||{});
  }
+
+ /* Weight trend: oldest → newest, drawn as a simple sparkline. */
+ const trend=meas.slice().reverse();
+ const spark=(()=>{
+  if(trend.length<2)return '';
+  const vs=trend.map(m=>m.weight), lo=Math.min(...vs), hi=Math.max(...vs), span=(hi-lo)||1;
+  const W=280,H=64;
+  const pts=vs.map((v,i)=>[8+i*(W-16)/(vs.length-1), H-8-((v-lo)/span)*(H-20)]);
+  const dAttr=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  const area=dAttr+` L${pts.at(-1)[0].toFixed(1)} ${H} L${pts[0][0].toFixed(1)} ${H} Z`;
+  const first=vs[0], last=vs.at(-1), diff=+(last-first).toFixed(1);
+  return `<div class="p-card">
+    <div class="p-row"><b class="grow">تطور وزنك</b>
+     <span class="p-delta ${diff<0?'down':diff>0?'up':''}">${diff>0?'+':''}${diff} كجم</span></div>
+    <svg viewBox="0 0 ${W} ${H}" class="p-spark" preserveAspectRatio="none" aria-hidden="true">
+     <path d="${area}" fill="rgba(255,122,26,.14)"/>
+     <path d="${dAttr}" fill="none" stroke="#ff7a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+     ${pts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.6" fill="#ff7a1a"/>`).join('')}
+    </svg>
+    <div class="p-row tiny" dir="ltr"><span class="grow">${fD(trend[0].date)}</span><span>${fD(trend.at(-1).date)}</span></div>
+   </div>`;
+ })();
+
+ const up=d.upcoming||[];
+ const next=up[0];
+
  $('#login-screen').innerHTML=`<div class="portal">
-  <header class="top"><div class="grow"><h1 style="font-size:20px">${esc(c.name)}</h1>
-   <span class="sub">${esc(c.goal||'')} · ${esc(c.level||'')}</span></div></header>
-  <div class="grid g2 mt">
-   <div class="kpi"><div class="v">${rem}</div><div class="l">جلسة متبقية</div></div>
-   <div class="kpi"><div class="v num" style="font-size:19px">${w?w+' كجم':'—'}</div><div class="l">آخر وزن</div></div>
+  <div class="p-head">
+   <div class="p-av">${esc(initials(c.name))}</div>
+   <div class="grow">
+    <h1>${esc(c.name)}</h1>
+    <p>${[c.goal,c.level].filter(Boolean).map(esc).join(' · ')}</p>
+   </div>
   </div>
-  ${nut?`<div class="card mt" style="text-align:center">
-    <div class="tiny">سعراتك اليومية المطلوبة</div>
-    <div style="font-size:38px;font-weight:800;color:var(--lime);line-height:1.1">${nut.target}</div>
-    <div class="tiny">حرقك اليومي ${nut.tdee} · بروتين ${nut.protein} جم</div></div>`:''}
-  <div class="sec-h"><h2>آخر تمارينك</h2></div>
-  <div class="list">${d.sessions.length?d.sessions.map(s=>`<div class="li">
-    <div class="t" style="font-size:13.5px">${esc((s.muscles||[]).join(' · ')||'تمرين')}</div>
-    <div class="d">${fD(s.date)}${s.dur?' · '+s.dur+' دقيقة':''}</div></div>`).join('')
-   :'<div class="tiny">لسه مفيش تمارين مسجّلة</div>'}</div>
-  <p class="tiny mt2" style="text-align:center">Coach OS · بيانات للعرض فقط</p>
+
+  ${next?`<div class="p-next">
+    <div class="p-next-l">جلستك الجاية</div>
+    <div class="p-next-d">${fD(next.date)}${next.time?' · '+esc(next.time):''}</div>
+    ${next.muscles&&next.muscles.length?`<div class="p-chips">${next.muscles.map(m=>`<span class="p-chip on">${esc(m)}</span>`).join('')}</div>`:''}
+   </div>`:`<div class="p-card" style="text-align:center">
+    <p class="p-muted">مفيش جلسة محجوزة دلوقتي — كلّم المدرب لحجز الميعاد الجاي.</p>
+   </div>`}
+
+  <div class="p-2">
+   <div class="p-card p-stat"><b>${rem}</b><span>جلسة متبقية</span></div>
+   <div class="p-card p-stat"><b>${w?w:'—'}<i>${w?' كجم':''}</i></b><span>آخر وزن</span></div>
+  </div>
+
+  ${up.length>1?`<h2 class="p-h2">مواعيدك الجاية</h2>
+   <div class="p-list">${up.slice(1).map(s=>`<div class="p-li">
+     <div class="grow"><b>${fD(s.date)}</b>${s.time?`<span class="p-muted"> · ${esc(s.time)}</span>`:''}</div>
+     <span class="p-muted">${esc((s.muscles||[]).join(' · ')||'—')}</span>
+    </div>`).join('')}</div>`:''}
+
+  ${nut?`<div class="p-cal">
+    <div class="p-cal-l">سعراتك اليومية</div>
+    <div class="p-cal-v">${nut.target}</div>
+    <div class="p-cal-s">حرقك اليومي ${nut.tdee} · ${esc(nut.note)}</div>
+    <div class="p-macros">
+     <div><b>${nut.protein}</b><span>بروتين</span></div>
+     <div><b>${nut.carbs}</b><span>كارب</span></div>
+     <div><b>${nut.fat}</b><span>دهون</span></div>
+    </div>
+   </div>`:''}
+
+  ${plan?`<h2 class="p-h2">وجباتك المقترحة
+    <span class="p-cui">${Object.entries(CUISINES).map(([k,v])=>
+      `<button class="p-chip ${portalCuisine===k?'on':''}" onclick="portalSetCuisine('${k}')">${v.ar}</button>`).join('')}</span></h2>
+   ${plan.meals.map(m=>`<div class="p-card p-meal">
+     <div class="p-row"><b class="grow">${m.name}</b><span class="p-kcal">${Math.round(m.totals.kcal)} سعر</span></div>
+     ${m.items.map(([k,g])=>`<div class="p-food"><span class="grow">${esc(FOOD[k].ar)}</span><b>${g} جم</b></div>`).join('')}
+    </div>`).join('')}`:''}
+
+  ${spark}
+
+  <h2 class="p-h2">آخر تمارينك</h2>
+  <div class="p-list">${d.sessions.length?d.sessions.map(s=>`<div class="p-li">
+    <div class="grow"><b>${esc((s.muscles||[]).join(' · ')||'تمرين')}</b></div>
+    <span class="p-muted">${fD(s.date)}${s.dur?' · '+s.dur+' د':''}</span>
+   </div>`).join('')
+   :'<div class="p-card"><p class="p-muted">لسه مفيش تمارين مسجّلة</p></div>'}</div>
+
+  <p class="p-foot">Coach OS · بيانات للعرض فقط</p>
  </div>`;
 }
+let portalCuisine='egy';
+function portalSetCuisine(k){portalCuisine=k;renderPortal();}
+
 async function portalLogin(token){
  const code=$('#p-code').value.trim();
  const err=$('#p-err');
@@ -1707,6 +1913,39 @@ async function portalLogin(token){
 /* ---------- Nutrition tab ---------- */
 let nutCuisine='egy';
 function setCuisine(k){nutCuisine=k;route()}
+
+/* Food swaps live on the client record, so they persist, sync to the sheet,
+   and follow the trainee into the portal — not just this browser session. */
+const swapsOf=c=>(c.foodSwaps=c.foodSwaps||{});
+function openSwap(cid,key){
+ const c=client(cid); if(!c||!FOOD[key])return;
+ const alts=foodAlts(key);
+ const cur=swapsOf(c)[key];
+ openModal(`<h3>بديل لـ ${esc(FOOD[key].ar)}</h3>
+  <p class="tiny" style="margin-bottom:12px">البدائل دي من نفس النوع، فالخطة هتعيد حساب الكميات وتفضل على نفس الماكروز.</p>
+  <div class="list">
+   <button class="li row" style="width:100%;text-align:right" onclick="setSwap('${cid}','${key}','')">
+    <div class="grow t">${esc(FOOD[key].ar)} <span class="tiny">(الأصلي)</span></div>
+    ${!cur?'<span class="tag ok">مختار</span>':''}</button>
+   ${alts.map(a=>`<button class="li row" style="width:100%;text-align:right" onclick="setSwap('${cid}','${key}','${a}')">
+     <div class="grow"><div class="t">${esc(FOOD[a].ar)}</div>
+      <div class="d">${FOOD[a].kcal} سعر · ب${FOOD[a].p} · ك${FOOD[a].c} · د${FOOD[a].f} لكل 100جم</div></div>
+     ${cur===a?'<span class="tag ok">مختار</span>':''}</button>`).join('')
+    ||'<div class="tiny">مفيش بدائل مسجّلة للصنف ده</div>'}
+  </div>`);
+}
+function setSwap(cid,key,alt){
+ const c=client(cid); if(!c)return;
+ const sw=swapsOf(c);
+ if(alt)sw[key]=alt; else delete sw[key];
+ closeModal();
+ save('✓ اتغيّر الصنف');
+}
+function resetSwaps(cid){
+ const c=client(cid); if(!c)return;
+ c.foodSwaps={};
+ save('✓ رجعت الأصناف الأصلية');
+}
 function tNutrition(c){
  const n=nutritionFor(c.id);
  if(n.missing){
@@ -1718,7 +1957,16 @@ function tNutrition(c){
   return;
  }
  const m=n.macros;
- const plan=mealPlan(n.target,nutCuisine,m.protein,m.fat);
+ const swaps=swapsOf(c);
+ const plan=mealPlan(n.target,nutCuisine,m.protein,m.fat,swaps);
+ // Map each rendered food back to the template key it replaced, so tapping a
+ // swapped item re-opens the chooser for the ORIGINAL slot, not the substitute.
+ const originOf={};
+ (CUISINES[nutCuisine]||CUISINES.egy).meals.forEach(items=>items.forEach(([k])=>{
+  const shown=(swaps[k]&&FOOD[swaps[k]])?swaps[k]:k;
+  originOf[shown]=k;
+ }));
+ const swapCount=Object.keys(swaps).filter(k=>FOOD[swaps[k]]).length;
  const pct=x=>Math.round(x);
  const deltaTxt=n.delta===0?'ثبات':(n.delta>0?`+${n.delta}`:`${n.delta}`)+' سعر';
  const macroBar=(label,g,kcal,color)=>{
@@ -1749,12 +1997,20 @@ function tNutrition(c){
  <div class="sec-h"><h2>وجبات مقترحة</h2>
   <div class="chips">${Object.entries(CUISINES).map(([k,v])=>`<button class="chip ${nutCuisine===k?'on':''}" onclick="setCuisine('${k}')">${v.ar}</button>`).join('')}</div>
  </div>
+ <p class="tiny" style="margin:-4px 0 10px">دوس على أي صنف عشان تبدّله ببديل من نفس النوع.
+  ${swapCount?` · <b>${swapCount}</b> مبدّل <button class="chip" style="padding:3px 9px" onclick="resetSwaps('${c.id}')">رجّع الأصلي</button>`:''}</p>
+ ${(plan.warn||[]).length?`<div class="pin-note" style="margin-bottom:10px">
+   <svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg>
+   <div>${plan.warn.map(esc).join('<br>')}</div></div>`:''}
  ${plan.meals.map(meal=>`
   <div class="card" style="margin-bottom:10px">
    <div class="row" style="margin-bottom:8px"><b class="grow">${meal.name}</b>
     <span class="tag">${Math.round(meal.totals.kcal)} سعر</span></div>
-   ${meal.items.map(([k,g])=>`<div class="row" style="font-size:13px;padding:4px 0">
-     <span class="grow">${esc(FOOD[k].ar)}</span><b>${g} جم</b></div>`).join('')}
+   ${meal.items.map(([k,g])=>{const orig=originOf[k]||k;const swapped=orig!==k;
+     return `<button class="row food-row" style="font-size:13px;padding:6px 0;width:100%;text-align:right"
+      onclick="openSwap('${c.id}','${orig}')">
+     <span class="grow">${esc(FOOD[k].ar)}${swapped?' <span class="tag ok" style="padding:1px 6px">بديل</span>':''}</span>
+     <b>${g} جم</b><span class="tiny" style="margin-right:6px;color:var(--tx3)">⇄</span></button>`}).join('')}
    <div class="tiny" style="margin-top:6px;border-top:1px solid var(--line);padding-top:6px">
     ب ${Math.round(meal.totals.p)} · ك ${Math.round(meal.totals.c)} · د ${Math.round(meal.totals.f)}</div>
   </div>`).join('')}

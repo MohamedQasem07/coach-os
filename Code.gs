@@ -87,11 +87,30 @@ function handlePortal(body) {
   const subs = mine(readAll('subs'));
   const sub  = subs.filter(function(s){ return s.status === 'active'; })[0] || null;
 
-  const sessions = mine(readAll('sessions'))
+  const allSessions = mine(readAll('sessions'));
+  const today = Utilities.formatDate(new Date(),
+    Session.getScriptTimeZone(), 'yyyy-MM-dd');
+
+  const sessions = allSessions
     .filter(function(s){ return s.status === 'done'; })
     .sort(function(a,b){ return String(b.date).localeCompare(String(a.date)); })
     .slice(0, 20)
     .map(function(s){ return {date:s.date, muscles:s.muscles || [], dur:s.dur || null}; });
+
+  // What the trainee actually opens the portal for: when is my next session.
+  // Scheduled only, today onward, soonest first.
+  const upcoming = allSessions
+    .filter(function(s){
+      return s.status === 'scheduled' && String(s.date) >= today;
+    })
+    .sort(function(a,b){
+      var d = String(a.date).localeCompare(String(b.date));
+      return d !== 0 ? d : String(a.time || '').localeCompare(String(b.time || ''));
+    })
+    .slice(0, 6)
+    .map(function(s){
+      return {date:s.date, time:s.time || null, muscles:s.muscles || [], dur:s.dur || null};
+    });
 
   const meas = mine(readAll('meas'))
     .sort(function(a,b){ return String(b.date).localeCompare(String(a.date)); })
@@ -101,9 +120,10 @@ function handlePortal(body) {
   return {ok:true, client:{
     name: me.name, goal: me.goal || null, level: me.level || null,
     age: me.age || null, gender: me.gender || null,
-    height: me.height || null, activity: me.activity || 1.55
+    height: me.height || null, activity: me.activity || 1.55,
+    foodSwaps: me.foodSwaps || {}
   }, sub: sub ? {total:sub.total, used:sub.used, end:sub.end} : null,
-     sessions: sessions, meas: meas};
+     sessions: sessions, upcoming: upcoming, meas: meas};
 }
 
 function respond(obj) {
